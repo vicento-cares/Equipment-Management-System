@@ -1,0 +1,288 @@
+--------------------------------------------------
+
+Equipment Management Maintenance System
+Lead Developer: Vince Dale Alcantara
+Co-Developers:
+
+--------------------------------------------------
+
+NOTES
+
+--------------------------------------------------
+
+End Users (Machine PM)
+
+- Admin EQ (Machine PM)
+	+ Account Management Menu Item
+		= Accounts Table
+		= Basic CRUD operations for the functions...
+	+ PM Plan Menu Item (Unclear if PM Plan is system generated)*
+		= PM Plan Table
+		= If add new clicked, upload new PM Plan Excel File and fill out year input. Then click add button.
+		= If row clicked, PM Plan Modal will appears
+		= If edit clicked, replace PM Plan Excel File and fill out updated year input. Then click save button.
+		= If show button clicked, Show PM Plan via Download PM Plan Excel File
+	+ PM Schedule Menu Item
+		= Work Week Sub Menu Item
+			# Work Week Table
+			# Can Filter Work Week No. and Year
+			# When row clicked, Work Week Modal will appear. Another Table sorted based on Work Week No. and Year.
+			# If add new button clicked, Add New WW Schedule Modal will appear. Fill out input fields then click add button. It will update Table from Work Week Modal.
+			# When view clicked, Export Work Week CSV File based on Work Week Data
+			# When row clicked, WW Schedule Details Modal will appear. Update information from input fields then click save button. It will update Table from Work Week Modal.
+			# (Applicator 100k Shots Information Unclear)
+		= Sticker Sub Menu Item
+			# Work Week Table
+			# Can Filter Work Week No. and Year
+			# When row clicked, Print Work Week PM Sticker based on Work Week Data
+		= Concern Sub Menu Item
+			# Machine Concern Table
+			# When row clicked, Machine Concern Modal (Done and Pending Button) Appears
+			# If done, update rows of columns Confirm By value to User's Name and Comment value to 'DONE'
+			# If pending, The comment box modal will appear. If ok was clicked, Update rows of columns Confirm By to User's Name and Comment value to input from the comment box.
+			# If pending and comment value is 'NO SPARE', submit machine comment data (to SPARE PARTS SYSTEM) (or Interface for Spare Parts Group)
+	+ Machine Checksheet & WI Menu Item
+		= Search Machine for Checksheet and WI on Machine List Datalist
+		= Machine List Table for Search Results
+		= If row clicked, Machine Checksheet & WI Modal will appear (WI, OP-014, OSN Buttons) (Upload Button seperated)
+		= Any Buttons except upload button clicked will go to new tab either download file or view PDF file
+		= If upload button clicked, they will choose file to replace old file saved on the system
+	+ Records Menu Item
+		= PM Records Sub Menu Item
+			# Can Search for PM Record Sheet
+			# PM Records Table.
+			# When row clicked, PM Record Modal will appears
+			# If upload button clicked, they will choose file to replace old file saved on the system
+			# If edit button clicked, fill out input fields to update PM Record Information
+			# If print button clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+		= Work Orders Sub Menu Item
+			# Can Search for PM Record Sheet
+			# Work Orders Table.
+			# When row clicked, Work Orders Modal will appears
+			# If upload button clicked, they will choose file to replace old file saved on the system
+			# If print button clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+	+ About Us Menu Item
+		= Members (Initial PM) Sub Menu Item
+		= Members (Applicator PM) Sub Menu Item
+		= Members Table on every Sub Menu. When row clicked, show member information modal will appears
+		= Show Org Chart Button on every Sub Menu. When clicked, new tab Org Chart Image View
+
+- User (Machine PM)
+	+ PM Plan Menu Item (Unclear if PM Plan is system generated)*
+		= PM Plan Table
+		= If row clicked, Show PM Plan via Download PM Plan Excel File
+	+ PM Schedule Menu Item
+		= Work Week Sub Menu Item
+			# Work Week Table
+			# Can Filter Work Week No. and Year
+			# When row clicked, Export Work Week CSV File based on Work Week Data
+		= Sticker Sub Menu Item
+			# Work Week Table
+			# Can Filter Work Week No. and Year
+			# When row clicked, Print Work Week PM Sticker based on Work Week Data
+		= Concern Sub Menu Item
+			# Machine Concern Table
+			# When row clicked, Machine Concern Modal (Done and Pending Button) Appears
+			# If done, update rows of columns Confirm By value to User's Name and Comment value to 'DONE'
+			# If pending, The comment box modal will appear. If ok was clicked, Update rows of columns Confirm By to User's Name and Comment value to input from the comment box.
+			# If pending and comment value is 'NO SPARE', submit machine comment data (to SPARE PARTS SYSTEM) (or Interface for Spare Parts Group)
+	+ Machine Checksheet & WI Menu Item
+		= Search Machine for Checksheet and WI on Machine List Datalist
+		= Machine List Table for Search Results
+		= If row clicked, Machine Checksheet & WI Modal will appear (WI, OP-014, OSN Buttons) (Upload Button seperated)
+		= Any Buttons except upload button clicked will go to new tab either download file or view PDF file
+		= If upload button clicked, they will choose file to replace old file saved on the system
+	+ Records Menu Item
+		= PM Records Sub Menu Item
+			# Can Search for PM Record Sheet
+			# PM Records Table.
+			# When row clicked, PM Record Modal will appears
+			# If upload button clicked, they will choose file to replace old file saved on the system
+			# If edit button clicked, fill out input fields to update PM Record Information
+			# If print button clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+		= Work Orders Sub Menu Item
+			# Can Search for PM Record Sheet
+			# Work Orders Table.
+			# When row clicked, Work Orders Modal will appears
+			# If upload button clicked, they will choose file to replace old file saved on the system
+			# If print button clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+	+ About Us Menu Item
+		= Members (Initial PM) Sub Menu Item
+		= Members (Applicator PM) Sub Menu Item
+		= Members Table on every Sub Menu. When row clicked, show member information modal will appears
+		= Show Org Chart Button on every Sub Menu. When clicked, new tab Org Chart Image View
+
+- Public "/" Index Page (Machine PM)
+	+ Work Week Menu Item
+		= Work Week Table
+		= Can Filter Work Week No. and Year
+		= When row clicked, Export Work Week CSV File based on Work Week Data
+	+ Concern Menu Item
+		= Machine Concern Table
+		= If Send Concern Button Clicked, Send Concern Modal will appears. Fill out input fields and click send button. It will be added to Concern Table
+		= When row clicked, Can edit concern and save again
+	+ Records Menu Item
+		= PM Records Sub Menu Item
+			# Can Search for PM Record Sheet
+			# PM Records Table.
+			# When row clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+		= Work Orders Sub Menu Item
+			# Can Search for PM Record Sheet
+			# Work Orders Table.
+			# When row clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF)
+	+ About Us Menu Item
+		= Members (Initial PM) Sub Menu Item
+		= Members (Applicator PM) Sub Menu Item
+		= Members Table on every Sub Menu. When row clicked, show member information modal will appears
+		= Show Org Chart Button on every Sub Menu. When clicked, new tab Org Chart Image View
+
+--------------------------------------------------
+
+End Users (Machine Set Up)
+
+- Admin EQ (Machine Set Up)
+	+ Machine Set Up Table with search function
+		= if row clicked, new tab for machine setup checksheet pdf file for viewing
+	+ Machine Set Up Activity Calendar
+		= Per day when shown
+		= List of activities on that day
+	+ Notifications
+		= Show number of Newly Requested Activity Schedule
+		= When clicked, it will redirect to Activity Calendar Page. 
+		= Show number of Newly Approved and Disapprove Checksheets
+		= When clicked, it will redirect to Approver 1 or 2 Page.
+	+ Account Management Menu Item
+		= Accounts Table
+		= Basic CRUD operations for the functions...
+	+ Machine Set Up Activity Calendar Menu Item
+		= If the day was clicked, Activity Schedule Details Modal will appear. Has view, edit or delete option for activities.
+		= If add button clicked, Add Activity Schedule Modal will appear. Fill out input field then click save button. It will be save to Activity Calendar.
+		= Manage Request Button has a badge with number of Newly Requested Activity Schedule. It will disappear if clicked and show newly Requested Activity Schedule with a highlight. It also disappear badge or subtract the number from Notifications.
+		= If Manage Request Button clicked, Manage Request Activity Schedule Modal will appears. It has Request Activity Schedule Table.
+		= If row clicked, Request Confirmation Modal will appears. Choose either approve or decline button. If approve, It will mark as approve and update Activity Calendar to add Requested Activity Schedule. If disapprove, It will mark as disapprove. All actions will be saved on Requested Activity Schedule History Table on Database. This request will be remove to Request Activity Schedule Table.
+	+ Checksheets Menu Item
+		= If Set-Up Button Clicked, fill out input fields, preview all inputs and click save button.
+			# If new machine checked, SOU is needed to fill out.
+			# Checksheet will be sent to Approver 1. SOU and Fixed Asset Transfer Form will be sent to Approver 3.
+		= If Transfer Button Clicked, fill out input fields, preview all inputs and click save button.
+			# Checksheet will be sent to Approver 1. Fixed Asset Transfer Form will be sent to Approver 3.
+		= If Pullout Button Clicked, fill out input fields, preview all inputs and click save button.
+			# Checksheet will be sent to Approver 1. Fixed Asset Transfer Form will be sent to Approver 3.
+		= If Re-layout Button Clicked, fill out input fields, preview all inputs and click save button.
+			# Checksheet will be sent to Approver 1.
+	+ Unused Machine Menu Item
+		= Unused Machine Table
+		= Has Search Box and can be sorted
+		= If add button clicked, Add Unused Machine Modal will appears. Fill out input fields and click add button to add new record of Unused Machine.
+		= If row clicked, Unused Machine Details Modal will appears. Fill out input fields and click save button to update Unused Machine Information. If delete button clicked, it will delete specific row that contains Unused Machine Information.
+	+ Approver 1 Menu Item
+		= Machine Setup Table (Checksheet Type)
+		= When row clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF). Change highlight to be mark as read.
+	+ Approver 2 Menu Item
+		= Machine Setup Table (Checksheet Type)
+		= When row clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF). Change highlight to be mark as read.
+	+ Approver 3 Menu Item
+		= Machine Setup Table (Form Type)
+		= When row clicked, new tab autodownload file (Non-PDF) or new tab for viewing (PDF). Change highlight to be mark as read.
+
+- Approver 1 (Machine Set Up)
+	+ Machine Setup Table (Checksheet Type)
+	+ When row click, Machine Setup Checksheet Confirmation Modal will appears.
+	+ If approve, checksheet will be passed as approve to approver 2
+	+ If disapprove, show contact information of set-up group Admin EQ and will be passed as disapprove to approver 2
+
+- Approver 2 (PE) (Machine Set Up)
+	+ Machine Setup Table (Checksheet Type)
+	+ When row click, Machine Setup Checksheet Confirmation Modal will appears.
+	+ If approve, checksheet will be save to system
+	+ If disapprove, show contact information of set-up group Admin EQ
+
+- Approver 3 (Accounting) (Machine Set Up)
+	+ Machine Setup Table (Form Type)
+	+ If Row Clicked, Can able to download form (Excel file of SOU and Fixed Asset Transfer)
+	+ After Downloading, forms will be deleted to the system
+
+- Public "/" Index Page (Machine Set Up)
+	+ Machine Set Up Table with search function
+		= if row clicked, new tab for machine setup checksheet pdf file for viewing
+	+ Machine Set Up Activity Calendar
+		= Per day when shown
+		= List of activities on that day
+	+ Machine Set Up Activity Calendar Menu Item
+		= If the day was clicked, Activity Details Modal will appear. It will display activity details for that day.
+		= If Add Request Button clicked, Request Activity Schedule Modal will appears. Fill out Input Fields then click send button. It will send Request Activity Form to Admin EQ
+	+ Unused Machine Menu Item
+		= Unused Machine Table
+		= Can be sorted
+
+--------------------------------------------------
+
+TO BE CONTINUE
+
+Database Tables
+
+- machine_pm_accounts
+- machine_pm_members
+- machine_pm_plan
+- machine_pm_concerns
+- machine_pm_no_spare_history
+- machine_pm_work_orders
+- pm_rsir_masterlist
+- machine_setup_accounts
+- setup_mstprc_masterlist
+- sou_forms
+- fat_forms
+- unused_machines
+- approver_roles
+- machines
+- machine_masterlist
+- notif_count_setup
+- notif_count_pm
+- line_no
+
+--------------------------------------------------
+
+CLIENT REQUEST 
+
+MACHINE PM
+
+- Generate PM Plan via Export
+- PM Concerns - Dropdown for options: Initial, Final
+- PM Concerns - PM Concern Problem may vary. No Need to create Problem Lists
+- Account and Interface for Spare Parts Group - (No Spare PM Concerns) Notify and Response
+- Remove OSN from Machine Checksheet & WI
+- Have Validation of all Machine Checksheets
+- Generate Machine PM Checksheet via Export
+- Upload / Reupload Files for PM Records (Generated Machine PM Checksheet with Signature) or Approve/Disapprove*
+- When PM Plan Generated, Car Model Column Values: Intial = Car Model / All Line No., Final = Car Model / Line No.
+
+MACHINE SETUP
+
+- Machine Masterlist (CRUD Operations)
+- Include Asset Tag No. on Machine Masterlist
+- Machine Transfer From and To Value: Intial = Car Model / All Line No., Final = Car Model / Line No.
+- Machine Pullout - Have mark as Unused checkbox, input fields from Unused Machines and will be save also to Unused Machines
+- Approver 3 - Generate SOU and FAT via Export
+- Approver 1 & 2 - To view checksheet, Generate checksheet via Export
+- Approver 2 users: Prod Dept SV and Manager, PE Manager, EQ Manager, EQ Spareparts Personnel
+- Checksheets - Have dropdown list of Approver 2 per Approver Role
+- Checksheets - Have Checksheet History on Admin, Approver 1 & 2
+- Approver 3 - All finished SOU and FAT will considered as history
+
+MACHINE PM & SETUP CONNECTION
+
+- Notify and Update PM Plan when Location was changed using Machine Transfer or Re-Layout
+
+--------------------------------------------------
+# --------------------------------------------------
+# Equipment Management Maintenance System - Printing Settings
+# --------------------------------------------------
+# Normal Print Settings
+# Ctrl + P
+# Destination : EPSON Printer (Any)
+# More Settings
+# Paper Size : A4
+# Pages per sheet : 2
+# Margins : Default
+# Scale: Default
+# Options: Check Background Graphics
