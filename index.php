@@ -163,7 +163,7 @@
       <div class="modal-header bg-gray">
         <h4 class="modal-title" id="news_window_title">Reminders</h4>
         <button type="button" class="close" aria-label="Close" id="news_window_close" onclick="close_modal_news_window()">
-          <span aria-hidden="true">&times;</span>
+          <span class="text-white" aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body" id="news_window_body">
@@ -171,6 +171,46 @@
         <div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel" data-interval="10000" data-pause="false">
           <div class="carousel-inner">
             <div class="carousel-item active">
+            <img class="d-block w-100" src="dist/img/feb/1.jpg"
+              alt="slide1">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/2.jpg"
+              alt="slide2">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/3.jpg"
+              alt="slide3">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/4.jpg"
+              alt="slide4">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/6.jpg"
+              alt="slide6">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/7.jpg"
+              alt="slide7">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/8.jpg"
+              alt="slide8">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/9.jpg"
+              alt="slide9">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/10.png"
+              alt="slide10">
+            </div>
+            <div class="carousel-item">
+            <img class="d-block w-100" src="dist/img/feb/11.jpg"
+              alt="slide11">
+            </div>
+            <!-- <div class="carousel-item active">
             <img class="d-block w-100" src="dist/img/1/christmas1.jpg"
               alt="slide1">
             </div>
@@ -221,7 +261,7 @@
             <div class="carousel-item">
             <img class="d-block w-100" src="dist/img/1/epiphany2.jpg"
               alt="slide13">
-            </div>
+            </div> -->
           </div>
           <a class="carousel-control-prev text-dark" href="#carouselExampleFade" role="button" data-slide="prev">
             <span class="carousel-control-prev-icon text-dark" aria-hidden="true"></span>
