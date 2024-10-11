@@ -120,7 +120,8 @@ if ($is_valid == true) {
 
     //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/";
     //$target_dir = "../../uploads/machine_docs/";
-    $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/";
+    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/";
+    $machine_docs_url = "/uploads/ems/pm/machine_docs/";
     $target_dir = "../../../../uploads/ems/pm/machine_docs/";
     $target_file = $target_dir . basename($machine_docs_filename);
     $machine_docs_url .= rawurlencode(basename($machine_docs_filename));

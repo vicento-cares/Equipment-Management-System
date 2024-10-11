@@ -45,6 +45,7 @@ function update_machine_status($machine_no, $equipment_no, $machine_status, $con
 }
 
 function update_unused_machine($unused_machine_info, $conn) {
+	$id = addslashes($unused_machine_info['id']);
 	$status = addslashes($unused_machine_info['status']);
 	$reserved_for = addslashes($unused_machine_info['reserved_for']);
 	$remarks = addslashes($unused_machine_info['remarks']);
@@ -260,6 +261,7 @@ if ($method == 'update_unused_machine') {
 	if ($is_valid == true) {
 
 		$unused_machine_info = array(
+			'id' => $id,
 			'status' => $status,
 			'reserved_for' => $reserved_for,
 			'remarks' => $remarks,

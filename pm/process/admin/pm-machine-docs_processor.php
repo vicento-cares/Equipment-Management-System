@@ -10,6 +10,7 @@ if (!isset($_POST['method'])) {
 }
 $method = $_POST['method'];
 $date_updated = date('Y-m-d H:i:s');
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 
 // Check Machine Docs File
 function check_machine_docs_file($machine_docs_file_info, $action, $conn) {
@@ -149,7 +150,7 @@ if ($method == 'load_machine_docs') {
 	if ($stmt -> rowCount() > 0) {
 		foreach($stmt -> fetchAll() as $row) {
 			$c++;
-			echo '<tr style="cursor:pointer;" class="modal-trigger" id="'.$row['id'].'" data-toggle="modal" data-target="#MachineDocsDetailsModal" data-id="'.$row['id'].'" data-process="'.$row['process'].'" data-machine_name="'.htmlspecialchars($row['machine_name']).'" data-machine_docs_type="'.$row['machine_docs_type'].'" data-file_name="'.htmlspecialchars($row['file_name']).'" data-file_url="'.htmlspecialchars($row['file_url']).'" data-date_updated="'.$row['date_updated'].'" onclick="get_details_machine_docs(this)">';
+			echo '<tr style="cursor:pointer;" class="modal-trigger" id="'.$row['id'].'" data-toggle="modal" data-target="#MachineDocsDetailsModal" data-id="'.$row['id'].'" data-process="'.$row['process'].'" data-machine_name="'.htmlspecialchars($row['machine_name']).'" data-machine_docs_type="'.$row['machine_docs_type'].'" data-file_name="'.htmlspecialchars($row['file_name']).'" data-file_url="'.htmlspecialchars($protocol.$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT'].$row['file_url']).'" data-date_updated="'.$row['date_updated'].'" onclick="get_details_machine_docs(this)">';
 			echo '<td>'.$c.'</td>';
 			echo '<td>'.htmlspecialchars($row['machine_name']).'</td>';
 			echo '<td>'.$row['machine_docs_type'].'</td>';
@@ -195,19 +196,22 @@ if ($method == 'save_machine_docs') {
 				case 'WI':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/wi/";
 					//$target_dir = "../../uploads/machine_docs/wi/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/wi/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/wi/";
 					break;
 				case 'OP-014':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/op-014/";
 					//$target_dir = "../../uploads/machine_docs/op-014/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/op-014/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/op-014/";
 					break;
 				case 'RSIR':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/rsir/";
 					//$target_dir = "../../uploads/machine_docs/rsir/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/rsir/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/rsir/";
 					break;
 				default:
@@ -288,19 +292,22 @@ if ($method == 'update_machine_docs') {
 				case 'WI':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/wi/";
 					//$target_dir = "../../uploads/machine_docs/wi/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/wi/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/wi/";
 					break;
 				case 'OP-014':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/op-014/";
 					//$target_dir = "../../uploads/machine_docs/op-014/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/op-014/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/op-014/";
 					break;
 				case 'RSIR':
 					//$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/rsir/";
 					//$target_dir = "../../uploads/machine_docs/rsir/";
-					$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
+					// $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
+					$machine_docs_url = "/uploads/ems/pm/machine_docs/rsir/";
 					$target_dir = "../../../../uploads/ems/pm/machine_docs/rsir/";
 					break;
 				default:
