@@ -11,6 +11,7 @@ if (!isset($_POST['method'])) {
 }
 $method = $_POST['method'];
 $date_updated = date('Y-m-d H:i:s');
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 
 // Check Work Order File
 function check_work_order_file($work_order_file_info, $conn) {
@@ -157,7 +158,7 @@ if ($method == 'get_work_orders') {
 	if ($stmt -> rowCount() > 0) {
 		foreach($stmt -> fetchAll() as $row) {
 			$c++;
-			echo '<tr style="cursor:pointer;" class="modal-trigger" id="'.$row['id'].'" data-toggle="modal" data-target="#WorkOrderDetailsModal" data-id="'.$row['id'].'" data-wo_id="'.$row['wo_id'].'" data-process="'.$row['process'].'" data-machine_name="'.htmlspecialchars($row['machine_name']).'" data-machine_no="'.htmlspecialchars($row['machine_no']).'" data-equipment_no="'.htmlspecialchars($row['equipment_no']).'" data-file_name="'.htmlspecialchars($row['file_name']).'" data-file_url="'.htmlspecialchars($row['file_url']).'" data-date_updated="'.$row['date_updated'].'" onclick="get_details(this)">';
+			echo '<tr style="cursor:pointer;" class="modal-trigger" id="'.$row['id'].'" data-toggle="modal" data-target="#WorkOrderDetailsModal" data-id="'.$row['id'].'" data-wo_id="'.$row['wo_id'].'" data-process="'.$row['process'].'" data-machine_name="'.htmlspecialchars($row['machine_name']).'" data-machine_no="'.htmlspecialchars($row['machine_no']).'" data-equipment_no="'.htmlspecialchars($row['equipment_no']).'" data-file_name="'.htmlspecialchars($row['file_name']).'" data-file_url="'.htmlspecialchars($protocol.$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT'].$row['file_url']).'" data-date_updated="'.$row['date_updated'].'" onclick="get_details(this)">';
 			echo '<td>'.$c.'</td>';
 			echo '<td>'.$row['wo_id'].'</td>';
 			echo '<td>'.htmlspecialchars($row['machine_name']).'</td>';
@@ -204,7 +205,8 @@ if ($method == 'upload_work_order') {
 
 			//$work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/wo/";
 			//$target_dir = "../../uploads/wo/";
-			$work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/wo/";
+			// $work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/wo/";
+			$work_order_url = "/uploads/ems/pm/wo/";
 			$target_dir = "../../../../uploads/ems/pm/wo/";
 			$target_file = $target_dir . basename($work_order_filename);
 			$work_order_url .= rawurlencode(basename($work_order_filename));
