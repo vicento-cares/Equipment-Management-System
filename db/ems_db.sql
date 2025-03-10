@@ -115,8 +115,8 @@ CREATE TABLE `fat_forms` (
   `new_location_group` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `new_location_loc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `new_location_grid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Saved',
-  `fat_status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fat_status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Saved',
   `is_read_a3` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   `date_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -129,16 +129,15 @@ INSERT INTO `fat_forms` (`id`, `fat_no`, `item_name`, `item_description`, `machi
 (5, 'FAT:23053001fa554', '', 'Wire Stripper', 'M-2', 'EQ-5', 'N/A', 'Honda Secondary Process', 'FAS3', '', '2023-06-10', 'Nissan / Marelli', 'FAS3', '', 'Reason', 'Saved', 1, '2023-05-30 13:07:16'),
 (9, 'FAT:2305310454efe', '', '0.64 Terminal insertion guide device', '', 'EQ-3', 'N/A', 'EQ Workstation EQ1', 'FAS1', '', '2023-05-31', 'Daihatsu 2001', 'FAS3', '', 'For Setup', 'Saved', 0, '2023-05-31 16:08:25'),
 (12, 'FAT:2306131179f2e', '', 'Wire Stripper', 'M-1', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-07-08', 'Daihatsu D01L First Process', 'FAS3', '', 'Reason', 'Saved', 0, '2023-06-13 11:52:22'),
-(13, 'FAT:2307280597b80', '', 'VO Making Machine', 'M-3', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-07-31', 'Tube Cutting Area', 'FAS4', '', 'For Setup', 'Confirmed', 1, '2023-10-06 16:01:03'),
-(14, 'FAT:230829023be37', '', 'Wire Stripper', 'M-13', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-08-31', 'Daihatsu', 'FAS4', '', 'For Setup', 'Confirmed', 0, '2023-10-03 13:15:16'),
-(15, 'FAT:23082902e1a4d', '', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', 'N/A', 'EQ-Final', 'FAS4', '', '2023-08-31', 'Mazda Merge', 'FAS2', '', 'For Setup', 'Confirmed', 0, '2023-10-03 13:15:16'),
-(16, 'FAT:23083105be202', '', 'Wire Stripper', 'M-14', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-04', 'Subaru GC7', 'FAS2', '', 'For Setup', 'Confirmed', 0, '2023-10-03 13:15:16'),
-(17, 'FAT:230831050a6a3', '9454', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-21', '', 'N/A', 'EQ-Final', 'FAS4', '', '2023-09-04', 'Honda T20A', 'FAS3', '', 'For Setup', 'Confirmed', 0, '2023-10-03 13:15:16'),
-(18, 'FAT:2309010554a35', '', 'Wire Stripper', 'M-15', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-04', 'Daihatsu First Process', 'FAS3', '', 'For Setup', 'Confirmed', 0, '2023-10-03 13:15:16'),
-(19, 'FAT:23090106f23b5', 'N/A', 'NS-IV', '', 'EQ-2', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-20', 'Honda T20A', 'FAS3', 'O8', 'SET-UP FOR NEW CAR MODEL', 'Confirmed', 0, '2023-10-03 13:15:16'),
+(13, 'FAT:2307280597b80', '', 'VO Making Machine', 'M-3', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-07-31', 'Tube Cutting Area', 'FAS4', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(14, 'FAT:230829023be37', '', 'Wire Stripper', 'M-13', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-08-31', 'Daihatsu', 'FAS4', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(15, 'FAT:23082902e1a4d', '', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', 'N/A', 'EQ-Final', 'FAS4', '', '2023-08-31', 'Mazda Merge', 'FAS2', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(16, 'FAT:23083105be202', '', 'Wire Stripper', 'M-14', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-04', 'Subaru GC7', 'FAS2', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(17, 'FAT:230831050a6a3', '9454', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-21', '', 'N/A', 'EQ-Final', 'FAS4', '', '2023-09-04', 'Honda T20A', 'FAS3', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(18, 'FAT:2309010554a35', '', 'Wire Stripper', 'M-15', '', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-04', 'Daihatsu First Process', 'FAS3', '', 'For Setup', 'Confirmed', 0, '2023-10-03 14:04:57'),
+(19, 'FAT:23090106f23b5', 'N/A', 'NS-IV', '', 'EQ-2', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-20', 'Honda T20A', 'FAS3', 'O8', 'SET-UP FOR NEW CAR MODEL', 'Confirmed', 0, '2023-10-03 14:04:57'),
 (20, 'FAT:23090106a504e', '', 'Automatic Cutting & Crimping Machine', '', 'EQ-1', 'N/A', 'EQ-Initial', 'FAS4', '', '2023-09-28', 'Aluminum / Honda TKRA Aluminum', 'Aluminum Area', '010', 'SET-UP', 'Saved', 0, '2023-09-01 18:49:29'),
-(21, 'FAT:230901066097b', '', '0.64 Terminal insertion guide device', '', 'EQ-3', 'N/A', 'EQ-Final', 'FAS4', '', '2023-09-28', 'Daihatsu D01L', 'FAS1', '010', 'SET-UP', 'Saved', 0, '2023-09-01 18:55:03'),
-(26, 'FAT:23100309e8fd8', '----------', 'Silicon Injection Machine', 'M-34', '', 'N/A', 'Honda TG7 First Process', 'FAS3', '', '2023-10-05', 'Honda 30AA', 'FAS3', '', 'TESTING2', 'Saved', 0, '2023-10-03 09:38:12');
+(21, 'FAT:230901066097b', '', '0.64 Terminal insertion guide device', '', 'EQ-3', 'N/A', 'EQ-Final', 'FAS4', '', '2023-09-28', 'Daihatsu D01L', 'FAS1', '010', 'SET-UP', 'Saved', 0, '2023-09-01 18:55:03');
 
 -- --------------------------------------------------------
 
@@ -535,7 +534,7 @@ INSERT INTO `machines` (`id`, `number`, `process`, `machine_name`, `trd`, `ns-iv
 (14, 0, 'Initial', 'Cable Stripper', 0, 0, '2023-04-11 10:46:29'),
 (15, 0, 'Initial', 'Quick Stripper', 0, 0, '2023-04-11 10:46:29'),
 (16, 0, 'Initial', 'Semi Automatic Component Cutter', 0, 0, '2023-04-11 10:46:29'),
-(17, 4, 'Initial', 'Silicon Injection Machine', 0, 0, '2023-04-11 10:46:29'),
+(17, 0, 'Initial', 'Silicon Injection Machine', 0, 0, '2023-04-11 10:46:29'),
 (18, 0, 'Initial', 'Low Viscous Silicon Injection Machine', 0, 0, '2023-04-11 10:46:30'),
 (19, 0, 'Initial', 'Single Wire Twisting Machine', 0, 0, '2023-04-11 10:46:30'),
 (20, 0, 'Initial', 'Multi Wire Twisting Machine', 0, 0, '2023-04-11 10:46:30'),
@@ -571,9 +570,9 @@ INSERT INTO `machines` (`id`, `number`, `process`, `machine_name`, `trd`, `ns-iv
 (50, 0, 'Initial', 'Wire Tip Processing Device Machine', 0, 0, '2023-04-11 10:46:31'),
 (51, 0, 'Initial', 'Ultra Sonic Welding Machine', 0, 0, '2023-04-11 10:46:31'),
 (52, 0, 'Initial', 'Temporary Servo Press Machine', 0, 0, '2023-04-11 10:46:32'),
-(53, 3, 'Final', '0.64 Terminal insertion guide device', 0, 0, '2023-04-11 10:46:32'),
-(54, 0, 'Final', 'Assembly Conveyor', 0, 0, '2023-04-11 10:46:32'),
-(55, 3, 'Final', 'AIR GROMMET OPENER (Air Type)', 0, 0, '2023-04-11 10:46:32'),
+(53, 47, 'Final', '0.64 Terminal insertion guide device', 0, 0, '2023-04-11 10:46:32'),
+(54, 8, 'Final', 'Assembly Conveyor', 0, 0, '2023-04-11 10:46:32'),
+(55, 0, 'Final', 'AIR GROMMET OPENER (Air Type)', 0, 0, '2023-04-11 10:46:32'),
 (56, 0, 'Final', 'ASSY BOARD HOLE PUNCHER', 0, 0, '2023-04-11 10:46:32'),
 (57, 0, 'Final', 'DUMMY PLUG DETECTORS', 0, 0, '2023-04-11 10:46:32'),
 (58, 0, 'Final', 'SILICON APPLICATOR FOR WATERPROOFING', 0, 0, '2023-04-11 10:46:32'),
@@ -671,7 +670,7 @@ INSERT INTO `machine_masterlist` (`id`, `number`, `process`, `machine_name`, `ma
 (3, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'EQ-Initial', 'FAS4', '', '', 'EQ-1', 'N/A', 'TRD-101', '', '', 1, '2023-09-02 11:32:28'),
 (5, 1, 'Initial', 'NS-IV', '', 'EQ-Initial', 'FAS4', '', '', 'EQ-2', 'N/A', '', 'SAM 101', '', 1, '2023-05-13 09:14:13'),
 (6, 1, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '', 'EQ-3', 'N/A', '', '', '', 1, '2023-04-13 09:38:55'),
-(8, 1, 'Initial', 'Wire Stripper', '', 'EQ-Initial', 'FAS4', '', 'M-1', '', 'N/A', '', '', 'DISPOSED', 0, '2023-09-16 14:47:10'),
+(8, 1, 'Initial', 'Wire Stripper', '', 'EQ-Initial', 'FAS4', '', 'M-1', '', 'N/A', '', '', 'DISPOSED', 0, '2023-04-13 09:40:20'),
 (9, 2, 'Initial', 'Wire Stripper', '', 'Mazda Secondary Process', 'FAS2', 'G7', 'M-2', 'EQ-5', 'N/A', '', '', 'UNUSED', 0, '2023-05-30 11:37:03'),
 (11, 1, 'Initial', 'VO Making Machine', '', 'Tube Cutting Area', 'FAS4', '', 'M-3', '', 'N/A', '', '', 'Setup', 0, '2023-04-27 09:37:38'),
 (12, 2, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'EQ-Initial', 'FAS4', '', '', 'EQ-7', 'N/A', 'TRD-102', '', '', 1, '2023-04-29 15:40:37'),
@@ -691,13 +690,58 @@ INSERT INTO `machine_masterlist` (`id`, `number`, `process`, `machine_name`, `ma
 (26, 3, 'Final', 'NMF Machine', '', 'EQ-Final', 'FAS4', '', 'M-25', '', 'N/A', '', '', '', 1, '2023-08-29 09:40:36'),
 (27, 4, 'Final', 'CONTINUITY TESTER (OMI-10 / 100)', '', 'EQ-Final', 'FAS4', '', 'M-26', '', 'N/A', '', '', '', 1, '2023-08-29 09:42:49'),
 (28, 4, 'Final', 'NMF Machine', '', 'EQ-Final', 'FAS4', '', 'M-27', '', 'N/A', '', '', '', 1, '2023-08-29 09:42:49'),
-(53, 1, 'Final', 'AIR GROMMET OPENER (Air Type)', '', 'Mazda 1125', 'FAS2', '', 'M-28', '', 'N/A', '', '', 'Setup', 0, '2023-09-07 17:20:04'),
-(54, 2, 'Final', 'AIR GROMMET OPENER (Air Type)', '', 'Mazda 1125', 'FAS2', '', 'M-29', '', 'N/A', '', '', 'Setup', 0, '2023-09-07 17:20:04'),
-(55, 3, 'Final', 'AIR GROMMET OPENER (Air Type)', '', 'Mazda 1125', 'FAS2', '', 'M-30', '', 'N/A', '', '', 'Setup', 0, '2023-09-07 17:20:04'),
-(72, 1, 'Initial', 'Silicon Injection Machine', '----------', 'Honda TG7 First Process', 'FAS3', '', 'M-31', '', 'N/A', '', '', 'UNUSED', 0, '2023-09-19 17:02:26'),
-(73, 2, 'Initial', 'Silicon Injection Machine', '----------', 'Honda TG7 First Process', 'FAS3', '', 'M-32', '', 'N/A', '', '', 'UNUSED', 0, '2023-09-19 17:02:26'),
-(74, 3, 'Initial', 'Silicon Injection Machine', '----------', 'Honda TG7 First Process', 'FAS3', '', 'M-33', '', 'N/A', '', '', 'UNUSED', 0, '2023-09-19 17:02:26'),
-(75, 4, 'Initial', 'Silicon Injection Machine', '----------', 'Honda TG7 First Process', 'FAS3', '', 'M-34', '', 'N/A', '', '', 'UNUSED', 0, '2023-09-19 17:02:26');
+(29, 4, 'Final', '0.64 Terminal insertion guide device', '', 'Daihatsu 2104', 'FAS4', '', '85019-98', 'SUBPC064-1977', 'N/A', '', '', '', 1, '2023-09-06 16:17:50'),
+(30, 5, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85015-39', 'SUBPC064-1522', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(31, 6, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-78', 'SUBPC064-1957', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(32, 7, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-80', 'SUBPC064-1959', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(33, 8, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-49', 'SUBPC064-1928', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(34, 9, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-79', 'SUBPC064-1958', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(35, 10, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-81', 'SUBPC064-1960', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(36, 11, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-82', 'SUBPC064-1961', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(37, 12, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85019-77', 'SUBPC064-1956', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(38, 1, 'Final', 'Assembly Conveyor', '3m x 12', 'EQ-Final', 'FAS4', '', 'N/A', '75202-23', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(39, 2, 'Final', 'Assembly Conveyor', '3m  x 14', 'EQ-Final', 'FAS4', '', 'N/A', '75202-05', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(40, 3, 'Final', 'Assembly Conveyor', '4m x 16', 'EQ-Final', 'FAS4', '', 'N/A', '75200-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(41, 4, 'Final', 'Assembly Conveyor', '2m x 10', 'EQ-Final', 'FAS4', '', 'N/A', '75199-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(42, 5, 'Final', 'Assembly Conveyor', '2m x 10', 'EQ-Final', 'FAS4', '', 'N/A', '75196-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(43, 6, 'Final', 'Assembly Conveyor', '4m x 10', 'EQ-Final', 'FAS4', '', 'N/A', '75197-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(44, 7, 'Final', 'Assembly Conveyor', '4m x 18', 'EQ-Final', 'FAS4', '', 'N/A', '75198-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(45, 8, 'Final', 'Assembly Conveyor', '2m x 14', 'EQ-Final', 'FAS4', '', 'N/A', '75195-01', 'N/A', '', '', '', 1, '2023-09-07 07:18:29'),
+(46, 13, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85014-28', 'SUBPC064-1412', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(47, 14, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85014-27', 'SUBPC064-1411', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(48, 15, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-28', 'SUBPC064-2006', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(49, 16, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-29', 'SUBPC064-2007', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(50, 17, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-32', 'SUBPC064-2010', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(51, 18, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-30', 'SUBPC064-2008', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(52, 19, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-33', 'SUBPC064-2011', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(53, 20, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-35', 'SUBPC064-2013', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(54, 21, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'EQ-Final', 'FAS4', '', '85020-27', 'SUBPC064-2005', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(55, 22, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-31', 'SUBPC064-2009', 'N/A', '', '', 'Setup', 0, '2023-09-12 09:48:45'),
+(56, 23, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7113', 'FAS3', '', '', 'SUBPCLP064-1018-21', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(57, 24, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7114', 'FAS3', '', '', 'SUBPCLP064-1018-22', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(58, 25, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-23', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(59, 26, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-24', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(60, 27, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-25', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(61, 28, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-26', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(62, 29, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7102', 'FAS3', '', '', 'SUBPCLP064-1018-27', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(63, 30, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7113', 'FAS3', '', '', 'SUBPCLP064-1018-28', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(64, 31, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-29', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(65, 32, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-30', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(66, 33, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7114', 'FAS3', '', '', 'SUBPCLP064-1018-31', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(67, 34, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-33', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(68, 35, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-34', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(69, 36, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7111', 'FAS3', '', '', 'SUBPCLP064-1018-35', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(70, 37, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7111', 'FAS3', '', '', 'SUBPCLP064-1018-36', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(71, 38, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-37', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(72, 39, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-38', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(73, 40, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-39', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(74, 41, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-40', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(75, 42, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5124', 'FAS1', '', '', 'SUBPCLP064-1018-49', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(76, 43, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-01', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(77, 44, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-02', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(78, 45, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-03', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(79, 46, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-04', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46'),
+(80, 47, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-05', 'N/A', '', '', 'Setup', 0, '2023-09-25 09:43:46');
 
 -- --------------------------------------------------------
 
@@ -727,7 +771,9 @@ INSERT INTO `machine_pm_accounts` (`id`, `username`, `password`, `name`, `role`,
 (5, 'prod', 'prod', 'Prod', 'Prod', 'N/A', '2023-04-27 13:58:17'),
 (6, 'pm1', 'pm1', 'PM-1', 'PM', 'Initial', '2023-05-09 09:41:33'),
 (7, 'pm2', 'pm2', 'PM-2', 'PM', 'Initial', '2023-05-09 14:27:47'),
-(8, 'pm3', 'pm3', 'PM-3', 'PM', 'Final', '2023-05-09 14:27:47');
+(8, 'pm3', 'pm3', 'PM-3', 'PM', 'Final', '2023-05-09 14:27:47'),
+(9, 'angel.esguerra', 'Angel@donny1003', 'Angelica Esguerra', 'Admin', 'Final', '2023-09-06 15:56:15'),
+(10, 'JOHNLERRYC', '@Johnlerryc04', 'John Lerry Carables', 'Admin', 'Final', '2023-09-22 12:34:04');
 
 -- --------------------------------------------------------
 
@@ -764,7 +810,7 @@ CREATE TABLE `machine_pm_concerns` (
 
 INSERT INTO `machine_pm_concerns` (`id`, `pm_concern_id`, `machine_line`, `machine_name`, `car_model`, `trd_no`, `ns-iv_no`, `problem`, `request_by`, `request_by_id_no`, `concern_date_time`, `confirm_by`, `confirm_by_username`, `comment`, `no_spare`, `no_of_parts`, `status`, `is_read`, `is_read_pm`, `is_read_sp`) VALUES
 (5, 'PM-C:23050604ed386', 'Honda First Process/SAM 101/', 'NS-IV', 'Honda First Process', NULL, NULL, 'Failed to open PC', 'Operator 3', 'OP-3', '2023-05-06 16:13:46', 'Admin', 'admin', 'Waiting for spare PC', 0, 0, 'Pending', 1, 1, 0),
-(8, 'PM-C:23051106c1d8c', 'Honda First Process/TRD-102/', 'Automatic Cutting & Crimping Machine', 'Honda First Process', NULL, NULL, 'Cannot Cut', 'Operator 4', '', '2023-05-11 18:36:07', 'Admin2', 'admin2', 'NO SPARE', 1, 6, 'Pending', 1, 1, 1),
+(8, 'PM-C:23051106c1d8c', 'Honda First Process/TRD-102/', 'Automatic Cutting & Crimping Machine', 'Honda First Process', NULL, NULL, 'Cannot Cut', 'Operator 4', '', '2023-05-11 18:36:07', 'Admin2', 'admin2', 'NO SPARE', 1, 6, 'Pending', 0, 1, 1),
 (10, 'PM-C:23052409c1650', 'AME Area/ASSY BOARD HOLE PUNCHER/', 'ASSY BOARD HOLE PUNCHER', 'AME Area', NULL, NULL, 'Puncher fails', 'ME', '', '2023-05-24 09:37:35', 'Admin2', 'admin2', 'NO SPARE', 1, 2, 'Pending', 1, 1, 1),
 (11, 'PM-C:23052410a3dde', 'Honda 3158/AIR GROMMET OPENER (Air Type)/', 'AIR GROMMET OPENER (Air Type)', 'Honda 3158', NULL, NULL, 'Some problems exists', 'ME', '', '2023-05-24 10:38:27', 'Admin2', 'admin2', 'NO SPARE', 1, 2, 'Pending', 1, 1, 1);
 
@@ -831,8 +877,8 @@ CREATE TABLE `machine_pm_docs` (
 --
 
 INSERT INTO `machine_pm_docs` (`id`, `process`, `machine_name`, `machine_docs_type`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES
-(13, 'Final', '0.64 Terminal insertion guide device', 'WI', 'EMS-Setup_SOU-2023-06-05.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/pm/machine_docs/wi/EMS-Setup_SOU-2023-06-05.csv', '2023-06-08 09:45:00'),
-(14, 'Final', '0.64 Terminal insertion guide device', 'RSIR', 'EMS-Setup_FAT-2023-06-05.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/pm/machine_docs/rsir/EMS-Setup_FAT-2023-06-05.csv', '2023-06-08 09:46:49');
+(13, 'Final', '0.64 Terminal insertion guide device', 'WI', 'EMS-Setup_SOU-2023-06-05.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/pm/machine_docs/wi/EMS-Setup_SOU-2023-06-05.csv', '2023-06-08 09:45:00'),
+(14, 'Final', '0.64 Terminal insertion guide device', 'RSIR', 'EMS-Setup_FAT-2023-06-05.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/pm/machine_docs/rsir/EMS-Setup_FAT-2023-06-05.csv', '2023-06-08 09:46:49');
 
 -- --------------------------------------------------------
 
@@ -971,14 +1017,51 @@ INSERT INTO `machine_pm_plan` (`id`, `number`, `process`, `machine_name`, `machi
 (1, 1, 'Initial', 'Wire Stripper', '', 'Subaru', 'FAS3', '', 'M-1', '', '', '', '', '', '', 'WW1', '6', 'PM-1', '', '', '2023', '2023-01-03', NULL, '2023-01-03 12:00:00', '2023-05-03 17:00:00', 0, '', '', NULL, NULL, '2023-05-03 14:57:50'),
 (2, 1, 'Initial', 'Wire Stripper', '', 'Subaru', 'FAS3', '', 'M-1', '', '', '', '', '', '', 'WW26', '6', '', '', '', '2022', '2023-06-05', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-05-03 16:27:29'),
 (3, 1, 'Initial', 'Wire Stripper', '', 'Subaru', 'FAS3', '', 'M-1', '', '', '', '', '', '', 'WW1', '6', 'PM-1', 'Checker 1', '', '2021', '2021-01-04', '2021-06-07', '2023-05-04 15:17:00', '2023-05-04 15:17:00', 0, '', '', NULL, NULL, '2023-05-03 16:58:56'),
-(52, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', 'Done', '', '', 'WW1', 'M', 'PM-2', 'Checker 1', '', '2023', '2023-01-03', '2023-09-24', '2023-01-03 00:00:00', '2023-01-03 17:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:16:31'),
-(53, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', 'Waiting For Confirmation', '', '', 'WW5', 'M', 'PM-2', 'Checker 1', '', '2023', '2023-02-06', '2023-09-24', '2023-02-07 12:00:00', '2023-02-07 17:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:17:33'),
-(54, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', '', '', '', 'WW10', 'M', 'PM-2', '', '', '2023', '2023-03-06', NULL, '2023-09-16 10:00:00', '2023-09-16 12:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:18:18'),
-(55, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', '', '', '', 'WW15', 'M', 'PM-2', '', '', '2023', '2023-04-03', NULL, '2023-09-16 10:00:00', '2023-09-16 12:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:18:55'),
-(56, 1, 'Initial', 'VO Making Machine', '', 'Tube Cutting Area', 'FAS4', '', 'M-3', '', '', '', '', '', '', 'WW23', 'W', 'PM-1', '', '', '2023', '2023-05-15', NULL, '2023-05-15 08:50:00', '2023-05-19 08:50:00', 0, '', '', NULL, NULL, '2023-10-10 14:14:11'),
+(52, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', 'Done', '', '', 'WW1', 'M', 'PM-2', 'Checker 1', '', '2023', '2023-01-03', '2023-02-06', '2023-01-03 00:00:00', '2023-01-03 17:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:16:31'),
+(53, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', 'Waiting For Confirmation', '', '', 'WW5', 'M', 'PM-2', 'Checker 1', '', '2023', '2023-02-06', '2023-03-06', '2023-02-07 12:00:00', '2023-02-07 17:00:00', 0, '', '', NULL, NULL, '2023-05-05 17:17:33'),
+(54, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', '', '', '', 'WW10', 'M', 'PM-1', '', '', '2023', '2023-03-06', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-05-05 17:18:18'),
+(55, 1, 'Initial', 'Automatic Cutting & Crimping Machine', '', 'Honda First Process', 'FAS3', '', '', 'EQ-1', 'TRD-101', '', '', '', '', 'WW15', 'M', 'PM-1', '', '', '2023', '2023-04-03', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-05-05 17:18:55'),
+(56, 1, 'Initial', 'VO Making Machine', '', 'Tube Cutting Area', 'FAS4', '', 'M-3', '', '', '', 'Waiting For Confirmation', '', '', 'WW23', 'Y', 'PM-1', '', '', '2023', '2023-05-15', NULL, '2023-05-15 08:05:00', '2023-05-19 08:06:00', 0, '', '', NULL, NULL, '2023-05-17 13:18:09'),
 (58, 2, 'Initial', 'Wire Stripper', '', 'Mazda Secondary Process', 'FAS2', 'G7', 'M-2', 'EQ-5', '', '', '', '', '', 'WW23', 'Y', '', '', '', '2023', '2023-05-17', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-05-17 13:54:15'),
-(69, 5, 'Initial', 'Wire Stripper', '', 'EQ-Initial', 'FAS4', '', 'M-15', '', '', '', '', 'SETUP', 'Setup1\nSetup2', 'WW45', 'Y', '', '', '', '2023', '2023-01-08', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-09-15 07:48:39'),
-(70, 3, 'Final', 'AIR GROMMET OPENER (Air Type)', '', 'Mazda 1125', 'FAS2', '', 'M-30', '', '', '', 'Done', '', '', 'WW1', 'M', 'PM-1', '', '', '2023', '2023-01-03', NULL, '2023-01-09 07:20:00', '2023-01-13 07:20:00', 0, '', '', NULL, NULL, '2023-10-11 07:16:33');
+(69, 5, 'Initial', 'Wire Stripper', '', 'EQ-Initial', 'FAS4', '', 'M-15', '', '', '', '', 'SETUP', 'SETUP', 'WW45', 'Y', '', '', '', '2023', '2023-01-08', NULL, NULL, NULL, 0, '', '', NULL, NULL, '2023-09-15 10:16:30'),
+(70, 4, 'Final', '0.64 Terminal insertion guide device', '', 'Daihatsu 2104', 'FAS4', '', '85019-98', 'SUBPC064-1977', '', '', 'Done', '', '', 'WW27', '6', 'PM-3', '', '', '2023', '2023-07-03', NULL, '2023-07-03 16:03:00', '2023-07-09 16:03:00', 0, '', '', NULL, NULL, '2023-09-06 16:19:34'),
+(71, 1, 'Final', '0.64 Terminal insertion guide device', '', 'EQ-Final', 'FAS4', '', '85015-39', 'SUBPC064-1522', '', '', '', '', '', 'WW27', '6', 'PM-3', '', '', '2023', '2023-09-04', NULL, '2023-09-07 14:38:00', '2023-09-07 14:38:00', 0, '', '', NULL, NULL, '2023-09-07 14:39:44'),
+(72, 4, 'Final', '0.64 Terminal insertion guide device', '', 'Daihatsu 2104', 'FAS4', '', '85019-98', 'SUBPC064-1977', '', '', '', '', '', 'ww30', '6', 'PM-3', '', '', '2023', '2023-09-09', NULL, '2023-09-09 06:00:00', '2023-09-10 15:00:00', 0, '', '', NULL, NULL, '2023-09-12 09:30:00'),
+(73, 13, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85014-28', 'SUBPC064-1412', '', '', 'Waiting For Confirmation', 'UNUSED', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', '2023-09-09 06:00:00', '2023-09-10 15:00:00', 0, '', '', NULL, NULL, '2023-09-12 14:25:33'),
+(74, 14, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85014-27', 'SUBPC064-1411', '', '', '', 'UNUSED', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 14:33:36'),
+(75, 135, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-28', 'SUBPC064-2006', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(76, 136, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-29', 'SUBPC064-2007', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(77, 137, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-32', 'SUBPC064-2010', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(78, 138, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-30', 'SUBPC064-2008', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(79, 139, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-33', 'SUBPC064-2011', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(80, 140, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-35', 'SUBPC064-2013', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(81, 142, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'EQ-Final', 'FAS4', '', '85020-27', 'SUBPC064-2005', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(82, 143, 'Final', '0.64 Terminal insertion guide device', '-----------', 'EQ-Final', 'FAS4', '', '85020-31', 'SUBPC064-2009', '', '', '', '', '', 'WW31', '6', 'PM-3', 'Angel', '', '2023', '2023-09-09', '2023-10-31', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-12 09:51:23'),
+(83, 391, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7113', 'FAS3', '', '', 'SUBPCLP064-1018-21', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(84, 392, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7114', 'FAS3', '', '', 'SUBPCLP064-1018-22', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(85, 393, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-23', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(86, 394, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-24', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(87, 395, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-25', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(88, 396, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-26', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(89, 397, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7102', 'FAS3', '', '', 'SUBPCLP064-1018-27', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(90, 398, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7113', 'FAS3', '', '', 'SUBPCLP064-1018-28', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(91, 399, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-29', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(92, 400, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-30', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(93, 401, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7114', 'FAS3', '', '', 'SUBPCLP064-1018-31', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(94, 402, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-33', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(95, 403, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7101', 'FAS3', '', '', 'SUBPCLP064-1018-34', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(96, 404, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7111', 'FAS3', '', '', 'SUBPCLP064-1018-35', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(97, 405, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7111', 'FAS3', '', '', 'SUBPCLP064-1018-36', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(98, 406, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-37', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(99, 407, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-38', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(100, 408, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7109', 'FAS3', '', '', 'SUBPCLP064-1018-39', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(101, 409, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Subaru 7105', 'FAS3', '', '', 'SUBPCLP064-1018-40', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(102, 410, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5124', 'FAS1', '', '', 'SUBPCLP064-1018-49', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(103, 837, 'Final', '0.64 Terminal insertion guide device', 'Airbag', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-01', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(104, 838, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-02', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(105, 839, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-03', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(106, 840, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-04', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11'),
+(107, 841, 'Final', '0.64 Terminal insertion guide device', '-----------', 'Suzuki 5102', 'FAS1', '', '', 'SUBPCLP064-0421-05', '', '', '', '', '', 'WW40', '6', 'PM-3', 'J. CARABLES', '', '2023', '2023-10-02', '2024-04-30', NULL, NULL, 0, '', '', NULL, NULL, '2023-09-25 09:46:11');
 
 -- --------------------------------------------------------
 
@@ -1004,9 +1087,9 @@ CREATE TABLE `machine_pm_wo` (
 --
 
 INSERT INTO `machine_pm_wo` (`id`, `wo_id`, `process`, `machine_name`, `machine_no`, `equipment_no`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES
-(2, 'PM-WO:230511051c9ae', 'Initial', 'Wire Stripper', 'M-1', '', 'WI-TEST.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/pm/wo/WI-TEST.csv', '2023-05-11 17:45:26'),
-(3, 'PM-WO:230511050b8c0', 'Initial', 'Wire Stripper', 'M-2', 'EQ-5', 'WI-TEST-V2.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/pm/wo/WI-TEST-V2.csv', '2023-05-11 17:50:37'),
-(4, 'PM-WO:230826093c2c9', 'Initial', 'Wire Stripper', 'M-15', '', 'RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.112.131/uploads/ems/pm/wo/RequestTemplateMPPD1XLS.xls', '2023-08-26 09:37:34');
+(2, 'PM-WO:230511051c9ae', 'Initial', 'Wire Stripper', 'M-1', '', 'WI-TEST.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/pm/wo/WI-TEST.csv', '2023-05-11 17:45:26'),
+(3, 'PM-WO:230511050b8c0', 'Initial', 'Wire Stripper', 'M-2', 'EQ-5', 'WI-TEST-V2.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/pm/wo/WI-TEST-V2.csv', '2023-05-11 17:50:37'),
+(4, 'PM-WO:230826093c2c9', 'Initial', 'Wire Stripper', 'M-15', '', 'RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/pm/wo/RequestTemplateMPPD1XLS.xls', '2023-08-26 09:37:34');
 
 -- --------------------------------------------------------
 
@@ -1045,7 +1128,11 @@ INSERT INTO `machine_setup_accounts` (`id`, `username`, `password`, `name`, `rol
 (13, 'prod_engr_mgr_1', 'prod_engr_mgr_1', 'Prod Engr MGR 1', 'Production Engineering Manager', '2', 'N/A', '2023-07-31 16:42:45'),
 (14, 'arman', 'Arman@123', 'Arman Paday', 'Setup', 'N/A', 'Final', '2023-09-01 18:04:04'),
 (15, 'Troy_Ace', 'P@trickmahalko21223344556677889910', 'Patrick Troy Mendoza', 'Setup', 'N/A', 'Initial', '2023-09-02 11:46:13'),
-(16, 'lawrence', 'Silverblade#14', 'lawrence', 'Admin', 'N/A', 'Initial', '2023-09-01 18:10:28');
+(16, 'lawrence', 'Silverblade#14', 'lawrence', 'Admin', 'N/A', 'Initial', '2023-09-01 18:10:28'),
+(17, 'jong', '@Lazarra24', 'Lazarra Ruel', 'Setup', 'N/A', 'Final', '2023-09-07 06:27:05'),
+(18, 'TOPHER', '@Christopher29', 'LALAP CHRISTOPHER', 'Admin', 'N/A', 'Final', '2023-09-07 06:29:25'),
+(19, 'kevin_1124', 'K@smot1124', 'Kevin Bautista', 'Admin', 'N/A', 'Final', '2023-09-07 06:32:32'),
+(20, 'Jonathan', '2E spatinez7', 'Jonathan Espartinez', 'Setup', 'N/A', 'Final', '2023-09-07 06:35:39');
 
 -- --------------------------------------------------------
 
@@ -1110,7 +1197,8 @@ CREATE TABLE `machine_setup_docs` (
 --
 
 INSERT INTO `machine_setup_docs` (`id`, `process`, `machine_name`, `machine_docs_type`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES
-(16, 'Initial', 'Automatic Cutting & Crimping Machine', 'MSTPRC', 'EMS-Setup_SOU-2023-06-05.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/setup/machine_docs/mstprc/EMS-Setup_SOU-2023-06-05.csv', '2023-06-08 11:06:17');
+(16, 'Initial', 'Automatic Cutting & Crimping Machine', 'MSTPRC', 'EMS-Setup_SOU-2023-06-05.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/setup/machine_docs/mstprc/EMS-Setup_SOU-2023-06-05.csv', '2023-06-08 11:06:17'),
+(18, 'Final', '0.64 Terminal insertion guide device', 'MSTPRC', 'RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/setup/machine_docs/mstprc/RequestTemplateMPPD1XLS.xls', '2023-09-06 13:09:34');
 
 -- --------------------------------------------------------
 
@@ -1297,8 +1385,9 @@ CREATE TABLE `pm_rsir` (
 --
 
 INSERT INTO `pm_rsir` (`id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `returned_by`, `returned_date_time`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `is_read_pm`, `is_read_prod`, `is_read_qa`, `file_name`, `file_type`, `file_url`, `rsir_eq_group`, `date_updated`) VALUES
-(6, 'RSIR-231003110332b', 'Regular', 'Silicon Injection Machine', 'M-34', '', '2023-10-06', '', 'GOOD', 'Setup 1', '2023-10-05', '2023-11-01', '', 'Admin', '', '', 'admin', 'Prod', 'Saved', 'Admin', '2023-10-04 08:21:59', '', '', '', 1, 0, 0, 'RSIR-231003110332b-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.112.131:80/uploads/ems/pm/rsir/2023/10/04/RSIR-231003110332b-RequestTemplateMPPD1XLS.xls', 'setup', '2023-10-04 08:22:32'),
-(7, 'RSIR-23100311223d9', 'Regular', 'Silicon Injection Machine', 'M-33', '', '2023-10-03', '', 'GOOD', 'PM-2', '2023-10-14', '2023-11-02', '', 'Admin', '', '', 'admin', 'Prod', 'Saved', 'Admin', '2023-10-04 08:23:48', '', '', '', 1, 0, 0, 'RSIR-23100311223d9-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131:80/uploads/ems/pm/rsir/2023/10/04/RSIR-23100311223d9-RequestTemplateMPPD1XLSX.xlsx', 'pm', '2023-10-04 08:24:10');
+(2, 'RSIR-23082906589dc', 'Regular', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', '2023-08-31', '◯', 'GOOD', 'Setup 1', '2023-08-31', '2023-09-07', '', 'Admin', 'Admin', '', 'admin', 'Prod', 'Confirmed', '', NULL, '', '', '', 1, 1, 0, 'RSIR-23082906589dc-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/pm/rsir/2023/08/29/RSIR-23082906589dc-RequestTemplateMPPD1XLSX.xlsx', 'setup', '2023-08-29 18:31:09'),
+(3, 'RSIR-23082906b2080', 'Special', 'Wire Stripper', 'M-13', '', '2023-08-31', '◯', 'GOOD', 'Setup 1', '2023-08-31', '2023-09-07', '', 'Admin', 'Admin', '', 'admin', 'QA', 'Confirmed', '', NULL, '', '', '', 1, 0, 1, 'RSIR-23082906b2080-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/pm/rsir/2023/08/29/RSIR-23082906b2080-RequestTemplateMPPD1XLS.xls', 'setup', '2023-08-29 18:45:23'),
+(4, 'RSIR-231011101c77c', 'Regular', '0.64 Terminal insertion guide device', '85014-27', 'SUBPC064-1411', '2023-10-11', '', 'n/a', 'n/a', '2023-10-11', '2023-10-11', '', 'John Lerry Carables', '', '', 'JOHNLERRYC', 'Prod', 'Returned', 'John Lerry Carables', '2023-10-11 10:11:20', '', '', '', 1, 0, 0, 'RSIR-231011101c77c-MEI-050F2-05 0.64 Terminal Guide System Types of Conduction and PC Control.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/pm/rsir/2023/10/11/RSIR-231011101c77c-MEI-050F2-05%200.64%20Terminal%20Guide%20System%20Types%20of%20Conduction%20and%20PC%20Control.xls', 'pm', '2023-10-11 10:09:36');
 
 -- --------------------------------------------------------
 
@@ -1346,12 +1435,7 @@ CREATE TABLE `pm_rsir_history` (
 --
 
 INSERT INTO `pm_rsir_history` (`id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `returned_by`, `returned_date_time`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `is_read_pm`, `is_read_prod`, `is_read_qa`, `file_name`, `file_type`, `file_url`, `rsir_eq_group`, `date_updated`) VALUES
-(1, 'RSIR-23080101a41ef', 'Regular', 'VO Making Machine', 'M-3', '', '2023-08-01', 'O', 'GOOD', 'Setup 1', '2023-08-01', '2023-08-31', 'O', 'Admin2', 'Admin2', 'Prod', 'admin2', 'Prod', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-23080101a41ef-Export Accounts.xls', 'application/vnd.ms-excel', 'http://172.25.112.131/uploads/ems/pm/rsir/2023/08/01/RSIR-23080101a41ef-Export%20Accounts.xls', 'setup', '2023-08-01 14:21:12'),
-(2, 'RSIR-23082906589dc', 'Regular', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', '2023-08-31', '◯', 'GOOD', 'Setup 1', '2023-08-31', '2023-09-07', '◯', 'Admin', 'Admin', 'Prod', 'admin', 'Prod', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-23082906589dc-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/pm/rsir/2023/08/29/RSIR-23082906589dc-RequestTemplateMPPD1XLSX.xlsx', 'setup', '2023-09-13 17:54:55'),
-(3, 'RSIR-2309130500751', 'Regular', 'VO Making Machine', 'M-3', '', '2023-09-14', '◯', 'GOOD', 'PM-1', '2023-09-14', '2023-10-14', '△', 'Admin', 'Admin', 'Prod', 'admin', 'Prod', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-2309130500751-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131:80/uploads/ems/pm/rsir/2023/09/13/RSIR-2309130500751-RequestTemplateMPPD1XLSX.xlsx', 'pm', '2023-09-14 07:58:46'),
-(4, 'RSIR-23082906b2080', 'Special', 'Wire Stripper', 'M-13', '', '2023-08-31', '◯', 'GOOD', 'Setup 1', '2023-08-31', '2023-09-07', '◯', 'Admin', 'Admin', 'QA', 'admin', 'QA', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-23082906b2080-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.112.131/uploads/ems/pm/rsir/2023/08/29/RSIR-23082906b2080-RequestTemplateMPPD1XLS.xls', 'setup', '2023-09-14 08:02:37'),
-(5, 'RSIR-23091409e0a3f', 'Regular', 'Wire Stripper', 'M-2', 'EQ-5', '2023-09-28', '◯', 'GOOD', 'PM-2', '2023-09-28', '2023-10-07', '◯', 'Admin', 'Admin', '', 'admin', 'QA', 'Disapproved', '', NULL, 'QA', 'QA', 'TEST DISAPPROVE PM RSIR', 1, 0, 0, 'RSIR-23091409e0a3f-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131:80/uploads/ems/pm/rsir/2023/09/14/RSIR-23091409e0a3f-RequestTemplateMPPD1XLSX.xlsx', 'pm', '2023-09-14 09:49:10'),
-(6, 'RSIR-23101107aec8b', 'Regular', 'AIR GROMMET OPENER (Air Type)', 'M-30', '', '2023-01-11', '◯', 'GOOD', 'PM-1', '2023-01-10', '2023-02-06', '◯', 'PM-1', 'Admin2', 'QA', 'pm1', 'QA', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-23101107aec8b-Exercise Details.xls', 'application/vnd.ms-excel', 'http://172.25.112.131:80/uploads/ems/pm/rsir/2023/10/11/RSIR-23101107aec8b-Exercise%20Details.xls', 'pm', '2023-10-11 07:28:32');
+(1, 'RSIR-23080101a41ef', 'Regular', 'VO Making Machine', 'M-3', '', '2023-08-01', 'O', 'GOOD', 'Setup 1', '2023-08-01', '2023-08-31', 'O', 'Admin2', 'Admin2', 'Prod', 'admin2', 'Prod', 'Approved', '', NULL, '', '', '', 1, 0, 0, 'RSIR-23080101a41ef-Export Accounts.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/pm/rsir/2023/08/01/RSIR-23080101a41ef-Export%20Accounts.xls', 'setup', '2023-08-01 14:21:12');
 
 -- --------------------------------------------------------
 
@@ -1418,10 +1502,9 @@ CREATE TABLE `setup_mstprc` (
 --
 
 INSERT INTO `setup_mstprc` (`id`, `mstprc_no`, `mstprc_type`, `machine_name`, `machine_no`, `equipment_no`, `mstprc_date`, `car_model`, `location`, `grid`, `is_new`, `to_car_model`, `to_location`, `to_grid`, `pullout_location`, `transfer_reason`, `pullout_reason`, `mstprc_username`, `mstprc_approver_role`, `mstprc_eq_member`, `mstprc_eq_g_leader`, `mstprc_safety_officer`, `mstprc_eq_manager`, `mstprc_eq_sp_personnel`, `mstprc_prod_engr_manager`, `mstprc_prod_supervisor`, `mstprc_prod_manager`, `mstprc_qa_supervisor`, `mstprc_qa_manager`, `mstprc_process_status`, `returned_by`, `returned_date_time`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `fat_no`, `sou_no`, `rsir_no`, `is_read_setup`, `is_read_safety`, `is_read_eq_mgr`, `is_read_eq_sp`, `is_read_prod_engr_mgr`, `is_read_prod_sv`, `is_read_prod_mgr`, `is_read_qa_sv`, `is_read_qa_mgr`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES
-(21, 'MSTPRC-230901063cc65', 'Setup', 'NS-IV', '', 'EQ-2', '2023-09-20', 'Honda T20A', 'FAS3', 'O8', 1, '', '', '', '', '', '', 'Troy_Ace', 'Prod', 'Patrick Troy Mendoza', 'lawrence', '', '', '', '', '', '', '', '', 'Confirmed', '', NULL, '', '', '', 'FAT:23090106f23b5', 'SOU:23090106c2eaa', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901063cc65-MEI-013-04  Set-UP Transfer Pulled Out and Relay Out Check Sheet-SAM (NS-IV, NS-C) Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901063cc65-MEI-013-04%20%20Set-UP%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-SAM%20%28NS-IV%2C%20NS-C%29%20Machine.xlsx', '2023-09-01 18:30:42'),
-(22, 'MSTPRC-230901066706c', 'Setup', 'Automatic Cutting & Crimping Machine', '', 'EQ-1', '2023-09-21', 'Aluminum / Honda TKRA Aluminum', 'Aluminum Area', '010', 1, '', '', '', '', '', '', 'Troy_Ace', '', 'Patrick Troy Mendoza', '', '', '', '', '', '', '', '', '', 'Saved', '', NULL, '', '', '', 'FAT:23090106a504e', 'SOU:23090106ccc3d', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901066706c-MEI-013-04 Set Up Transfer Pulled Out and Relay Out Check Sheet-Automatic Cutting & Crimping (TRD) Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901066706c-MEI-013-04%20Set%20Up%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-Automatic%20Cutting%20%26%20Crimping%20%28TRD%29%20Machine.xlsx', '2023-09-01 18:49:29'),
-(23, 'MSTPRC-23090106ac919', 'Setup', '0.64 Terminal insertion guide device', '', 'EQ-3', '2023-09-21', 'Daihatsu D01L', 'FAS1', '010', 1, '', '', '', '', '', '', 'Troy_Ace', '', 'Patrick Troy Mendoza', '', '', '', '', '', '', '', '', '', 'Returned', 'Admin', '2023-09-30 11:17:29', '', '', '', 'FAT:230901066097b', 'SOU:23090106bed38', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23090106ac919-MEI-013-04  Set Up Transfer Pulled Out and Relay Out Check Sheet-Mira 230 Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-23090106ac919-MEI-013-04%20%20Set%20Up%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-Mira%20230%20Machine.xlsx', '2023-09-01 18:55:03'),
-(28, 'MSTPRC-2310030980650', 'Setup', 'Silicon Injection Machine', 'M-34', '', '2023-10-03', 'Honda 30AA', 'FAS3', '', 0, '', '', '', '', '', '', 'admin', '', 'Admin', '', '', '', '', '', '', '', '', '', 'Saved', 'Admin', '2023-10-03 09:14:30', '', '', '', 'FAT:23100309e8fd8', '', 'RSIR-231003110332b', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-2310030980650-AME3 Data (Andon System).xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131:80/uploads/ems/setup/mstprc/2023/10/03/MSTPRC-2310030980650-AME3%20Data%20%28Andon%20System%29.xlsx', '2023-10-03 09:38:12');
+(21, 'MSTPRC-230901063cc65', 'Setup', 'NS-IV', '', 'EQ-2', '2023-09-20', 'Honda T20A', 'FAS3', 'O8', 1, '', '', '', '', '', '', 'Troy_Ace', 'Prod', 'Patrick Troy Mendoza', 'lawrence', '', '', '', '', '', '', '', '', 'Confirmed', '', NULL, '', '', '', 'FAT:23090106f23b5', 'SOU:23090106c2eaa', '', 1, 1, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901063cc65-MEI-013-04  Set-UP Transfer Pulled Out and Relay Out Check Sheet-SAM (NS-IV, NS-C) Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901063cc65-MEI-013-04%20%20Set-UP%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-SAM%20%28NS-IV%2C%20NS-C%29%20Machine.xlsx', '2023-09-01 18:30:42'),
+(22, 'MSTPRC-230901066706c', 'Setup', 'Automatic Cutting & Crimping Machine', '', 'EQ-1', '2023-09-21', 'Aluminum / Honda TKRA Aluminum', 'Aluminum Area', '010', 1, '', '', '', '', '', '', 'Troy_Ace', '', 'Patrick Troy Mendoza', '', '', '', '', '', '', '', '', '', 'Saved', '', NULL, '', '', '', 'FAT:23090106a504e', 'SOU:23090106ccc3d', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901066706c-MEI-013-04 Set Up Transfer Pulled Out and Relay Out Check Sheet-Automatic Cutting & Crimping (TRD) Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901066706c-MEI-013-04%20Set%20Up%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-Automatic%20Cutting%20%26%20Crimping%20%28TRD%29%20Machine.xlsx', '2023-09-01 18:49:29'),
+(23, 'MSTPRC-23090106ac919', 'Setup', '0.64 Terminal insertion guide device', '', 'EQ-3', '2023-09-21', 'Daihatsu D01L', 'FAS1', '010', 1, '', '', '', '', '', '', 'Troy_Ace', '', 'Patrick Troy Mendoza', '', '', '', '', '', '', '', '', '', 'Saved', '', NULL, '', '', '', 'FAT:230901066097b', 'SOU:23090106bed38', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23090106ac919-MEI-013-04  Set Up Transfer Pulled Out and Relay Out Check Sheet-Mira 230 Machine.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-23090106ac919-MEI-013-04%20%20Set%20Up%20Transfer%20Pulled%20Out%20and%20Relay%20Out%20Check%20Sheet-Mira%20230%20Machine.xlsx', '2023-09-01 18:55:03');
 
 -- --------------------------------------------------------
 
@@ -1488,12 +1571,12 @@ CREATE TABLE `setup_mstprc_history` (
 --
 
 INSERT INTO `setup_mstprc_history` (`id`, `mstprc_no`, `mstprc_type`, `machine_name`, `machine_no`, `equipment_no`, `mstprc_date`, `car_model`, `location`, `grid`, `is_new`, `to_car_model`, `to_location`, `to_grid`, `pullout_location`, `transfer_reason`, `pullout_reason`, `mstprc_username`, `mstprc_approver_role`, `mstprc_eq_member`, `mstprc_eq_g_leader`, `mstprc_safety_officer`, `mstprc_eq_manager`, `mstprc_eq_sp_personnel`, `mstprc_prod_engr_manager`, `mstprc_prod_supervisor`, `mstprc_prod_manager`, `mstprc_qa_supervisor`, `mstprc_qa_manager`, `mstprc_process_status`, `returned_by`, `returned_date_time`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `fat_no`, `sou_no`, `rsir_no`, `is_read_setup`, `is_read_safety`, `is_read_eq_mgr`, `is_read_eq_sp`, `is_read_prod_engr_mgr`, `is_read_prod_sv`, `is_read_prod_mgr`, `is_read_qa_sv`, `is_read_qa_mgr`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES
-(2, 'MSTPRC-23072805505aa', 'Setup', 'VO Making Machine', 'M-3', '', '2023-07-28', 'Tube Cutting Area', 'FAS4', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', 'Prod SV 1', 'Prod MGR 1', '', '', 'Approved 2', '', NULL, '', '', '', 'FAT:2307280597b80', 'SOU:230728052df47', 'RSIR-23080101a41ef', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23072805505aa-IT MANPOWER LIST.csv', 'text/csv', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/07/28/MSTPRC-23072805505aa-IT%20MANPOWER%20LIST.csv', '2023-08-01 13:29:42'),
-(3, 'MSTPRC-23082902daa44', 'Setup', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', '2023-08-29', 'Mazda Merge', 'FAS2', '', 1, '', '', '', '', '', '', 'admin', 'QA', 'Admin', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', '', '', 'QA SV 1', 'QA MGR 1', 'Approved 2', '', NULL, '', '', '', 'FAT:23082902e1a4d', 'SOU:230829021b421', 'RSIR-23082906589dc', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23082902daa44-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/08/29/MSTPRC-23082902daa44-RequestTemplateMPPD1XLS.xls', '2023-08-29 18:22:17'),
-(4, 'MSTPRC-23082902e6d2e', 'Setup', 'Wire Stripper', 'M-13', '', '2023-08-29', 'Daihatsu', 'FAS4', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'Safety', 'Safety', 'TEST SAFETY DISAPPROVED', 'FAT:230829023be37', 'SOU:23082902b7c86', 'RSIR-23082906b2080', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23082902e6d2e-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/08/29/MSTPRC-23082902e6d2e-RequestTemplateMPPD1XLSX.xlsx', '2023-08-30 16:59:18'),
-(6, 'MSTPRC-23083105b9d91', 'Setup', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-21', '', '2023-09-01', 'Honda T20A', 'FAS3', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'Admin', 'Admin-SP', 'TEST DISAPPROVED SP', 'FAT:230831050a6a3', 'SOU:230831057efd4', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23083105b9d91-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/08/31/MSTPRC-23083105b9d91-RequestTemplateMPPD1XLS.xls', '2023-08-31 18:30:13'),
-(7, 'MSTPRC-230831059038a', 'Setup', 'Wire Stripper', 'M-14', '', '2023-09-01', '', 'FAS2', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'EQ Manager', 'EQ Manager', 'TEST DISAPPROVED EQM', 'FAT:23083105be202', 'SOU:23083105878b8', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230831059038a-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/08/31/MSTPRC-230831059038a-RequestTemplateMPPD1XLSX.xlsx', '2023-08-31 18:31:01'),
-(8, 'MSTPRC-230901056dbb3', 'Setup', 'Wire Stripper', 'M-15', '', '2023-09-01', 'Daihatsu First Process', 'FAS3', '', 1, '', '', '', '', '', '', 'setup1', 'Prod', 'Setup-1', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', 'Prod SV 1', 'Prod MGR 1', '', '', 'Approved 2', '', NULL, '', '', '', 'FAT:2309010554a35', 'SOU:23090105b3ba6', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901056dbb3-ALIGNMENT JIG LIST.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.112.131/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901056dbb3-ALIGNMENT%20JIG%20LIST.xlsx', '2023-09-01 17:43:47');
+(2, 'MSTPRC-23072805505aa', 'Setup', 'VO Making Machine', 'M-3', '', '2023-07-28', 'Tube Cutting Area', 'FAS4', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', 'Prod SV 1', 'Prod MGR 1', '', '', 'Approved 2', '', NULL, '', '', '', 'FAT:2307280597b80', 'SOU:230728052df47', 'RSIR-23080101a41ef', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23072805505aa-IT MANPOWER LIST.csv', 'text/csv', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/07/28/MSTPRC-23072805505aa-IT%20MANPOWER%20LIST.csv', '2023-08-01 13:29:42'),
+(3, 'MSTPRC-23082902daa44', 'Setup', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-20', '', '2023-08-29', 'Mazda Merge', 'FAS2', '', 1, '', '', '', '', '', '', 'admin', 'QA', 'Admin', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', '', '', 'QA SV 1', 'QA MGR 1', 'Approved 2', '', NULL, '', '', '', 'FAT:23082902e1a4d', 'SOU:230829021b421', 'RSIR-23082906589dc', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23082902daa44-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/08/29/MSTPRC-23082902daa44-RequestTemplateMPPD1XLS.xls', '2023-08-29 18:22:17'),
+(4, 'MSTPRC-23082902e6d2e', 'Setup', 'Wire Stripper', 'M-13', '', '2023-08-29', 'Daihatsu', 'FAS4', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'Safety', 'Safety', 'TEST SAFETY DISAPPROVED', 'FAT:230829023be37', 'SOU:23082902b7c86', 'RSIR-23082906b2080', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23082902e6d2e-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/08/29/MSTPRC-23082902e6d2e-RequestTemplateMPPD1XLSX.xlsx', '2023-08-30 16:59:18'),
+(6, 'MSTPRC-23083105b9d91', 'Setup', 'CONTINUITY TESTER (OMI-10 / 100)', 'M-21', '', '2023-09-01', 'Honda T20A', 'FAS3', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'Admin', 'Admin-SP', 'TEST DISAPPROVED SP', 'FAT:230831050a6a3', 'SOU:230831057efd4', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-23083105b9d91-RequestTemplateMPPD1XLS.xls', 'application/vnd.ms-excel', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/08/31/MSTPRC-23083105b9d91-RequestTemplateMPPD1XLS.xls', '2023-08-31 18:30:13'),
+(7, 'MSTPRC-230831059038a', 'Setup', 'Wire Stripper', 'M-14', '', '2023-09-01', '', 'FAS2', '', 1, '', '', '', '', '', '', 'admin', 'Prod', 'Admin', 'Admin', '', '', '', '', '', '', '', '', 'Disapproved', '', NULL, 'EQ Manager', 'EQ Manager', 'TEST DISAPPROVED EQM', 'FAT:23083105be202', 'SOU:23083105878b8', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230831059038a-RequestTemplateMPPD1XLSX.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/08/31/MSTPRC-230831059038a-RequestTemplateMPPD1XLSX.xlsx', '2023-08-31 18:31:01'),
+(8, 'MSTPRC-230901056dbb3', 'Setup', 'Wire Stripper', 'M-15', '', '2023-09-01', 'Daihatsu First Process', 'FAS3', '', 1, '', '', '', '', '', '', 'setup1', 'Prod', 'Setup-1', 'Admin', 'Safety', 'EQ Manager', 'Admin', 'Prod Engr MGR 1', 'Prod SV 1', 'Prod MGR 1', '', '', 'Approved 2', '', NULL, '', '', '', 'FAT:2309010554a35', 'SOU:23090105b3ba6', '', 1, 0, 0, 0, 0, 0, 0, 0, 0, 'MSTPRC-230901056dbb3-ALIGNMENT JIG LIST.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'http://172.25.116.188:3000/uploads/ems/setup/mstprc/2023/09/01/MSTPRC-230901056dbb3-ALIGNMENT%20JIG%20LIST.xlsx', '2023-09-01 17:43:47');
 
 -- --------------------------------------------------------
 
@@ -1531,13 +1614,13 @@ CREATE TABLE `sou_forms` (
 INSERT INTO `sou_forms` (`id`, `sou_no`, `kigyo_no`, `asset_name`, `sup_asset_name`, `orig_asset_no`, `sou_date`, `quantity`, `managing_dept_code`, `managing_dept_name`, `install_area_code`, `install_area_name`, `machine_no`, `equipment_no`, `no_of_units`, `ntc_or_sa`, `use_purpose`, `sou_status`, `is_read_a3`, `date_updated`) VALUES
 (1, 'SOU:23053104fca95', '230940392312', '0.64 Terminal insertion guide device', '', '', '2023-06-07', 1, '23409', 'TEST DEPT 1', '203', 'TEST DEPT 2', '', 'EQ-3', 1, 'Need To Convert', 'For Setup', 'Saved', 1, '2023-05-31 16:08:25'),
 (4, 'SOU:23061311c54a3', '2352352346', 'Wire Stripper', '', '', '2023-07-08', 1, '453', 'TEST 1', '3453', 'TEST 2', 'M-1', '', 1, 'Need To Convert', 'Reason', 'Saved', 0, '2023-06-13 11:52:23'),
-(5, 'SOU:230728052df47', '45146964', 'VO Making Machine', '', '', '2023-07-30', 1, '435453', 'ahdhfsdfh', '453', 'fgasdg', 'M-3', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 1, '2023-10-06 16:00:39'),
-(6, 'SOU:23082902b7c86', '21453', 'Wire Stripper', '', '', '2023-08-30', 1, '2342', 'WS', '2321', 'WS2', 'M-13', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 13:19:16'),
-(7, 'SOU:230829021b421', '6944', 'CONTINUITY TESTER (OMI-10 / 100)', '', '', '2023-08-30', 1, '5811', 'CT', '944', 'CT1', 'M-20', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 13:19:16'),
-(8, 'SOU:23083105878b8', '894914', 'Wire Stripper', '', '', '2023-09-02', 1, '7587', 'WS', '7854', 'WS1', 'M-14', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 13:19:16'),
-(9, 'SOU:230831057efd4', '9455655', 'CONTINUITY TESTER (OMI-10 / 100)', '', '', '2023-09-02', 1, '7684', 'WS', '5786', 'WS1', 'M-21', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 13:19:16'),
-(10, 'SOU:23090105b3ba6', '235235', 'Wire Stripper', '', '', '2023-09-02', 1, '324532', 'WS', '32456', 'WS1', 'M-15', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 13:19:16'),
-(11, 'SOU:23090106c2eaa', 'N/A', 'NS-IV', '', 'N/A', '2023-09-20', 1, '12', 'LAWRENCE', '12', 'LAWRENCE', '', 'EQ-2', 1, 'Standalone', 'SET-UP', 'Confirmed', 0, '2023-10-03 13:19:16'),
+(5, 'SOU:230728052df47', '45146964', 'VO Making Machine', '', '', '2023-07-30', 1, '435453', 'ahdhfsdfh', '453', 'fgasdg', 'M-3', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(6, 'SOU:23082902b7c86', '21453', 'Wire Stripper', '', '', '2023-08-30', 1, '2342', 'WS', '2321', 'WS2', 'M-13', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(7, 'SOU:230829021b421', '6944', 'CONTINUITY TESTER (OMI-10 / 100)', '', '', '2023-08-30', 1, '5811', 'CT', '944', 'CT1', 'M-20', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(8, 'SOU:23083105878b8', '894914', 'Wire Stripper', '', '', '2023-09-02', 1, '7587', 'WS', '7854', 'WS1', 'M-14', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(9, 'SOU:230831057efd4', '9455655', 'CONTINUITY TESTER (OMI-10 / 100)', '', '', '2023-09-02', 1, '7684', 'WS', '5786', 'WS1', 'M-21', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(10, 'SOU:23090105b3ba6', '235235', 'Wire Stripper', '', '', '2023-09-02', 1, '324532', 'WS', '32456', 'WS1', 'M-15', '', 1, 'Need To Convert', 'For Setup', 'Confirmed', 0, '2023-10-03 14:07:07'),
+(11, 'SOU:23090106c2eaa', 'N/A', 'NS-IV', '', 'N/A', '2023-09-20', 1, '12', 'LAWRENCE', '12', 'LAWRENCE', '', 'EQ-2', 1, 'Standalone', 'SET-UP', 'Confirmed', 0, '2023-10-03 14:07:07'),
 (12, 'SOU:23090106ccc3d', '0009', 'Automatic Cutting & Crimping Machine', '', 'N/A', '2023-09-30', 1, '143', 'TROY', '143', 'TROY', '', 'EQ-1', 1, 'Standalone', 'SET-UP', 'Saved', 0, '2023-09-01 18:49:29'),
 (13, 'SOU:23090106bed38', '0000099', '0.64 Terminal insertion guide device', '', 'N/A', '2023-09-28', 1, '143', 'KEVIN', '143', 'KEVIN', '', 'EQ-3', 1, 'Need To Convert', 'SET-UP', 'Saved', 0, '2023-09-01 18:55:03');
 
@@ -1574,11 +1657,7 @@ INSERT INTO `unused_machines` (`id`, `machine_name`, `car_model`, `machine_no`, 
 (1, 'Wire Stripper', 'Subaru', 'M-1', '', 'N/A', 'Workstation', 'Di ko alam', 'Kanino Ba', 'Setup-1', '', '2023-05-12', 0, 0, 1, '2023-05-13 08:37:22'),
 (2, '0.64 Terminal insertion guide device', 'Toyota 4110', 'M-5', '', 'N/A', 'Workstation', 'Di Ko Alam', 'Kanino Ba', 'Setup-3', '', '2023-05-16', 0, 1, 0, '2023-05-16 13:46:45'),
 (3, '0.64 Terminal insertion guide device', 'Suzuki 5101', 'M-4', '', 'N/A', 'Workstation', 'Di Ko Alam', 'Kanino Ba', 'Setup-3', '', '2023-05-16', 1, 0, 0, '2023-05-16 13:54:55'),
-(6, 'Wire Stripper', 'Mazda Secondary Process', 'M-2', 'EQ-5', 'N/A', 'Workstation', 'Di Ko Alam', 'Kanino Ba', 'Setup-2', '', '2023-06-05', 0, 0, 0, '2023-05-30 11:37:03'),
-(20, 'Silicon Injection Machine', 'Honda TG7 First Process', 'M-31', '', 'N/A', '', '', '', '', '', NULL, 0, 0, 0, '2023-09-19 17:02:26'),
-(21, 'Silicon Injection Machine', 'Honda TG7 First Process', 'M-32', '', 'N/A', '', '', '', '', '', NULL, 0, 0, 0, '2023-09-19 17:02:26'),
-(22, 'Silicon Injection Machine', 'Honda TG7 First Process', 'M-33', '', 'N/A', '', '', '', '', '', NULL, 0, 0, 0, '2023-09-19 17:02:26'),
-(23, 'Silicon Injection Machine', 'Honda TG7 First Process', 'M-34', '', 'N/A', '', '', '', '', '', NULL, 0, 0, 0, '2023-09-19 17:02:26');
+(6, 'Wire Stripper', 'Mazda Secondary Process', 'M-2', 'EQ-5', 'N/A', 'Workstation', 'Di Ko Alam', 'Kanino Ba', 'Setup-2', '', '2023-06-05', 0, 0, 0, '2023-05-30 11:37:03');
 
 --
 -- Indexes for dumped tables
@@ -1810,7 +1889,7 @@ ALTER TABLE `car_models`
 -- AUTO_INCREMENT for table `fat_forms`
 --
 ALTER TABLE `fat_forms`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `line_no_final`
@@ -1840,19 +1919,19 @@ ALTER TABLE `machines`
 -- AUTO_INCREMENT for table `machine_history`
 --
 ALTER TABLE `machine_history`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `machine_masterlist`
 --
 ALTER TABLE `machine_masterlist`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT for table `machine_pm_accounts`
 --
 ALTER TABLE `machine_pm_accounts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `machine_pm_concerns`
@@ -1888,7 +1967,7 @@ ALTER TABLE `machine_pm_no_spare_history`
 -- AUTO_INCREMENT for table `machine_pm_plan`
 --
 ALTER TABLE `machine_pm_plan`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `machine_pm_wo`
@@ -1900,7 +1979,7 @@ ALTER TABLE `machine_pm_wo`
 -- AUTO_INCREMENT for table `machine_setup_accounts`
 --
 ALTER TABLE `machine_setup_accounts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `machine_setup_activities`
@@ -1912,7 +1991,7 @@ ALTER TABLE `machine_setup_activities`
 -- AUTO_INCREMENT for table `machine_setup_docs`
 --
 ALTER TABLE `machine_setup_docs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `machine_sp_accounts`
@@ -1954,19 +2033,19 @@ ALTER TABLE `notif_setup_approvers`
 -- AUTO_INCREMENT for table `pm_rsir`
 --
 ALTER TABLE `pm_rsir`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `pm_rsir_history`
 --
 ALTER TABLE `pm_rsir_history`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `setup_mstprc`
 --
 ALTER TABLE `setup_mstprc`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `setup_mstprc_history`
@@ -1984,7 +2063,7 @@ ALTER TABLE `sou_forms`
 -- AUTO_INCREMENT for table `unused_machines`
 --
 ALTER TABLE `unused_machines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

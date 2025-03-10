@@ -177,14 +177,14 @@ include('plugins/sidebar/home_bar.php');
                       <option value="2">Fully Approved / Disapproved</option>
                     </select>
                   </div>
-                  <div class="col-sm-3 offset-sm-6">
+                  <div class="col-sm-3 offset-sm-3">
                     <label>&nbsp;</label>
                     <button type="button" class="btn bg-lime btn-block" onclick="get_a1_machine_checksheets_history(1)"><i class="fas fa-search"></i> Search</button>
                   </div>
-                  <!-- <div class="col-sm-3">
+                  <div class="col-sm-3">
                     <label>&nbsp;</label>
                     <button type="button" class="btn bg-lime btn-block" id="btnExportA1MachineChecksheetHistory" onclick="export_a1_machine_checksheets_history()"><i class="fas fa-download"></i> Export</button>
-                  </div> -->
+                  </div>
                 </div>
                 <div id="accordion_mstprc_legend">
                   <div class="card">

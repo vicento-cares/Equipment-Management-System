@@ -251,7 +251,7 @@
             <img class="d-block w-100" src="dist/img/feb/11.jpg"
               alt="slide11">
             </div> -->
-            <!-- Chirstmas -->
+            <!-- Christmas -->
             <!-- <div class="carousel-item active">
             <img class="d-block w-100" src="dist/img/1/christmas1.jpg"
               alt="slide1">
