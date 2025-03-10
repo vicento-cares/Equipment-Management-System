@@ -2648,7 +2648,7 @@ if ($method == 'approve_a2_mstprc') {
 		$trd_no = '';
 		$ns_iv_no = '';
 
-		$sql = "SELECT number, process, machine_spec, asset_tag_no, trd_no, ns-iv_no FROM machine_masterlist WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+		$sql = "SELECT number, process, machine_spec, asset_tag_no, trd_no, `ns-iv_no` FROM machine_masterlist WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {
@@ -2687,7 +2687,7 @@ if ($method == 'approve_a2_mstprc') {
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 
-			$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', 'Pullout', '$pic', '$status_date', '$date_updated')";
+			$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', 'Pullout', '$pic', '$status_date', '$date_updated')";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 
@@ -2712,7 +2712,7 @@ if ($method == 'approve_a2_mstprc') {
 			$stmt -> execute();
 		}
 
-		$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
+		$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 

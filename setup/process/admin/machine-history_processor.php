@@ -69,7 +69,7 @@ if ($method == 'get_machine_history') {
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$c = $_POST['c'];
 
-	$sql = "SELECT id, number, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, new_car_model, new_location, new_grid, pic, status_date, history_date_time FROM machine_history";
+	$sql = "SELECT id, number, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, new_car_model, new_location, new_grid, pic, status_date, history_date_time FROM machine_history";
 
 	if (empty($id)) {
 		if (!empty($car_model) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($history_date_from) && !empty($history_date_to))) {

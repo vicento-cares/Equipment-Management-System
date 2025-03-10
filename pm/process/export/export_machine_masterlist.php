@@ -31,7 +31,7 @@ $machine_name = $_GET['machine_name'];
 $process = $_GET['process'];
 $car_model = $_GET['car_model'];
 
-$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, is_new, date_updated FROM machine_masterlist";
+$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, is_new, date_updated FROM machine_masterlist";
 
 if (!empty($car_model)) {
 	$sql = $sql . " WHERE car_model = '$car_model'";

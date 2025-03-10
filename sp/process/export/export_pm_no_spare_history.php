@@ -38,7 +38,7 @@ $pm_concern_id = $_GET['pm_concern_id'];
 $pm_concern_status = $_GET['pm_concern_status'];
 $c = 0;
 
-$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status, date_updated";
+$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status, date_updated";
 
 if ($pm_concern_status == 'Pending') {
   $sql = $sql . " FROM machine_pm_no_spare";

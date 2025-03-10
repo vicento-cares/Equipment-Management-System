@@ -105,7 +105,7 @@ function check_existing_machine_info($machine_info, $id, $conn) {
     }
     if (!empty($machine_info['ns_iv_no'])) {
         $ns_iv_no = $machine_info['ns_iv_no'];
-        $sql = "SELECT ns-iv_no FROM machine_masterlist WHERE ns-iv_no = '$ns_iv_no'";
+        $sql = "SELECT `ns-iv_no` FROM machine_masterlist WHERE `ns-iv_no` = '$ns_iv_no'";
         if (!empty($id)) {
             $sql = $sql . " AND id!= '$id'";
         }
@@ -144,7 +144,7 @@ function get_machine_details_by_id($machine_no, $equipment_no, $conn) {
     $is_new = 0;
     $registered = false;
 
-    $sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, is_new FROM machine_masterlist";
+    $sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, is_new FROM machine_masterlist";
     if (!empty($machine_no) && !empty($equipment_no)) {
         $sql = $sql . " WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
     } else if (!empty($machine_no)) {

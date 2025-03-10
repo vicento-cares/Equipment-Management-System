@@ -62,7 +62,7 @@ if ($method == 'fetch_data') {
 	$machine_no = addslashes($_POST['machine_no']);
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$c = $_POST['c'];
-	$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, is_new, date_updated FROM machine_masterlist";
+	$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, is_new, date_updated FROM machine_masterlist";
 
 	if (empty($id)) {
 		if (!empty($car_model) || !empty($machine_spec) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
@@ -176,7 +176,7 @@ if ($method == 'save_data') {
 			$equipment_no = addslashes($equipment_no);
 			$asset_tag_no = addslashes($asset_tag_no);
 
-			$sql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, is_new, date_updated) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$is_new', '$date_updated')";
+			$sql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, is_new, date_updated) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$is_new', '$date_updated')";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 

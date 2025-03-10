@@ -106,7 +106,7 @@ if ($method == 'get_pm_concerns') {
 	$status = 'New';
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-orange');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, status, is_read_pm FROM machine_pm_concerns WHERE status = '$status'";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, status, is_read_pm FROM machine_pm_concerns WHERE status = '$status'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -141,7 +141,7 @@ if ($method == 'get_pm_concerns_public') {
 	$status = 'New';
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-orange');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, status, is_read FROM machine_pm_concerns WHERE status = '$status'";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, status, is_read FROM machine_pm_concerns WHERE status = '$status'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -261,7 +261,7 @@ if ($method == 'add_no_spare_parts') {
 		if ($no_of_parts >= 6) {
 			echo 'Max Spare Parts Reached';
 		} else {
-			$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, confirm_by, confirm_by_username, comment, concern_date_time, status FROM machine_pm_concerns WHERE pm_concern_id = '$pm_concern_id'";
+			$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, confirm_by, confirm_by_username, comment, concern_date_time, status FROM machine_pm_concerns WHERE pm_concern_id = '$pm_concern_id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			foreach($stmt -> fetchAll() as $row) {
@@ -293,7 +293,7 @@ if ($method == 'add_no_spare_parts') {
 			$comment = 'NO SPARE';
 			$status = 'Pending';
 
-			$sql = "INSERT INTO machine_pm_no_spare (pm_concern_id, machine_line, machine_name,  car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, status) VALUES ('$pm_concern_id', '$machine_line', '$machine_name', '$car_model', '$trd_no', '$ns_iv_no', '$problem', '$request_by', '$request_by_id_no', '$concern_date_time', '$confirm_by', '$confirm_by_username', '$comment', '$parts_code', '$quantity', '$status')";
+			$sql = "INSERT INTO machine_pm_no_spare (pm_concern_id, machine_line, machine_name,  car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, status) VALUES ('$pm_concern_id', '$machine_line', '$machine_name', '$car_model', '$trd_no', '$ns_iv_no', '$problem', '$request_by', '$request_by_id_no', '$concern_date_time', '$confirm_by', '$confirm_by_username', '$comment', '$parts_code', '$quantity', '$status')";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 
@@ -373,8 +373,8 @@ if ($method == 'set_done_pm_concern') {
 		}
 	}
 
-	$sql = "INSERT INTO machine_pm_concerns_history(pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, no_spare, no_of_parts, status, is_read, is_read_pm, is_read_sp)
-		SELECT pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, no_spare, no_of_parts, status, is_read, is_read_pm, is_read_sp FROM machine_pm_concerns
+	$sql = "INSERT INTO machine_pm_concerns_history(pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, no_spare, no_of_parts, status, is_read, is_read_pm, is_read_sp)
+		SELECT pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, no_spare, no_of_parts, status, is_read, is_read_pm, is_read_sp FROM machine_pm_concerns
 		WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -389,8 +389,8 @@ if ($method == 'set_done_pm_concern') {
 
 	if ($no_spare == 1) {
 
-		$sql = "INSERT INTO machine_pm_no_spare_history(pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status)
-		SELECT pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare
+		$sql = "INSERT INTO machine_pm_no_spare_history(pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status)
+		SELECT pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, request_by_id_no, concern_date_time, confirm_by, confirm_by_username, comment, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare
 		WHERE pm_concern_id = '$pm_concern_id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
@@ -473,7 +473,7 @@ if ($method == 'get_pm_concerns_history') {
 	$pm_concern_id = $_POST['pm_concern_id'];
 	$c = $_POST['c'];
 	
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts FROM machine_pm_concerns_history";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts FROM machine_pm_concerns_history";
 
 	if (empty($id)) {
 		if (!empty($machine_name) || !empty($car_model) || !empty($pm_concern_id) || (!empty($concern_date_from) && !empty($concern_date_to))) {
@@ -517,7 +517,7 @@ if ($method == 'get_recent_pm_concerns_pending') {
 	$c = 0;
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-warning', 'modal-trigger bg-success');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, status, is_read FROM machine_pm_concerns WHERE status = 'Done' OR status = 'Pending' ORDER BY id DESC LIMIT 25";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, status, is_read FROM machine_pm_concerns WHERE status = 'Done' OR status = 'Pending' ORDER BY id DESC LIMIT 25";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -565,7 +565,7 @@ if ($method == 'count_pending_pm_concerns') {
 // Read / Load
 if ($method == 'get_pending_pm_concerns') {
 	$c = 0;
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, status FROM machine_pm_concerns WHERE comment!= '' AND no_spare = 0 AND status = 'Pending'";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, status FROM machine_pm_concerns WHERE comment!= '' AND no_spare = 0 AND status = 'Pending'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -606,7 +606,7 @@ if ($method == 'get_no_spare_pm_concerns') {
 	$c = 0;
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-success');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts, status FROM machine_pm_concerns WHERE comment = 'NO SPARE' AND no_spare = 1 AND status = 'Pending' ORDER BY id DESC";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts, status FROM machine_pm_concerns WHERE comment = 'NO SPARE' AND no_spare = 1 AND status = 'Pending' ORDER BY id DESC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -641,7 +641,7 @@ if ($method == 'get_no_spare_pm_concerns') {
 if ($method == 'get_no_spare_by_pm_concerns_id_pm') {
 	$pm_concern_id = $_POST['pm_concern_id'];
 	$c = 0;
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare WHERE pm_concern_id = '$pm_concern_id'";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare WHERE pm_concern_id = '$pm_concern_id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

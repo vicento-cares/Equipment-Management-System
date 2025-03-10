@@ -76,7 +76,7 @@ function insert_machine_history_unused($machine_info, $pic, $status_date, $conn)
     $pic = addslashes($pic);
     $date_updated = date('Y-m-d H:i:s');
 
-	$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
+	$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }

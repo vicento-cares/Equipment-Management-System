@@ -68,7 +68,7 @@ if ($method == 'get_no_spare_pm_concerns') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-orange', 'modal-trigger bg-success');
 	$row_class = $row_class_arr[0];
 	$c = 0;
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts, status, is_read_sp FROM machine_pm_concerns WHERE comment = 'NO SPARE' AND no_spare = 1 AND status = 'Pending' ORDER BY id DESC";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts, status, is_read_sp FROM machine_pm_concerns WHERE comment = 'NO SPARE' AND no_spare = 1 AND status = 'Pending' ORDER BY id DESC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -106,7 +106,7 @@ if ($method == 'get_no_spare_pm_concerns') {
 if ($method == 'get_no_spare_by_pm_concerns_id_sp') {
 	$pm_concern_id = $_POST['pm_concern_id'];
 	$c = 0;
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare WHERE pm_concern_id = '$pm_concern_id'";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status FROM machine_pm_no_spare WHERE pm_concern_id = '$pm_concern_id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -246,7 +246,7 @@ if ($method == 'get_no_spare_history') {
 	$pm_concern_status = $_POST['pm_concern_status'];
 	$c = $_POST['c'];
 	
-	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status, date_updated";
+	$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, `ns-iv_no`, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status, date_updated";
 
 	if ($pm_concern_status == 'Pending') {
 		$sql = $sql . " FROM machine_pm_no_spare";

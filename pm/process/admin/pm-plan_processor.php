@@ -89,7 +89,7 @@ if ($method == 'get_pm_plan') {
 	$machine_no = addslashes($_POST['machine_no']);
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$c = $_POST['c'];
-	$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, ns-iv_no, pm_plan_year, ww_no, ww_start_date, frequency, machine_status, pm_status, internal_comment FROM machine_pm_plan";
+	$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no`, pm_plan_year, ww_no, ww_start_date, frequency, machine_status, pm_status, internal_comment FROM machine_pm_plan";
 
 	if (empty($id)) {
 		if (!empty($pm_plan_year) || !empty($ww_no) || !empty($car_model) || !empty($machine_spec) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
@@ -181,7 +181,7 @@ if ($method == 'save_single_pm_plan') {
 		$ww_start_date = date_create($ww_start_date);
 		$ww_start_date = date_format($ww_start_date,"Y-m-d");
 
-		$sql = "INSERT INTO machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, ns-iv_no, ww_no, frequency, pm_plan_year, ww_start_date, date_updated) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$trd_no', '$ns_iv_no', '$ww_no', '$frequency', '$pm_plan_year', '$ww_start_date', '$date_updated')";
+		$sql = "INSERT INTO machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no`, ww_no, frequency, pm_plan_year, ww_start_date, date_updated) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$trd_no', '$ns_iv_no', '$ww_no', '$frequency', '$pm_plan_year', '$ww_start_date', '$date_updated')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -239,7 +239,7 @@ if ($method == 'update_single_pm_plan') {
 		$ww_start_date = date_create($ww_start_date);
 		$ww_start_date = date_format($ww_start_date,"Y-m-d");
 
-		$sql = "UPDATE machine_pm_plan SET number = '$current_number', process = '$process', machine_name = '$machine_name', machine_spec = '$machine_spec', car_model = '$car_model', location = '$location', grid = '$grid', machine_no = '$machine_no', equipment_no = '$equipment_no', trd_no = '$trd_no', ns-iv_no = '$ns_iv_no', machine_status = '$machine_status', internal_comment = '$internal_comment', pm_plan_year = '$pm_plan_year', ww_no = '$ww_no', frequency = '$frequency', ww_start_date = '$ww_start_date', date_updated = '$date_updated' WHERE id = '$id'";
+		$sql = "UPDATE machine_pm_plan SET number = '$current_number', process = '$process', machine_name = '$machine_name', machine_spec = '$machine_spec', car_model = '$car_model', location = '$location', grid = '$grid', machine_no = '$machine_no', equipment_no = '$equipment_no', trd_no = '$trd_no', `ns-iv_no` = '$ns_iv_no', machine_status = '$machine_status', internal_comment = '$internal_comment', pm_plan_year = '$pm_plan_year', ww_no = '$ww_no', frequency = '$frequency', ww_start_date = '$ww_start_date', date_updated = '$date_updated' WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		echo 'success';
