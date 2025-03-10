@@ -66,7 +66,7 @@ $pm_sticker_id_arr = explode(",", $_GET['pm_sticker_id_arr']);
   <div class="row">
   <?php 
   foreach ($pm_sticker_id_arr as $id) {
-    $sql = "SELECT `id`, `number`, `process`, `machine_name`, `machine_no`, `equipment_no`, `pm_plan_year`, `ww_no`, `ww_start_date`, `ww_next_date`, `manpower`, `shift_engineer` FROM `machine_pm_plan` WHERE `id`= '$id'";
+    $sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan WHERE id = '$id'";
     $stmt = $conn -> prepare($sql);
     $stmt -> execute();
     if ($stmt -> rowCount() > 0) {

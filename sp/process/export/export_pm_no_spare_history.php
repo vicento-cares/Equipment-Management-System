@@ -38,19 +38,19 @@ $pm_concern_id = $_GET['pm_concern_id'];
 $pm_concern_status = $_GET['pm_concern_status'];
 $c = 0;
 
-$sql = "SELECT `id`, `pm_concern_id`, `machine_line`, `machine_name`, `car_model`, `trd_no`, `ns-iv_no`, `problem`, `request_by`, `confirm_by`, `comment`, `concern_date_time`, `parts_code`, `quantity`, `po_date`, `po_no`, `no_spare_status`, `date_arrived`, `status`, `date_updated`";
+$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, parts_code, quantity, po_date, po_no, no_spare_status, date_arrived, status, date_updated";
 
 if ($pm_concern_status == 'Pending') {
-  $sql = $sql . " FROM `machine_pm_no_spare`";
+  $sql = $sql . " FROM machine_pm_no_spare";
 } else if ($pm_concern_status == 'Done') {
-  $sql = $sql . " FROM `machine_pm_no_spare_history`";
+  $sql = $sql . " FROM machine_pm_no_spare_history";
 }
 
 if (!empty($machine_name) || !empty($car_model) || !empty($pm_concern_id) || (!empty($concern_date_from) && !empty($concern_date_to))) {
-  $sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `car_model` LIKE '$car_model%' AND `pm_concern_id` LIKE '$pm_concern_id%' AND (concern_date_time >= '$concern_date_from' AND concern_date_time <= '$concern_date_to')";
+  $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND pm_concern_id LIKE '$pm_concern_id%' AND (concern_date_time >= '$concern_date_from' AND concern_date_time <= '$concern_date_to')";
 }
 
-$sql = $sql . " AND `no_spare_status`= 'CLOSE' ORDER BY id DESC";
+$sql = $sql . " AND no_spare_status = 'CLOSE' ORDER BY id DESC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

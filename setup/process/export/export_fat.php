@@ -25,7 +25,7 @@ if (!isset($_GET['id'])) {
 
 $id = $_GET['id'];
 
-$sql = "SELECT `id`, `fat_no`, `item_name`, `item_description`, `machine_no`, `equipment_no`, `asset_tag_no`, `prev_location_group`, `prev_location_loc`, `prev_location_grid`, `date_transfer`, `new_location_group`, `new_location_loc`, `new_location_grid`, `reason`, `date_updated` FROM `fat_forms` WHERE id = '$id' ORDER BY `id` DESC";
+$sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, date_updated FROM fat_forms WHERE id = '$id' ORDER BY id DESC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

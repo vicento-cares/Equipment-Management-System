@@ -31,10 +31,10 @@ switch (true) {
 $pm_plan_year = $_GET['pm_plan_year'];
 $ww_no = $_GET['ww_no'];
 
-$sql = "SELECT `id`, `number`, `process`, `machine_name`, `machine_no`, `equipment_no`, `pm_plan_year`, `ww_no`, `ww_start_date`, `ww_next_date`, `manpower`, `shift_engineer` FROM `machine_pm_plan` WHERE `pm_plan_year`= '$pm_plan_year'";
+$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan WHERE pm_plan_year = '$pm_plan_year'";
 
 if (!empty($ww_no)) {
-  $sql = $sql . " AND `ww_no`= '$ww_no'";
+  $sql = $sql . " AND ww_no = '$ww_no'";
 }
 
 $stmt = $conn -> prepare($sql);

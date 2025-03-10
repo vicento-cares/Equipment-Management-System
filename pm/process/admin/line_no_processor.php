@@ -12,11 +12,11 @@ $method = $_POST['method'];
 // Get Line No Datalist
 if ($method == 'fetch_line_datalist') {
 	$process = $_POST['process'];
-	$sql = "SELECT `line_no` ";
+	$sql = "SELECT line_no ";
 	if ($process == 'Initial') {
-		$sql = $sql . "FROM `line_no_initial` GROUP BY `line_no` ORDER BY `line_no` ASC";
+		$sql = $sql . "FROM line_no_initial GROUP BY line_no ORDER BY line_no ASC";
 	} else if ($process == 'Final') {
-		$sql = $sql . "FROM `line_no_final` ORDER BY `line_no` ASC";
+		$sql = $sql . "FROM line_no_final ORDER BY line_no ASC";
 	}
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -28,7 +28,7 @@ if ($method == 'fetch_line_datalist') {
 }
 
 if ($method == 'fetch_line_datalist_search') {
-	$sql = "SELECT `line_no` FROM `line_no_initial` GROUP BY `line_no` ORDER BY `line_no` ASC";
+	$sql = "SELECT line_no FROM line_no_initial GROUP BY line_no ORDER BY line_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -37,7 +37,7 @@ if ($method == 'fetch_line_datalist_search') {
 		}
 	}
 	
-	$sql = "SELECT `line_no` FROM `line_no_final` ORDER BY `line_no` ASC";
+	$sql = "SELECT line_no FROM line_no_final ORDER BY line_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -54,7 +54,7 @@ if ($method == 'get_line_no_details') {
 
 	if (!empty($line_no)) {
 		$line_no = addslashes($line_no);
-		$sql = "SELECT `line_no`, `car_model`, `location` FROM `line_no_final` WHERE `line_no` = '$line_no'";
+		$sql = "SELECT line_no, car_model, location FROM line_no_final WHERE line_no = '$line_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {

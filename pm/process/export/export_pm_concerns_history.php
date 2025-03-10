@@ -44,13 +44,13 @@ $car_model = addslashes($_GET['car_model']);
 $pm_concern_id = $_GET['pm_concern_id'];
 $c = 0;
 
-$sql = "SELECT `id`, `pm_concern_id`, `machine_line`, `machine_name`, `car_model`, `trd_no`, `ns-iv_no`, `problem`, `request_by`, `confirm_by`, `comment`, `concern_date_time`, `no_of_parts` FROM `machine_pm_concerns`";
+$sql = "SELECT id, pm_concern_id, machine_line, machine_name, car_model, trd_no, ns-iv_no, problem, request_by, confirm_by, comment, concern_date_time, no_of_parts FROM machine_pm_concerns";
 
 if (!empty($machine_name) || !empty($car_model) || !empty($pm_concern_id) || (!empty($concern_date_from) && !empty($concern_date_to))) {
-  $sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `car_model` LIKE '$car_model%' AND `pm_concern_id` LIKE '$pm_concern_id%' AND (concern_date_time >= '$concern_date_from' AND concern_date_time <= '$concern_date_to')";
+  $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND pm_concern_id LIKE '$pm_concern_id%' AND (concern_date_time >= '$concern_date_from' AND concern_date_time <= '$concern_date_to')";
 }
 
-$sql = $sql . " AND `status`= 'Done' ORDER BY id DESC";
+$sql = $sql . " AND status = 'Done' ORDER BY id DESC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

@@ -24,7 +24,7 @@ function update_machine_status($machine_no, $equipment_no, $machine_status, $con
     $car_model = '';
     $location = 'FAS4';
 
-    $sql = "SELECT `process` FROM `machine_masterlist` WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+    $sql = "SELECT process FROM machine_masterlist WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -39,7 +39,7 @@ function update_machine_status($machine_no, $equipment_no, $machine_status, $con
     	$car_model = 'EQ-Final';
     }
 
-    $sql = "UPDATE `machine_masterlist` SET `car_model`= '$car_model', `location`= '$location', `grid`= '', `machine_status`= '$machine_status', `date_updated`= '$date_updated' WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+    $sql = "UPDATE machine_masterlist SET car_model = '$car_model', location = '$location', grid = '', machine_status = '$machine_status', date_updated = '$date_updated' WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -54,7 +54,7 @@ function update_unused_machine($unused_machine_info, $conn) {
 	$target_date = $unused_machine_info['target_date'];
 	$date_updated = $unused_machine_info['date_updated'];
 
-	$sql = "UPDATE `unused_machines` SET `status`= '$status', `reserved_for`= '$reserved_for', `remarks`= '$remarks', `pic`= '$pic', `unused_machine_location`= '$unused_machine_location', `target_date`= '$target_date', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+	$sql = "UPDATE unused_machines SET status = '$status', reserved_for = '$reserved_for', remarks = '$remarks', pic = '$pic', unused_machine_location = '$unused_machine_location', target_date = '$target_date', date_updated = '$date_updated' WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -76,7 +76,7 @@ function insert_machine_history_unused($machine_info, $pic, $status_date, $conn)
     $pic = addslashes($pic);
     $date_updated = date('Y-m-d H:i:s');
 
-	$sql = "INSERT INTO `machine_history` (`number`, `process`, `machine_name`, `machine_spec`, `car_model`, `location`, `grid`, `machine_no`, `equipment_no`, `asset_tag_no`, `trd_no`, `ns-iv_no`, `machine_status`, `pic`, `status_date`, `history_date_time`) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
+	$sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -90,7 +90,7 @@ if ($method == 'count_unused_machines') {
 	$car_model = addslashes($_POST['car_model']);
 	$unused_machine_location = addslashes($_POST['unused_machine_location']);
 
-	$sql = "SELECT count(id) AS total FROM `unused_machines`";
+	$sql = "SELECT count(id) AS total FROM unused_machines";
 	if (!empty($machine_no) || !empty($equipment_no) || !empty($machine_name) || !empty($status) || !empty($car_model) || !empty($unused_machine_location)) {
 		$sql = $sql . " WHERE machine_no LIKE '$machine_no%' OR equipment_no LIKE '$equipment_no%' OR machine_name LIKE '$machine_name%' OR status LIKE '$status%' OR car_model LIKE '$car_model%' OR unused_machine_location LIKE '$unused_machine_location%'";
 	}
@@ -116,7 +116,7 @@ if ($method == 'get_unused_machines') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-danger', 'modal-trigger bg-warning', 'modal-trigger bg-success');
 	$row_class = $row_class_arr[0];
 
-	$sql = "SELECT `id`, `machine_name`, `car_model`, `machine_no`, `equipment_no`, `asset_tag_no`, `unused_machine_location`, `status`, `reserved_for`, `pic`, `remarks`, `target_date`, `disposed`, `borrowed`, `sold`, `date_updated` FROM `unused_machines`";
+	$sql = "SELECT id, machine_name, car_model, machine_no, equipment_no, asset_tag_no, unused_machine_location, status, reserved_for, pic, remarks, target_date, disposed, borrowed, sold, date_updated FROM unused_machines";
 
 	if (empty($id)) {
 		if (!empty($machine_no) || !empty($equipment_no) || !empty($machine_name) || !empty($status) || !empty($car_model) || !empty($unused_machine_location)) {
@@ -220,7 +220,7 @@ if ($method == 'save_unused_machine') {
 		$target_date = date_format($target_date,"Y-m-d");
 		$status_date = $date_only_updated;
 		
-		$sql = "INSERT INTO `unused_machines` (`machine_name`, `car_model`, `machine_no`, `equipment_no`, `asset_tag_no`, `unused_machine_location`, `status`, `reserved_for`, `remarks`, `pic`, `target_date`, `date_updated`) VALUES ('$machine_name', '$car_model', '$machine_no', '$equipment_no', '$asset_tag_no', '$unused_machine_location', '$status', '$reserved_for', '$remarks', '$pic', '$target_date', '$date_updated')";
+		$sql = "INSERT INTO unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, unused_machine_location, status, reserved_for, remarks, pic, target_date, date_updated) VALUES ('$machine_name', '$car_model', '$machine_no', '$equipment_no', '$asset_tag_no', '$unused_machine_location', '$status', '$reserved_for', '$remarks', '$pic', '$target_date', '$date_updated')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -288,7 +288,7 @@ if ($method == 'dispose_machine') {
 		$status_date = date_create($status_date);
 		$status_date = date_format($status_date,"Y-m-d");
 
-		$sql = "UPDATE `unused_machines` SET `disposed`= 1 WHERE id = '$id'";
+		$sql = "UPDATE unused_machines SET disposed = 1 WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -315,7 +315,7 @@ if ($method == 'borrowed_machine') {
 		$status_date = date_create($status_date);
 		$status_date = date_format($status_date,"Y-m-d");
 
-		$sql = "UPDATE `unused_machines` SET `borrowed`= 1 WHERE id = '$id'";
+		$sql = "UPDATE unused_machines SET borrowed = 1 WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -342,7 +342,7 @@ if ($method == 'sold_machine') {
 		$status_date = date_create($status_date);
 		$status_date = date_format($status_date,"Y-m-d");
 
-		$sql = "UPDATE `unused_machines` SET `sold`= 1 WHERE id = '$id'";
+		$sql = "UPDATE unused_machines SET sold = 1 WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -365,7 +365,7 @@ if ($method == 'reset_unused_machine') {
 	$machine_status = 'UNUSED';
 	$pic = $_COOKIE['setup_name'];
 	
-	$sql = "UPDATE `unused_machines` SET `disposed`= 0, `borrowed`= 0, `sold`= 0 WHERE id = '$id'";
+	$sql = "UPDATE unused_machines SET disposed = 0, borrowed = 0, sold = 0 WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 

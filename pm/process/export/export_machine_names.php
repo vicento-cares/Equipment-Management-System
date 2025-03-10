@@ -18,7 +18,7 @@ if (!isset($_SESSION['pm_username'])) {
 
 require('../db/conn.php');
 
-$sql = "SELECT `machine_name` FROM `machines` ORDER BY `machine_name` ASC";
+$sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

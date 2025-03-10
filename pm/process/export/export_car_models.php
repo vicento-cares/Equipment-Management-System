@@ -29,7 +29,7 @@ $f = fopen('php://memory', 'w');
 $fields = array('car_model'); 
 fputcsv($f, $fields, $delimiter); 
 
-$sql = "SELECT `car_model` FROM `line_no_initial` ORDER BY `car_model` ASC";
+$sql = "SELECT car_model FROM line_no_initial ORDER BY car_model ASC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();
@@ -41,7 +41,7 @@ if ($stmt -> rowCount() > 0) {
   } 
 }
 
-$sql = "SELECT `car_model` FROM `line_no_final` ORDER BY `car_model` ASC";
+$sql = "SELECT car_model FROM line_no_final ORDER BY car_model ASC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

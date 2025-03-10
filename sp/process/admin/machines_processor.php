@@ -12,7 +12,7 @@ $method = $_POST['method'];
 $date_updated = date('Y-m-d H:i:s');
 
 if ($method == 'fetch_machines_datalist_search') {
-	$sql = "SELECT `machine_name` FROM `machines` ORDER BY `machine_name` ASC";
+	$sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -23,7 +23,7 @@ if ($method == 'fetch_machines_datalist_search') {
 }
 
 if ($method == 'fetch_machine_no_datalist') {
-	$sql = "SELECT `machine_no` FROM `machine_masterlist` WHERE `machine_no`!='' ORDER BY `machine_no` ASC";
+	$sql = "SELECT machine_no FROM machine_masterlist WHERE machine_no!='' ORDER BY machine_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -34,7 +34,7 @@ if ($method == 'fetch_machine_no_datalist') {
 }
 
 if ($method == 'fetch_equipment_no_datalist') {
-	$sql = "SELECT `equipment_no` FROM `machine_masterlist` WHERE `equipment_no`!='' ORDER BY `equipment_no` ASC";
+	$sql = "SELECT equipment_no FROM machine_masterlist WHERE equipment_no!='' ORDER BY equipment_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

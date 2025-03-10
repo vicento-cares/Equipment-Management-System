@@ -48,7 +48,7 @@ function check_machine_docs_file($machine_docs_file_info, $action, $conn) {
 	$machine_docs_filename = addslashes($machine_docs_file_info['machine_docs_filename']);
 	$machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
 	$machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
-	$sql = "SELECT id FROM `machine_setup_docs` WHERE `file_name`= '$machine_docs_filename' AND `file_type`= '$machine_docs_filetype' AND `file_url`= '$machine_docs_url'";
+	$sql = "SELECT id FROM machine_setup_docs WHERE file_name = '$machine_docs_filename' AND file_type = '$machine_docs_filetype' AND file_url = '$machine_docs_url'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -90,7 +90,7 @@ function save_machine_docs_info($machine_docs_file_info, $conn) {
   $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
   $date_updated = date('Y-m-d H:i:s');
 
-  $sql = "INSERT INTO `machine_setup_docs` (`process`, `machine_name`, `machine_docs_type`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES ('$process', '$machine_name', '$machine_docs_type', '$machine_docs_filename', '$machine_docs_filetype', '$machine_docs_url', '$date_updated')";
+  $sql = "INSERT INTO machine_setup_docs (process, machine_name, machine_docs_type, file_name, file_type, file_url, date_updated) VALUES ('$process', '$machine_name', '$machine_docs_type', '$machine_docs_filename', '$machine_docs_filetype', '$machine_docs_url', '$date_updated')";
   $stmt = $conn -> prepare($sql);
   $stmt -> execute();
 }
@@ -106,7 +106,7 @@ function update_machine_docs_info($machine_docs_file_info, $conn) {
 	$machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
 	$date_updated = date('Y-m-d H:i:s');
 
-	$sql = "UPDATE `machine_setup_docs` SET `process`= '$process', `machine_name`= '$machine_name', `machine_docs_type`= '$machine_docs_type', `file_name`= '$machine_docs_filename', `file_type`= '$machine_docs_filetype', `file_url`= '$machine_docs_url', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+	$sql = "UPDATE machine_setup_docs SET process = '$process', machine_name = '$machine_name', machine_docs_type = '$machine_docs_type', file_name = '$machine_docs_filename', file_type = '$machine_docs_filetype', file_url = '$machine_docs_url', date_updated = '$date_updated' WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -114,7 +114,7 @@ function update_machine_docs_info($machine_docs_file_info, $conn) {
 // Count
 if ($method == 'count_machine_docs') {
 	$search = addslashes($_POST['search']);
-	$sql = "SELECT count(id) AS total FROM `machine_setup_docs`";
+	$sql = "SELECT count(id) AS total FROM machine_setup_docs";
 	if (!empty($search)) {
 		$sql = $sql . " WHERE machine_name LIKE '$search%' OR machine_docs_type LIKE '$search%' OR file_name LIKE '$search%'";
 	}
@@ -133,7 +133,7 @@ if ($method == 'load_machine_docs') {
 	$search = addslashes($_POST['search']);
 	$c = $_POST['c'];
 	
-	$sql = "SELECT `id`, `process`, `machine_name`, `machine_docs_type`, `file_name`, `file_url`, `date_updated` FROM `machine_setup_docs`";
+	$sql = "SELECT id, process, machine_name, machine_docs_type, file_name, file_url, date_updated FROM machine_setup_docs";
 
 	if (!empty($id) && empty($search)) {
 		$sql = $sql . " WHERE id > '$id'";
@@ -288,7 +288,7 @@ if ($method == 'update_machine_docs') {
 
 	    $old_machine_docs_filename = '';
 		
-    	$sql = "SELECT `file_name` FROM `machine_setup_docs` WHERE id = '$id'";
+    	$sql = "SELECT file_name FROM machine_setup_docs WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			if ($stmt -> rowCount() > 0) {
@@ -341,7 +341,7 @@ if ($method == 'update_machine_docs') {
 	    }
 
 		} else {
-			$sql = "UPDATE `machine_setup_docs` SET `process`= '$process', `machine_name`= '$machine_name', `machine_docs_type`= '$machine_docs_type', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+			$sql = "UPDATE machine_setup_docs SET process = '$process', machine_name = '$machine_name', machine_docs_type = '$machine_docs_type', date_updated = '$date_updated' WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 		}
@@ -355,7 +355,7 @@ if ($method == 'delete_machine_docs') {
 	$machine_docs_filename = '';
 	$target_dir = '';
 
-	$sql = "SELECT `machine_docs_type`, `file_name` FROM `machine_setup_docs` WHERE id = '$id'";
+	$sql = "SELECT machine_docs_type, file_name FROM machine_setup_docs WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -378,7 +378,7 @@ if ($method == 'delete_machine_docs') {
     
 	if (file_exists($target_file)) {
 		if (unlink($target_file)) { 
-			$sql = "DELETE FROM `machine_setup_docs` WHERE id = '$id'";
+			$sql = "DELETE FROM machine_setup_docs WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 		} else {
@@ -393,7 +393,7 @@ if ($method == 'download_mstprc_format') {
 	$machine_name = $_POST['machine_name'];
 	$file_url = '';
 
-	$sql = "SELECT `file_url` FROM `machine_setup_docs` WHERE machine_name = '$machine_name' AND machine_docs_type = 'MSTPRC'";
+	$sql = "SELECT file_url FROM machine_setup_docs WHERE machine_name = '$machine_name' AND machine_docs_type = 'MSTPRC'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -409,7 +409,7 @@ if ($method == 'download_rsir_format') {
 	$machine_name = $_POST['machine_name'];
 	$file_url = '';
 
-	$sql = "SELECT `file_url` FROM `machine_pm_docs` WHERE machine_name = '$machine_name' AND machine_docs_type = 'RSIR'";
+	$sql = "SELECT file_url FROM machine_pm_docs WHERE machine_name = '$machine_name' AND machine_docs_type = 'RSIR'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

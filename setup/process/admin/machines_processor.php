@@ -14,7 +14,7 @@ $date_updated = date('Y-m-d H:i:s');
 
 function check_existing_machine_name($machine_name, $conn) {
 	$machine_name = addslashes($machine_name);
-	$sql = "SELECT `machine_name` FROM `machines` WHERE `machine_name`= '$machine_name'";
+	$sql = "SELECT machine_name FROM machines WHERE machine_name = '$machine_name'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -26,7 +26,7 @@ function check_existing_machine_name($machine_name, $conn) {
 
 // Get Machines Dropdown
 if ($method == 'fetch_machines_dropdown') {
-	$sql = "SELECT `machine_name` FROM `machines` ORDER BY `machine_name` ASC";
+	$sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -40,7 +40,7 @@ if ($method == 'fetch_machines_dropdown') {
 }
 
 if ($method == 'fetch_machines_dropdown_all') {
-	$sql = "SELECT `machine_name` FROM `machines` ORDER BY `machine_name` ASC";
+	$sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -54,7 +54,7 @@ if ($method == 'fetch_machines_dropdown_all') {
 }
 
 if ($method == 'fetch_machines_datalist_search') {
-	$sql = "SELECT `machine_name` FROM `machines` ORDER BY `machine_name` ASC";
+	$sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -80,7 +80,7 @@ if ($method == 'get_machine_details_by_id') {
 }
 
 if ($method == 'fetch_machine_no_datalist') {
-	$sql = "SELECT `machine_no` FROM `machine_masterlist` WHERE `machine_no`!='' ORDER BY `machine_no` ASC";
+	$sql = "SELECT machine_no FROM machine_masterlist WHERE machine_no!='' ORDER BY machine_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -91,7 +91,7 @@ if ($method == 'fetch_machine_no_datalist') {
 }
 
 if ($method == 'fetch_equipment_no_datalist') {
-	$sql = "SELECT `equipment_no` FROM `machine_masterlist` WHERE `equipment_no`!='' ORDER BY `equipment_no` ASC";
+	$sql = "SELECT equipment_no FROM machine_masterlist WHERE equipment_no!='' ORDER BY equipment_no ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -105,14 +105,14 @@ if ($method == 'fetch_equipment_no_datalist') {
 if ($method == 'count_data') {
 	$process = $_POST['process'];
 	$machine_name = addslashes($_POST['machine_name']);
-	$sql = "SELECT count(id) AS total FROM `machines`";
+	$sql = "SELECT count(id) AS total FROM machines";
 	if (!empty($machine_name)) {
-		$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%'";
+		$sql = $sql . " WHERE machine_name LIKE '$machine_name%'";
 		if ($process != 'All') {
-			$sql = $sql . " AND `process`= '$process'";
+			$sql = $sql . " AND process = '$process'";
 		}
 	} else if ($process != 'All') {
-		$sql = $sql . " WHERE `process`= '$process'";
+		$sql = $sql . " WHERE process = '$process'";
 	}
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -129,27 +129,27 @@ if ($method == 'fetch_data') {
 	$process = $_POST['process'];
 	$machine_name = addslashes($_POST['machine_name']);
 	$c = $_POST['c'];
-	$sql = "SELECT `id`, `number`, `process`, `machine_name`, `date_updated` FROM `machines`";
+	$sql = "SELECT id, number, process, machine_name, date_updated FROM machines";
 
 	if (empty($id)) {
 		if (!empty($machine_name)) {
-			$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%'";
+			$sql = $sql . " WHERE machine_name LIKE '$machine_name%'";
 			if ($process != 'All') {
-				$sql = $sql . " AND `process`= '$process'";
+				$sql = $sql . " AND process = '$process'";
 			}
 		} else if ($process != 'All') {
-			$sql = $sql . " WHERE `process`= '$process'";
+			$sql = $sql . " WHERE process = '$process'";
 		}
 	} else {
 		$sql = $sql . " WHERE id > '$id'";
 		if (!empty($machine_name)) {
-			$sql = $sql . " AND (`machine_name` LIKE '$machine_name%'";
+			$sql = $sql . " AND (machine_name LIKE '$machine_name%'";
 			if ($process != 'All') {
-				$sql = $sql . " AND `process`= '$process'";
+				$sql = $sql . " AND process = '$process'";
 			}
 			$sql = $sql . ")";
 		} else if ($process != 'All') {
-			$sql = $sql . " AND (`process`= '$process'";
+			$sql = $sql . " AND (process = '$process'";
 			$sql = $sql . ")";
 		}
 	}
@@ -194,7 +194,7 @@ if ($method == 'save_data') {
 		} else {
 			$machine_name = addslashes($machine_name);
 
-			$sql = "INSERT INTO `machines` (`process`, `machine_name`, `date_updated`) VALUES ('$process', '$machine_name', '$date_updated')";
+			$sql = "INSERT INTO machines (process, machine_name, date_updated) VALUES ('$process', '$machine_name', '$date_updated')";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			echo 'success';

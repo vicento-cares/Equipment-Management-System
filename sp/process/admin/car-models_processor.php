@@ -10,7 +10,7 @@ if (!isset($_POST['method'])) {
 $method = $_POST['method'];
 
 if ($method == 'fetch_car_model_datalist_search') {
-	$sql = "SELECT `car_model` FROM `line_no_initial` GROUP BY `car_model` ORDER BY `car_model` ASC";
+	$sql = "SELECT car_model FROM line_no_initial GROUP BY car_model ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -19,7 +19,7 @@ if ($method == 'fetch_car_model_datalist_search') {
 		}
 	}
 	
-	$sql = "SELECT `car_model` FROM `line_no_final` ORDER BY `car_model` ASC";
+	$sql = "SELECT car_model FROM line_no_final ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

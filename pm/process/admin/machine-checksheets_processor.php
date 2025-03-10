@@ -28,13 +28,13 @@ function generate_rsir_no($rsir_no) {
 
 function update_notif_count_machine_checksheets($interface, $rsir_process_status, $conn) {
 	if ($rsir_process_status != 'Saved') {
-		$sql = "UPDATE `notif_pm_approvers`";
+		$sql = "UPDATE notif_pm_approvers";
 		if ($rsir_process_status == 'Confirmed') {
-			$sql = $sql . " SET `pending_rsir`= pending_rsir + 1";
+			$sql = $sql . " SET pending_rsir = pending_rsir + 1";
 		} else if ($rsir_process_status == 'Approved') {
-			$sql = $sql . " SET `approved_rsir`= approved_rsir + 1";
+			$sql = $sql . " SET approved_rsir = approved_rsir + 1";
 		} else if ($rsir_process_status == 'Disapproved') {
-			$sql = $sql . " SET `disapproved_rsir`= disapproved_rsir + 1";
+			$sql = $sql . " SET disapproved_rsir = disapproved_rsir + 1";
 		}
 		$sql = $sql . " WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
@@ -45,29 +45,29 @@ function update_notif_count_machine_checksheets($interface, $rsir_process_status
 function machine_checksheets_mark_as_read($rsir_no, $rsir_process_status, $interface, $conn) {
 	$sql = "";
 	if ($rsir_process_status == 'Approved' || $rsir_process_status == 'Disapproved') {
-		$sql = $sql . "UPDATE `pm_rsir_history`";
+		$sql = $sql . "UPDATE pm_rsir_history";
 	} else {
-		$sql = $sql . "UPDATE `pm_rsir`";
+		$sql = $sql . "UPDATE pm_rsir";
 	}
 	if ($interface == 'ADMIN-PM') {
-		$sql = $sql . " SET `is_read_pm`= 1";
+		$sql = $sql . " SET is_read_pm = 1";
 	} else if ($interface == 'APPROVER-PROD-MGR') {
-		$sql = $sql . " SET `is_read_prod`= 1";
+		$sql = $sql . " SET is_read_prod = 1";
 	} else if ($interface == 'APPROVER-QA-MGR') {
-		$sql = $sql . " SET `is_read_qa`= 1";
+		$sql = $sql . " SET is_read_qa = 1";
 	}
-	$sql = $sql . " WHERE `rsir_no`= '$rsir_no'";
+	$sql = $sql . " WHERE rsir_no = '$rsir_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 
 	if ($rsir_process_status != 'Saved' && $rsir_process_status != 'Returned') {
-		$sql = "UPDATE `notif_pm_approvers`";
+		$sql = "UPDATE notif_pm_approvers";
 		if ($rsir_process_status == 'Confirmed') {
-			$sql = $sql . " SET `pending_rsir` = CASE WHEN pending_rsir > 0 THEN pending_rsir - 1 END";
+			$sql = $sql . " SET pending_rsir = CASE WHEN pending_rsir > 0 THEN pending_rsir - 1 END";
 		} else if ($rsir_process_status == 'Approved') {
-			$sql = $sql . " SET `approved_rsir` = CASE WHEN approved_rsir > 0 THEN approved_rsir - 1 END";
+			$sql = $sql . " SET approved_rsir = CASE WHEN approved_rsir > 0 THEN approved_rsir - 1 END";
 		} else if ($rsir_process_status == 'Disapproved') {
-			$sql = $sql . " SET `disapproved_rsir` = CASE WHEN disapproved_rsir > 0 THEN disapproved_rsir - 1 END";
+			$sql = $sql . " SET disapproved_rsir = CASE WHEN disapproved_rsir > 0 THEN disapproved_rsir - 1 END";
 		}
 		$sql = $sql . " WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
@@ -112,7 +112,7 @@ function check_rsir_file($rsir_file_info, $action, $conn) {
 	$rsir_filename = addslashes($rsir_file_info['rsir_filename']);
 	$rsir_filetype = addslashes($rsir_file_info['rsir_filetype']);
 	$rsir_url = addslashes($rsir_file_info['rsir_url']);
-	$sql = "SELECT id FROM `pm_rsir` WHERE `file_name`= '$rsir_filename' AND `file_type`= '$rsir_filetype' AND `file_url`= '$rsir_url'";
+	$sql = "SELECT id FROM pm_rsir WHERE file_name = '$rsir_filename' AND file_type = '$rsir_filetype' AND file_url = '$rsir_url'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -125,7 +125,7 @@ function check_rsir_file($rsir_file_info, $action, $conn) {
 		}
 	}
 	// Check File Information Exists on Database (History)
-	$sql = "SELECT id FROM `pm_rsir_history` WHERE `file_name`= '$rsir_filename' AND `file_type`= '$rsir_filetype' AND `file_url`= '$rsir_url'";
+	$sql = "SELECT id FROM pm_rsir_history WHERE file_name = '$rsir_filename' AND file_type = '$rsir_filetype' AND file_url = '$rsir_url'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -181,7 +181,7 @@ function save_rsir_info($rsir_file_info, $conn) {
 	$rsir_eq_group = 'pm';
 	$date_updated = date('Y-m-d H:i:s');
 
-	$sql = "INSERT INTO `pm_rsir` (`rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `inspected_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `file_name`, `file_type`, `file_url`, `rsir_eq_group`, `date_updated`) VALUES ('$rsir_no', '$rsir_type', '$machine_name', '$machine_no', '$equipment_no', '$rsir_date', '$repair_details', '$repaired_by', '$repair_date', '$next_pm_date', '$inspected_by', '$rsir_username', '$rsir_approver_role', 'Saved', '$rsir_filename', '$rsir_filetype', '$rsir_url', '$rsir_eq_group', '$date_updated')";
+	$sql = "INSERT INTO pm_rsir (rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, repair_details, repaired_by, repair_date, next_pm_date, inspected_by, rsir_username, rsir_approver_role, rsir_process_status, file_name, file_type, file_url, rsir_eq_group, date_updated) VALUES ('$rsir_no', '$rsir_type', '$machine_name', '$machine_no', '$equipment_no', '$rsir_date', '$repair_details', '$repaired_by', '$repair_date', '$next_pm_date', '$inspected_by', '$rsir_username', '$rsir_approver_role', 'Saved', '$rsir_filename', '$rsir_filetype', '$rsir_url', '$rsir_eq_group', '$date_updated')";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -209,7 +209,7 @@ function update_rsir_info_returned($rsir_file_info, $conn) {
 	$rsir_eq_group = 'pm';
 	$date_updated = date('Y-m-d H:i:s');
 
-	$sql = "UPDATE `pm_rsir` SET `rsir_type`='$rsir_type',`machine_name`='$machine_name',`machine_no`='$machine_no',`equipment_no`='$equipment_no',`rsir_date`='$rsir_date',`repair_details`='$repair_details',`repaired_by`='$repaired_by',`repair_date`='$repair_date',`next_pm_date`='$next_pm_date',`inspected_by`='$inspected_by',`rsir_username`='$rsir_username',`rsir_approver_role`='$rsir_approver_role',`rsir_process_status`='Saved',`is_read_pm`=0,`file_name`='$rsir_filename',`file_type`='$rsir_filetype',`file_url`='$rsir_url',`rsir_eq_group`='$rsir_eq_group',`date_updated`='$date_updated' WHERE `rsir_no`='$rsir_no'";
+	$sql = "UPDATE pm_rsir SET rsir_type = '$rsir_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',rsir_date = '$rsir_date',repair_details = '$repair_details',repaired_by = '$repaired_by',repair_date = '$repair_date',next_pm_date = '$next_pm_date',inspected_by = '$inspected_by',rsir_username = '$rsir_username',rsir_approver_role = '$rsir_approver_role',rsir_process_status = 'Saved',is_read_pm = 0,file_name = '$rsir_filename',file_type = '$rsir_filetype',file_url = '$rsir_url',rsir_eq_group = '$rsir_eq_group',date_updated = '$date_updated' WHERE rsir_no = '$rsir_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -264,7 +264,7 @@ if ($method == 'goto_rsir_step2') {
 function check_rsir_no_returned($rsir_no, $conn) {
 	$rsir_no_exist = false;
 
-	$sql = "SELECT rsir_no FROM `pm_rsir` WHERE `rsir_no`= '$rsir_no'";
+	$sql = "SELECT rsir_no FROM pm_rsir WHERE rsir_no = '$rsir_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -387,7 +387,7 @@ if ($method == 'save_rsir') {
 
 // Count
 if ($method == 'count_pending_machine_checksheets') {
-	$sql = "SELECT count(id) AS total FROM `pm_rsir` WHERE (`rsir_process_status`= 'Saved' OR `rsir_process_status`= 'Confirmed') AND `rsir_eq_group`= 'pm'";
+	$sql = "SELECT count(id) AS total FROM pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'pm'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -403,7 +403,7 @@ if ($method == 'count_pending_machine_checksheets') {
 if ($method == 'get_pending_machine_checksheets') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning', 'modal-trigger bg-orange');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_approver_role`, `rsir_process_status`, `is_read_pm`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir` WHERE (`rsir_process_status`= 'Saved' OR `rsir_process_status`= 'Confirmed') AND `rsir_eq_group`= 'pm' ORDER BY `id` DESC";
+	$sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, is_read_pm, file_name, file_url, date_updated FROM pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'pm' ORDER BY id DESC";
 	$c = 0;
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -442,7 +442,7 @@ if ($method == 'pending_machine_checksheets_mark_as_read') {
 
 // Count
 if ($method == 'count_returned_machine_checksheets') {
-	$sql = "SELECT count(id) AS total FROM `pm_rsir` WHERE `rsir_process_status`= 'Returned' AND `rsir_eq_group`= 'pm'";
+	$sql = "SELECT count(id) AS total FROM pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'pm'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -458,7 +458,7 @@ if ($method == 'count_returned_machine_checksheets') {
 if ($method == 'get_returned_machine_checksheets') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_approver_role`, `rsir_process_status`, `returned_by`, `returned_date_time`, `is_read_pm`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir` WHERE `rsir_process_status`= 'Returned' AND `rsir_eq_group`= 'pm' ORDER BY `id` DESC";
+	$sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, returned_by, returned_date_time, is_read_pm, file_name, file_url, date_updated FROM pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'pm' ORDER BY id DESC";
 	$c = 0;
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -499,7 +499,7 @@ if ($method == 'return_pending_rsir') {
 	$rsir_no = $_POST['rsir_no'];
 	$confirmed_by = $_SESSION['pm_name'];
 
-	$sql = "UPDATE `pm_rsir` SET `returned_by`= '$confirmed_by', `returned_date_time`= '$date_updated', `rsir_process_status`= 'Returned', `is_read_pm`=0 WHERE `rsir_no`= '$rsir_no'";
+	$sql = "UPDATE pm_rsir SET returned_by = '$confirmed_by', returned_date_time = '$date_updated', rsir_process_status = 'Returned', is_read_pm = 0 WHERE rsir_no = '$rsir_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 
@@ -522,7 +522,7 @@ if ($method == 'confirm_pending_rsir') {
 	} else echo "Judgement Of Equipment Empty";
 
 	if ($is_valid == true) {
-		$sql = "UPDATE `pm_rsir` SET `judgement_of_eq`= '$judgement_of_eq', `confirmed_by`= '$confirmed_by', `rsir_process_status`= 'Confirmed' WHERE `rsir_no`= '$rsir_no'";
+		$sql = "UPDATE pm_rsir SET judgement_of_eq = '$judgement_of_eq', confirmed_by = '$confirmed_by', rsir_process_status = 'Confirmed' WHERE rsir_no = '$rsir_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -557,7 +557,7 @@ if ($method == 'count_machine_checksheets_prod') {
 		LEFT JOIN machine_masterlist m
 		ON p.machine_no = m.machine_no
 		AND p.equipment_no = m.equipment_no
-		WHERE p.rsir_process_status='Confirmed' AND p.rsir_approver_role='Prod'";
+		WHERE p.rsir_process_status = 'Confirmed' AND p.rsir_approver_role = 'Prod'";
 	
 	if (!empty($car_model)) {
 		$sql = $sql . " AND m.car_model LIKE '$car_model%'";
@@ -613,7 +613,7 @@ if ($method == 'get_machine_checksheets_prod') {
 		LEFT JOIN machine_masterlist m
 		ON p.machine_no = m.machine_no
 		AND p.equipment_no = m.equipment_no
-		WHERE p.rsir_process_status='Confirmed' AND p.rsir_approver_role='Prod'";
+		WHERE p.rsir_process_status = 'Confirmed' AND p.rsir_approver_role = 'Prod'";
 
 	if (!empty($car_model)) {
 		$sql = $sql . " AND m.car_model LIKE '$car_model%'";
@@ -683,12 +683,12 @@ if ($method == 'count_pm_records_prod') {
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$rsir_no = $_POST['rsir_no'];
 
-	$sql = "SELECT count(id) AS total FROM `pm_rsir_history`";
+	$sql = "SELECT count(id) AS total FROM pm_rsir_history";
 
 	if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-		$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'Prod'";
+		$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'Prod'";
 	} else {
-		$sql = $sql . " WHERE (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'Prod'";
+		$sql = $sql . " WHERE (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'Prod'";
 	}
 
 	$stmt = $conn -> prepare($sql);
@@ -721,19 +721,19 @@ if ($method == 'get_pm_records_prod') {
 	$rsir_no = $_POST['rsir_no'];
 	$c = $_POST['c'];
 
-	$sql = "SELECT `id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir_history`";
+	$sql = "SELECT id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, file_name, file_url, date_updated FROM pm_rsir_history";
 
 	if (empty($id)) {
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
+			$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
 		}
 	} else {
-		$sql = $sql . " WHERE `id` < '$id'";
+		$sql = $sql . " WHERE id < '$id'";
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " AND (`machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
+			$sql = $sql . " AND (machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
 		}
 	}
-	$sql = $sql . " AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'Prod' ORDER BY `id` DESC LIMIT 25";
+	$sql = $sql . " AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'Prod' ORDER BY id DESC LIMIT 25";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -776,7 +776,7 @@ if ($method == 'count_machine_checksheets_qa') {
 		LEFT JOIN machine_masterlist m
 		ON p.machine_no = m.machine_no
 		AND p.equipment_no = m.equipment_no
-		WHERE p.rsir_process_status='Confirmed' AND p.rsir_approver_role='QA'";
+		WHERE p.rsir_process_status = 'Confirmed' AND p.rsir_approver_role = 'QA'";
 	
 	if (!empty($car_model)) {
 		$sql = $sql . " AND m.car_model LIKE '$car_model%'";
@@ -832,7 +832,7 @@ if ($method == 'get_machine_checksheets_qa') {
 		LEFT JOIN machine_masterlist m
 		ON p.machine_no = m.machine_no
 		AND p.equipment_no = m.equipment_no
-		WHERE p.rsir_process_status='Confirmed' AND p.rsir_approver_role='QA'";
+		WHERE p.rsir_process_status = 'Confirmed' AND p.rsir_approver_role = 'QA'";
 
 	if (!empty($car_model)) {
 		$sql = $sql . " AND m.car_model LIKE '$car_model%'";
@@ -902,12 +902,12 @@ if ($method == 'count_pm_records_qa') {
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$rsir_no = $_POST['rsir_no'];
 
-	$sql = "SELECT count(id) AS total FROM `pm_rsir_history`";
+	$sql = "SELECT count(id) AS total FROM pm_rsir_history";
 
 	if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-		$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'QA'";
+		$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'QA'";
 	} else {
-		$sql = $sql . " WHERE (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'QA'";
+		$sql = $sql . " WHERE (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'QA'";
 	}
 
 	$stmt = $conn -> prepare($sql);
@@ -940,19 +940,19 @@ if ($method == 'get_pm_records_qa') {
 	$rsir_no = $_POST['rsir_no'];
 	$c = $_POST['c'];
 
-	$sql = "SELECT `id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir_history`";
+	$sql = "SELECT id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, file_name, file_url, date_updated FROM pm_rsir_history";
 
 	if (empty($id)) {
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
+			$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
 		}
 	} else {
-		$sql = $sql . " WHERE `id` < '$id'";
+		$sql = $sql . " WHERE id < '$id'";
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " AND (`machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
+			$sql = $sql . " AND (machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
 		}
 	}
-	$sql = $sql . " AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') AND `rsir_approver_role`= 'QA' ORDER BY `id` DESC LIMIT 25";
+	$sql = $sql . " AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_approver_role = 'QA' ORDER BY id DESC LIMIT 25";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -989,7 +989,7 @@ if ($method == 'approve_pending_rsir') {
 	} else echo "Judgement Of Product Empty";
 
 	if ($is_valid == true) {
-		$sql = "SELECT `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `file_name`, `file_type`, `file_url`, `rsir_eq_group` FROM `pm_rsir` WHERE `rsir_no`= '$rsir_no'";
+		$sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, inspected_by, confirmed_by, judgement_by, rsir_username, rsir_approver_role, rsir_process_status, disapproved_by, disapproved_by_role, file_name, file_type, file_url, rsir_eq_group FROM pm_rsir WHERE rsir_no = '$rsir_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {
@@ -1017,11 +1017,11 @@ if ($method == 'approve_pending_rsir') {
 			}
 		}
 
-		$sql = "INSERT INTO `pm_rsir_history`(`rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `file_name`, `file_type`, `file_url`, `rsir_eq_group`) VALUES ('$rsir_no','$rsir_type','$machine_name','$machine_no','$equipment_no','$rsir_date','$judgement_of_eq','$repair_details','$repaired_by','$repair_date','$next_pm_date','$judgement_of_prod','$inspected_by','$confirmed_by','$pm_name','$rsir_username','$rsir_approver_role','Approved','$file_name','$file_type','$file_url','$rsir_eq_group')";
+		$sql = "INSERT INTO pm_rsir_history(rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_username, rsir_approver_role, rsir_process_status, file_name, file_type, file_url, rsir_eq_group) VALUES ('$rsir_no','$rsir_type','$machine_name','$machine_no','$equipment_no','$rsir_date','$judgement_of_eq','$repair_details','$repaired_by','$repair_date','$next_pm_date','$judgement_of_prod','$inspected_by','$confirmed_by','$pm_name','$rsir_username','$rsir_approver_role','Approved','$file_name','$file_type','$file_url','$rsir_eq_group')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
-		$sql = "DELETE FROM `pm_rsir` WHERE `rsir_no`= '$rsir_no'";
+		$sql = "DELETE FROM pm_rsir WHERE rsir_no = '$rsir_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -1049,7 +1049,7 @@ if ($method == 'disapprove_pending_rsir') {
 
 	if ($is_valid == true) {
 
-		$sql = "SELECT `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `file_name`, `file_type`, `file_url`, `rsir_eq_group` FROM `pm_rsir` WHERE `rsir_no`= '$rsir_no'";
+		$sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, inspected_by, confirmed_by, judgement_by, rsir_username, rsir_approver_role, rsir_process_status, disapproved_by, disapproved_by_role, file_name, file_type, file_url, rsir_eq_group FROM pm_rsir WHERE rsir_no = '$rsir_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {
@@ -1077,11 +1077,11 @@ if ($method == 'disapprove_pending_rsir') {
 			}
 		}
 
-		$sql = "INSERT INTO `pm_rsir_history`(`rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_username`, `rsir_approver_role`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `file_name`, `file_type`, `file_url`, `rsir_eq_group`) VALUES ('$rsir_no','$rsir_type','$machine_name','$machine_no','$equipment_no','$rsir_date','$judgement_of_eq','$repair_details','$repaired_by','$repair_date','$next_pm_date','$judgement_of_prod','$inspected_by','$confirmed_by','$judgement_by','$rsir_username','$rsir_approver_role','Disapproved','$pm_name','$pm_role','$disapproved_comment','$file_name','$file_type','$file_url','$rsir_eq_group')";
+		$sql = "INSERT INTO pm_rsir_history(rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_username, rsir_approver_role, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, file_name, file_type, file_url, rsir_eq_group) VALUES ('$rsir_no','$rsir_type','$machine_name','$machine_no','$equipment_no','$rsir_date','$judgement_of_eq','$repair_details','$repaired_by','$repair_date','$next_pm_date','$judgement_of_prod','$inspected_by','$confirmed_by','$judgement_by','$rsir_username','$rsir_approver_role','Disapproved','$pm_name','$pm_role','$disapproved_comment','$file_name','$file_type','$file_url','$rsir_eq_group')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
-		$sql = "DELETE FROM `pm_rsir` WHERE `rsir_no`= '$rsir_no'";
+		$sql = "DELETE FROM pm_rsir WHERE rsir_no = '$rsir_no'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -1110,12 +1110,12 @@ if ($method == 'count_pm_records') {
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$rsir_no = $_POST['rsir_no'];
 
-	$sql = "SELECT count(id) AS total FROM `pm_rsir_history`";
+	$sql = "SELECT count(id) AS total FROM pm_rsir_history";
 
 	if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-		$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved')";
+		$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to') AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved')";
 	} else {
-		$sql = $sql . " WHERE `rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved'";
+		$sql = $sql . " WHERE rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved'";
 	}
 
 	$stmt = $conn -> prepare($sql);
@@ -1151,19 +1151,19 @@ if ($method == 'get_pm_records') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-success', 'modal-trigger bg-danger');
 	$row_class = $row_class_arr[0];
 
-	$sql = "SELECT `id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir_history`";
+	$sql = "SELECT id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, file_name, file_url, date_updated FROM pm_rsir_history";
 
 	if (empty($id)) {
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
+			$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to')";
 		}
 	} else {
-		$sql = $sql . " WHERE `id` < '$id'";
+		$sql = $sql . " WHERE id < '$id'";
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || !empty($rsir_no) || (!empty($rsir_date_from) && !empty($rsir_date_to))) {
-			$sql = $sql . " AND (`machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `rsir_no` LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
+			$sql = $sql . " AND (machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND rsir_no LIKE '$rsir_no%' AND (rsir_date >= '$rsir_date_from' AND rsir_date <= '$rsir_date_to'))";
 		}
 	}
-	$sql = $sql . " AND (`rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved') ORDER BY `id` DESC LIMIT 25";
+	$sql = $sql . " AND (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') ORDER BY id DESC LIMIT 25";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -1207,7 +1207,7 @@ if ($method == 'get_recent_pm_records') {
 	$row_class = $row_class_arr[0];
 	$c = 0;
 
-	$sql = "SELECT `id`, `rsir_no`, `rsir_type`, `machine_name`, `machine_no`, `equipment_no`, `rsir_date`, `judgement_of_eq`, `repair_details`, `repaired_by`, `repair_date`, `next_pm_date`, `judgement_of_prod`, `inspected_by`, `confirmed_by`, `judgement_by`, `rsir_process_status`, `disapproved_by`, `disapproved_by_role`, `disapproved_comment`, `is_read_pm`, `file_name`, `file_url`, `date_updated` FROM `pm_rsir_history` WHERE `rsir_process_status`= 'Approved' OR `rsir_process_status`= 'Disapproved' ORDER BY `id` DESC LIMIT 25";
+	$sql = "SELECT id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_pm, file_name, file_url, date_updated FROM pm_rsir_history WHERE rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved' ORDER BY id DESC LIMIT 25";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();

@@ -17,7 +17,7 @@ if ($method == 'count_notif_setup') {
 	$approved_mstprc = 0;
 	$disapproved_mstprc = 0;
 
-	$sql = "SELECT `new_act_sched` FROM `notif_setup_activities` WHERE interface = 'ADMIN-SETUP'";
+	$sql = "SELECT new_act_sched FROM notif_setup_activities WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -25,7 +25,7 @@ if ($method == 'count_notif_setup') {
 			$new_act_sched = intval($row['new_act_sched']);
 		}
 	}
-	$sql = "SELECT `approved_mstprc` FROM `notif_setup_approvers` WHERE interface = 'ADMIN-SETUP'";
+	$sql = "SELECT approved_mstprc FROM notif_setup_approvers WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -33,7 +33,7 @@ if ($method == 'count_notif_setup') {
 			$approved_mstprc = intval($row['approved_mstprc']);
 		}
 	}
-	$sql = "SELECT `disapproved_mstprc` FROM `notif_setup_approvers` WHERE interface = 'ADMIN-SETUP'";
+	$sql = "SELECT disapproved_mstprc FROM notif_setup_approvers WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -58,7 +58,7 @@ if ($method == 'count_notif_public_act_sched') {
 	$accepted_act_sched = 0;
 	$declined_act_sched = 0;
 	$total = 0;
-	$sql = "SELECT `accepted_act_sched`, `declined_act_sched` FROM `notif_setup_activities` WHERE interface = 'PUBLIC-PAGE'";
+	$sql = "SELECT accepted_act_sched, declined_act_sched FROM notif_setup_activities WHERE interface = 'PUBLIC-PAGE'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -107,7 +107,7 @@ if ($method == 'count_notif_pending_mstprc') {
 			break;
 	}
 	if (!empty($interface)) {
-		$sql = "SELECT `pending_mstprc` FROM `notif_setup_approvers` WHERE interface = '$interface'";
+		$sql = "SELECT pending_mstprc FROM notif_setup_approvers WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {
@@ -119,25 +119,25 @@ if ($method == 'count_notif_pending_mstprc') {
 }
 
 if ($method == 'update_notif_new_act_sched') {
-	$sql = "UPDATE `notif_setup_activities` SET `new_act_sched`= 0 WHERE interface = 'ADMIN-SETUP'";
+	$sql = "UPDATE notif_setup_activities SET new_act_sched = 0 WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_approved_mstprc') {
-	$sql = "UPDATE `notif_setup_approvers` SET `approved_mstprc`= 0 WHERE interface = 'ADMIN-SETUP'";
+	$sql = "UPDATE notif_setup_approvers SET approved_mstprc = 0 WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_disapproved_mstprc') {
-	$sql = "UPDATE `notif_setup_approvers` SET `disapproved_mstprc`= 0 WHERE interface = 'ADMIN-SETUP'";
+	$sql = "UPDATE notif_setup_approvers SET disapproved_mstprc = 0 WHERE interface = 'ADMIN-SETUP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_public_act_sched') {
-	$sql = "UPDATE `notif_setup_activities` SET `accepted_act_sched`= 0, `declined_act_sched`= 0 WHERE interface = 'PUBLIC-PAGE'";
+	$sql = "UPDATE notif_setup_activities SET accepted_act_sched = 0, declined_act_sched = 0 WHERE interface = 'PUBLIC-PAGE'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -171,7 +171,7 @@ if ($method == 'update_notif_pending_mstprc') {
 			break;
 	}
 	if (!empty($interface)) {
-		$sql = "UPDATE `notif_setup_approvers` SET `pending_mstprc`= 0 WHERE interface = '$interface'";
+		$sql = "UPDATE notif_setup_approvers SET pending_mstprc = 0 WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 	}

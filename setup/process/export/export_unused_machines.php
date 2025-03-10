@@ -41,7 +41,7 @@ $status = addslashes($_GET['status']);
 $unused_machine_location = addslashes($_GET['unused_machine_location']);
 $c = 0;
 
-$sql = "SELECT `machine_name`, `machine_no`, `equipment_no`, `car_model`, `asset_tag_no`, `status`, `reserved_for`, `remarks`, `pic`, `unused_machine_location`, `target_date` FROM `unused_machines`";
+$sql = "SELECT machine_name, machine_no, equipment_no, car_model, asset_tag_no, status, reserved_for, remarks, pic, unused_machine_location, target_date FROM unused_machines";
 
 if (!empty($machine_no) || !empty($equipment_no) || !empty($machine_name) || !empty($status) || !empty($car_model) || !empty($unused_machine_location)) {
 	$sql = $sql . " WHERE machine_no LIKE '$machine_no%' OR equipment_no LIKE '$equipment_no%' OR machine_name LIKE '$machine_name%' OR status LIKE '$status%' OR car_model LIKE '$car_model%' OR unused_machine_location LIKE '$unused_machine_location%'";

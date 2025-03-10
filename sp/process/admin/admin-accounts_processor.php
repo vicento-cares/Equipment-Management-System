@@ -16,7 +16,7 @@ $date_updated = date('Y-m-d H:i:s');
 
 function check_existing_username($username, $conn) {
 	$username = addslashes($username);
-	$sql = "SELECT `username` FROM `machine_sp_accounts` WHERE username = '$username'";
+	$sql = "SELECT username FROM machine_sp_accounts WHERE username = '$username'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -27,7 +27,7 @@ function check_existing_username($username, $conn) {
 }
 
 function check_own_username($id, $own_username, $conn) {
-	$sql = "SELECT `username` FROM `machine_sp_accounts` WHERE id = '$id'";
+	$sql = "SELECT username FROM machine_sp_accounts WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
@@ -41,11 +41,11 @@ function check_own_username($id, $own_username, $conn) {
 
 function change_username($id, $username, $date_updated, $conn) {
 	$username = addslashes($username);
-	$sql = "SELECT `username` FROM `machine_sp_accounts` WHERE username = '$username'";
+	$sql = "SELECT username FROM machine_sp_accounts WHERE username = '$username'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() <= 0) {
-		$sql = "UPDATE `machine_sp_accounts` SET `username`= '$username', `date_updated`= '$date_updated' WHERE id = '$id'";
+		$sql = "UPDATE machine_sp_accounts SET username = '$username', date_updated = '$date_updated' WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		return true;
@@ -57,7 +57,7 @@ function change_username($id, $username, $date_updated, $conn) {
 // Count
 if ($method == 'count_data') {
 	$search = addslashes($_POST['search']);
-	$sql = "SELECT count(id) AS total FROM `machine_sp_accounts`";
+	$sql = "SELECT count(id) AS total FROM machine_sp_accounts";
 	if (!empty($search)) {
 		$sql = $sql . " WHERE username LIKE '$search%' OR name LIKE '$search%' OR role LIKE '$search%' OR process LIKE '$search%'";
 	}
@@ -80,7 +80,7 @@ if ($method == 'fetch_data') {
 	$own_name = $_COOKIE['sp_name'];
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
 	$row_class = $row_class_arr[0];
-	$sql = "SELECT `id`, `username`, `password`, `name`, `role`, `process`, `date_updated` FROM `machine_sp_accounts`";
+	$sql = "SELECT id, username, password, name, role, process, date_updated FROM machine_sp_accounts";
 
 	if (!empty($id) && empty($search)) {
 		$sql = $sql . " WHERE id > '$id'";
@@ -149,7 +149,7 @@ if ($method == 'save_data') {
 				$username = addslashes($username);
 				$password = addslashes($password);
 				$name = addslashes($name);
-				$sql = "INSERT INTO `machine_sp_accounts` (`username`, `password`, `name`, `role`, `process`, `date_updated`) VALUES ('$username', '$password', '$name', '$role', '$process', '$date_updated')";
+				$sql = "INSERT INTO machine_sp_accounts (username, password, name, role, process, date_updated) VALUES ('$username', '$password', '$name', '$role', '$process', '$date_updated')";
 				$stmt = $conn -> prepare($sql);
 				$stmt -> execute();
 				echo 'success';
@@ -205,7 +205,7 @@ if ($method == 'update_password') {
 			echo 'Unauthorized Access';
 		} else {
 			$password = addslashes($password);
-			$sql = "UPDATE `machine_sp_accounts` SET `password`= '$password', `date_updated`= '$date_updated' WHERE id = '$id'";
+			$sql = "UPDATE machine_sp_accounts SET password = '$password', date_updated = '$date_updated' WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			echo 'success';
@@ -242,7 +242,7 @@ if ($method == 'update_data') {
 				echo 'Own Account';
 			} else {
 				$name = addslashes($name);
-				$sql = "UPDATE `machine_sp_accounts` SET `name`= '$name', `role`= '$role', `process`= '$process', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+				$sql = "UPDATE machine_sp_accounts SET name = '$name', role = '$role', process = '$process', date_updated = '$date_updated' WHERE id = '$id'";
 				$stmt = $conn -> prepare($sql);
 				$stmt -> execute();
 				if ($is_own_username == true) {
@@ -258,7 +258,7 @@ if ($method == 'update_data') {
 				echo 'Unauthorized Access';
 			} else {
 				$name = addslashes($name);
-				$sql = "UPDATE `machine_sp_accounts` SET `name`= '$name', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+				$sql = "UPDATE machine_sp_accounts SET name = '$name', date_updated = '$date_updated' WHERE id = '$id'";
 				$stmt = $conn -> prepare($sql);
 				$stmt -> execute();
 				if ($is_own_username == true) {
@@ -280,7 +280,7 @@ if ($method == 'delete_data') {
 
 	if ($is_own_username == false) {
 		if ($own_role == 'Admin') {
-			$sql = "DELETE FROM `machine_sp_accounts` WHERE id = '$id'";
+			$sql = "DELETE FROM machine_sp_accounts WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$params = array($id);
 			$stmt -> execute($params);

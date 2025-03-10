@@ -10,7 +10,7 @@ if (!isset($_POST['method'])) {
 $method = $_POST['method'];
 
 if ($method == 'fetch_location_datalist_search') {
-	$sql = "SELECT `location` FROM `locations` ORDER BY `location` ASC";
+	$sql = "SELECT location FROM locations ORDER BY location ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

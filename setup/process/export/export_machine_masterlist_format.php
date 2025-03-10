@@ -21,7 +21,7 @@ if (!isset($_SESSION['setup_username'])) {
 
 require('../db/conn.php');
 
-$sql = "SELECT `number`, `process`, `machine_name` FROM `machines`";
+$sql = "SELECT number, process, machine_name FROM machines";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

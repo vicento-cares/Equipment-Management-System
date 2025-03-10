@@ -11,7 +11,7 @@ $method = $_POST['method'];
 
 // Get Factory Area Dropdown
 if ($method == 'fetch_location_dropdown') {
-	$sql = "SELECT `location` FROM `locations` ORDER BY location ASC";
+	$sql = "SELECT location FROM locations ORDER BY location ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -25,7 +25,7 @@ if ($method == 'fetch_location_dropdown') {
 }
 
 if ($method == 'fetch_location_datalist_search') {
-	$sql = "SELECT `location` FROM `locations` ORDER BY `location` ASC";
+	$sql = "SELECT location FROM locations ORDER BY location ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

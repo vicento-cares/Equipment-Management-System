@@ -13,7 +13,7 @@ if ($method == 'count_notif_sp') {
 	$new_pm_concerns = 0;
 	$pending_mstprc = 0;
 
-	$sql = "SELECT `new_pm_concerns` FROM `notif_pm_no_spare` WHERE interface = 'ADMIN-SP'";
+	$sql = "SELECT new_pm_concerns FROM notif_pm_no_spare WHERE interface = 'ADMIN-SP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -22,7 +22,7 @@ if ($method == 'count_notif_sp') {
 		}
 	}
 
-	$sql = "SELECT `pending_mstprc` FROM `notif_setup_approvers` WHERE interface = 'APPROVER-2-EQ-SP'";
+	$sql = "SELECT pending_mstprc FROM notif_setup_approvers WHERE interface = 'APPROVER-2-EQ-SP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -43,13 +43,13 @@ if ($method == 'count_notif_sp') {
 }
 
 if ($method == 'update_notif_new_pm_concerns') {
-	$sql = "UPDATE `notif_pm_no_spare` SET `new_pm_concerns`= 0 WHERE interface = 'ADMIN-SP'";
+	$sql = "UPDATE notif_pm_no_spare SET new_pm_concerns = 0 WHERE interface = 'ADMIN-SP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_pending_mstprc') {
-	$sql = "UPDATE `notif_setup_approvers` SET `pending_mstprc`= 0 WHERE interface = 'APPROVER-2-EQ-SP'";
+	$sql = "UPDATE notif_setup_approvers SET pending_mstprc = 0 WHERE interface = 'APPROVER-2-EQ-SP'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }

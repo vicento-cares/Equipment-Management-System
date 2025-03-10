@@ -11,7 +11,7 @@ $method = $_POST['method'];
 
 // Get Car Model Dropdown
 if ($method == 'fetch_car_model_dropdown') {
-	$sql = "SELECT `car_model` FROM `car_models` ORDER BY car_model ASC";
+	$sql = "SELECT car_model FROM car_models ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -26,7 +26,7 @@ if ($method == 'fetch_car_model_dropdown') {
 
 // Get Car Model Dropdown
 if ($method == 'fetch_car_model_dropdown_search') {
-	$sql = "SELECT `car_model` FROM `car_models` ORDER BY car_model ASC";
+	$sql = "SELECT car_model FROM car_models ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -42,11 +42,11 @@ if ($method == 'fetch_car_model_dropdown_search') {
 // Get Car Model Datalist
 if ($method == 'fetch_car_model_datalist') {
 	$process = $_POST['process'];
-	$sql = "SELECT `car_model` ";
+	$sql = "SELECT car_model ";
 	if ($process == 'Initial') {
-		$sql = $sql . "FROM `line_no_initial` GROUP BY `car_model` ORDER BY `car_model` ASC";
+		$sql = $sql . "FROM line_no_initial GROUP BY car_model ORDER BY car_model ASC";
 	} else if ($process == 'Final') {
-		$sql = $sql . "FROM `line_no_final` ORDER BY `car_model` ASC";
+		$sql = $sql . "FROM line_no_final ORDER BY car_model ASC";
 	}
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -58,7 +58,7 @@ if ($method == 'fetch_car_model_datalist') {
 }
 
 if ($method == 'fetch_car_model_datalist_search') {
-	$sql = "SELECT `car_model` FROM `line_no_initial` GROUP BY `car_model` ORDER BY `car_model` ASC";
+	$sql = "SELECT car_model FROM line_no_initial GROUP BY car_model ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -67,7 +67,7 @@ if ($method == 'fetch_car_model_datalist_search') {
 		}
 	}
 	
-	$sql = "SELECT `car_model` FROM `line_no_final` ORDER BY `car_model` ASC";
+	$sql = "SELECT car_model FROM line_no_final ORDER BY car_model ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -83,7 +83,7 @@ if ($method == 'get_car_model_details') {
 
 	if (!empty($car_model)) {
 		$car_model = addslashes($car_model);
-		$sql = "SELECT `car_model`, `location` FROM `line_no_final` WHERE `car_model` = '$car_model'";
+		$sql = "SELECT car_model, location FROM line_no_final WHERE car_model = '$car_model'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {

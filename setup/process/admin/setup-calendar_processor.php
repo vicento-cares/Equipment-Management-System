@@ -12,13 +12,13 @@ $method = $_POST['method'];
 $date_updated = date('Y-m-d H:i:s');
 
 function update_notif_count_setup_activities($interface, $setup_activity_status, $conn) {
-	$sql = "UPDATE `notif_setup_activities`";
+	$sql = "UPDATE notif_setup_activities";
 	if ($setup_activity_status == 'For Confirmation') {
-		$sql = $sql . " SET `new_act_sched`= new_act_sched + 1";
+		$sql = $sql . " SET new_act_sched = new_act_sched + 1";
 	} else if ($setup_activity_status == 'Accepted') {
-		$sql = $sql . " SET `accepted_act_sched`= accepted_act_sched + 1";
+		$sql = $sql . " SET accepted_act_sched = accepted_act_sched + 1";
 	} else if ($setup_activity_status == 'Declined') {
-		$sql = $sql . " SET `declined_act_sched`= declined_act_sched + 1";
+		$sql = $sql . " SET declined_act_sched = declined_act_sched + 1";
 	}
 	$sql = $sql . " WHERE interface = '$interface'";
 	$stmt = $conn -> prepare($sql);
@@ -26,23 +26,23 @@ function update_notif_count_setup_activities($interface, $setup_activity_status,
 }
 
 function setup_activities_mark_as_read($id, $setup_activity_status, $interface, $conn) {
-	$sql = "UPDATE `machine_setup_activities`";
+	$sql = "UPDATE machine_setup_activities";
 	if ($interface == 'PUBLIC-PAGE') {
-		$sql = $sql . " SET `is_read`= 1";
+		$sql = $sql . " SET is_read = 1";
 	} else if ($interface == 'ADMIN-SETUP') {
-		$sql = $sql . " SET `is_read_setup`= 1";
+		$sql = $sql . " SET is_read_setup = 1";
 	}
-	$sql = $sql . " WHERE `id`= '$id'";
+	$sql = $sql . " WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 
-	$sql = "UPDATE `notif_setup_activities`";
+	$sql = "UPDATE notif_setup_activities";
 	if ($setup_activity_status == 'For Confirmation') {
-		$sql = $sql . " SET `new_act_sched` = CASE WHEN new_act_sched > 0 THEN new_act_sched - 1 END";
+		$sql = $sql . " SET new_act_sched = CASE WHEN new_act_sched > 0 THEN new_act_sched - 1 END";
 	} else if ($setup_activity_status == 'Accepted') {
-		$sql = $sql . " SET `accepted_act_sched` = CASE WHEN accepted_act_sched > 0 THEN accepted_act_sched - 1 END";
+		$sql = $sql . " SET accepted_act_sched = CASE WHEN accepted_act_sched > 0 THEN accepted_act_sched - 1 END";
 	} else if ($setup_activity_status == 'Declined') {
-		$sql = $sql . " SET `declined_act_sched` = CASE WHEN declined_act_sched > 0 THEN declined_act_sched - 1 END";
+		$sql = $sql . " SET declined_act_sched = CASE WHEN declined_act_sched > 0 THEN declined_act_sched - 1 END";
 	}
 	$sql = $sql . " WHERE interface = '$interface'";
 	$stmt = $conn -> prepare($sql);
@@ -54,7 +54,7 @@ if ($method == 'get_setup_activities_day') {
 	$activity_date = date_format($activity_date,"Y-m-d");
 	$data = '';
 
-	$sql = "SELECT `activity_details` FROM `machine_setup_activities` WHERE `activity_date`= '$activity_date' AND `activity_status`!= 'Declined' AND `activity_status`!= 'For Confirmation' ORDER BY id ASC";
+	$sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -80,7 +80,7 @@ if ($method == 'get_previous_setup_activities') {
 	$activity_date = date('Y-m-d', strtotime('-1 day', strtotime($activity_date)));
 	$data = '';
 
-	$sql = "SELECT `activity_details` FROM `machine_setup_activities` WHERE `activity_date`= '$activity_date' AND `activity_status`!= 'Declined' AND `activity_status`!= 'For Confirmation' ORDER BY id ASC";
+	$sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -106,7 +106,7 @@ if ($method == 'get_next_setup_activities') {
 	$activity_date = date('Y-m-d', strtotime('+1 day', strtotime($activity_date)));
 	$data = '';
 
-	$sql = "SELECT `activity_details` FROM `machine_setup_activities` WHERE `activity_date`= '$activity_date' AND `activity_status`!= 'Declined' AND `activity_status`!= 'For Confirmation' ORDER BY id ASC";
+	$sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -150,7 +150,7 @@ if ($method == 'count_setup_activities') {
 	$setup_activity_month = sprintf("%02d", $_POST['setup_activity_month']);
 	$activity_date = $setup_activity_year . "-" . $setup_activity_month;
 
-	$sql = "SELECT count(id) AS total FROM `machine_setup_activities` WHERE `activity_date` LIKE '$activity_date%' AND `activity_status`= 'Accepted'";
+	$sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE activity_date LIKE '$activity_date%' AND activity_status = 'Accepted'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -170,7 +170,7 @@ if ($method == 'get_setup_activities') {
 	$row_class = $row_class_arr[0];
 	$date_today = date("Y-m-d");
 
-	$sql = "SELECT `id`, `activity_details`, `activity_status`, `activity_date` FROM `machine_setup_activities` WHERE `activity_date` LIKE '$activity_date%' AND `activity_status`= 'Accepted' ORDER BY `activity_date` ASC";
+	$sql = "SELECT id, activity_details, activity_status, activity_date FROM machine_setup_activities WHERE activity_date LIKE '$activity_date%' AND activity_status = 'Accepted' ORDER BY activity_date ASC";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -217,7 +217,7 @@ if ($method == 'save_act_sched') {
 		$start_date_time = $activity_date . " 00:00:00";
 		$end_date_time = $activity_date . " 23:59:59";
 
-		$sql = "INSERT INTO `machine_setup_activities` (`activity_details`, `activity_status`, `activity_date`, `start_date_time`, `end_date_time`, `date_updated`) VALUES ('$activity_details', 'Accepted', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
+		$sql = "INSERT INTO machine_setup_activities (activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) VALUES ('$activity_details', 'Accepted', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		echo 'success';
@@ -242,7 +242,7 @@ if ($method == 'update_act_sched') {
 		$start_date_time = $activity_date . " 00:00:00";
 		$end_date_time = $activity_date . " 23:59:59";
 
-		$sql = "UPDATE `machine_setup_activities` SET `activity_details`= '$activity_details', `activity_date`= '$activity_date', `start_date_time`= '$start_date_time', `end_date_time`= '$end_date_time', `date_updated`= '$date_updated' WHERE `id`= '$id'";
+		$sql = "UPDATE machine_setup_activities SET activity_details = '$activity_details', activity_date = '$activity_date', start_date_time = '$start_date_time', end_date_time = '$end_date_time', date_updated = '$date_updated' WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		echo 'success';
@@ -252,7 +252,7 @@ if ($method == 'update_act_sched') {
 if ($method == 'delete_act_sched') {
 	$id = $_POST['id'];
 	
-	$sql = "DELETE FROM `machine_setup_activities` WHERE id = '$id'";
+	$sql = "DELETE FROM machine_setup_activities WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	echo 'success';
@@ -284,7 +284,7 @@ if ($method == 'send_req_act_sched') {
 		$start_date_time = $activity_date . " 00:00:00";
 		$end_date_time = $activity_date . " 23:59:59";
 
-		$sql = "INSERT INTO `machine_setup_activities` (`car_model`, `requestor_name`, `activity_details`, `activity_status`, `activity_date`, `start_date_time`, `end_date_time`, `date_updated`) VALUES ('$car_model', '$requestor_name', '$activity_details', 'For Confirmation', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
+		$sql = "INSERT INTO machine_setup_activities (car_model, requestor_name, activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) VALUES ('$car_model', '$requestor_name', '$activity_details', 'For Confirmation', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 
@@ -295,7 +295,7 @@ if ($method == 'send_req_act_sched') {
 
 // Count
 if ($method == 'count_requested_setup_activities') {
-	$sql = "SELECT count(id) AS total FROM `machine_setup_activities` WHERE `car_model`!= '' AND `requestor_name`!= '' AND `activity_status`= 'For Confirmation'";
+	$sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -311,7 +311,7 @@ if ($method == 'get_requested_setup_activities') {
 	$row_class = $row_class_arr[0];
 	$c = 0;
 
-	$sql = "SELECT `id`, `car_model`, `requestor_name`, `activity_details`, `activity_status`, `activity_date`, `date_updated`, `is_read_setup` FROM `machine_setup_activities` WHERE `car_model`!= '' AND `requestor_name`!= '' AND `activity_status`= 'For Confirmation' ORDER BY `id` DESC";
+	$sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read_setup FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -345,7 +345,7 @@ if ($method == 'get_requested_setup_activities_public') {
 	$row_class = $row_class_arr[0];
 	$c = 0;
 
-	$sql = "SELECT `id`, `car_model`, `requestor_name`, `activity_details`, `activity_status`, `activity_date`, `date_updated`, `is_read` FROM `machine_setup_activities` WHERE `car_model`!= '' AND `requestor_name`!= '' AND `activity_status`= 'For Confirmation' ORDER BY `id` DESC";
+	$sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -375,7 +375,7 @@ if ($method == 'get_requested_setup_activities_public') {
 
 // Count
 if ($method == 'count_recent_setup_activities_history') {
-	$sql = "SELECT count(id) AS total FROM `machine_setup_activities` WHERE `car_model`!= '' AND `requestor_name`!= '' AND (`activity_status`= 'Accepted' OR `activity_status`= 'Declined')";
+	$sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND (activity_status = 'Accepted' OR activity_status = 'Declined')";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -391,7 +391,7 @@ if ($method == 'get_recent_setup_activities_history') {
 	$row_class = $row_class_arr[0];
 	$c = 0;
 
-	$sql = "SELECT `id`, `car_model`, `requestor_name`, `activity_details`, `activity_status`, `activity_date`, `date_updated`, `decline_reason`, `is_read_setup` FROM `machine_setup_activities` WHERE `car_model`!= '' AND `requestor_name`!= '' AND (`activity_status`= 'Accepted' OR `activity_status`= 'Declined') ORDER BY `id` DESC";
+	$sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, decline_reason, is_read_setup FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND (activity_status = 'Accepted' OR activity_status = 'Declined') ORDER BY id DESC";
 
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -423,7 +423,7 @@ if ($method == 'get_recent_setup_activities_history') {
 
 if ($method == 'accept_activity_schedule') {
 	$id = $_POST['id'];
-	$sql = "UPDATE `machine_setup_activities` SET `activity_status`= 'Accepted' WHERE id = '$id'";
+	$sql = "UPDATE machine_setup_activities SET activity_status = 'Accepted' WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 
@@ -434,7 +434,7 @@ if ($method == 'accept_activity_schedule') {
 if ($method == 'decline_activity_schedule') {
 	$id = $_POST['id'];
 	$decline_reason = addslashes(custom_trim($_POST['decline_reason']));
-	$sql = "UPDATE `machine_setup_activities` SET `activity_status`= 'Declined', `decline_reason`= '$decline_reason' WHERE id = '$id'";
+	$sql = "UPDATE machine_setup_activities SET activity_status = 'Declined', decline_reason = '$decline_reason' WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 

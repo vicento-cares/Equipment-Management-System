@@ -17,7 +17,7 @@ if ($method == 'count_notif_pm') {
 	$approved_rsir = 0;
 	$disapproved_rsir = 0;
 
-	$sql = "SELECT `new_pm_concerns` FROM `notif_pm_concerns` WHERE interface = 'ADMIN-PM'";
+	$sql = "SELECT new_pm_concerns FROM notif_pm_concerns WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -25,7 +25,7 @@ if ($method == 'count_notif_pm') {
 			$new_pm_concerns = intval($row['new_pm_concerns']);
 		}
 	}
-	$sql = "SELECT `approved_rsir` FROM `notif_pm_approvers` WHERE interface = 'ADMIN-PM'";
+	$sql = "SELECT approved_rsir FROM notif_pm_approvers WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -33,7 +33,7 @@ if ($method == 'count_notif_pm') {
 			$approved_rsir = intval($row['approved_rsir']);
 		}
 	}
-	$sql = "SELECT `disapproved_rsir` FROM `notif_pm_approvers` WHERE interface = 'ADMIN-PM'";
+	$sql = "SELECT disapproved_rsir FROM notif_pm_approvers WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -68,7 +68,7 @@ if ($method == 'count_notif_pending_rsir') {
 			break;
 	}
 	if (!empty($interface)) {
-		$sql = "SELECT `pending_rsir` FROM `notif_pm_approvers` WHERE interface = '$interface'";
+		$sql = "SELECT pending_rsir FROM notif_pm_approvers WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		if ($stmt -> rowCount() > 0) {
@@ -80,7 +80,7 @@ if ($method == 'count_notif_pending_rsir') {
 }
 
 if ($method == 'count_notif_new_pm_concerns') {
-	$sql = "SELECT `new_pm_concerns` FROM `notif_pm_concerns` WHERE interface = 'ADMIN-PM'";
+	$sql = "SELECT new_pm_concerns FROM notif_pm_concerns WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -94,7 +94,7 @@ if ($method == 'count_notif_public_pm_concerns') {
 	$done_pm_concerns = 0;
 	$pending_pm_concerns = 0;
 	$total = 0;
-	$sql = "SELECT `done_pm_concerns`, `pending_pm_concerns` FROM `notif_pm_concerns` WHERE interface = 'PUBLIC-PAGE'";
+	$sql = "SELECT done_pm_concerns, pending_pm_concerns FROM notif_pm_concerns WHERE interface = 'PUBLIC-PAGE'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -115,19 +115,19 @@ if ($method == 'count_notif_public_pm_concerns') {
 }
 
 if ($method == 'update_notif_new_pm_concerns') {
-	$sql = "UPDATE `notif_pm_concerns` SET `new_pm_concerns`= 0 WHERE interface = 'ADMIN-PM'";
+	$sql = "UPDATE notif_pm_concerns SET new_pm_concerns = 0 WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_approved_rsir') {
-	$sql = "UPDATE `notif_pm_approvers` SET `approved_rsir`= 0 WHERE interface = 'ADMIN-PM'";
+	$sql = "UPDATE notif_pm_approvers SET approved_rsir = 0 WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
 
 if ($method == 'update_notif_disapproved_rsir') {
-	$sql = "UPDATE `notif_pm_approvers` SET `disapproved_rsir`= 0 WHERE interface = 'ADMIN-PM'";
+	$sql = "UPDATE notif_pm_approvers SET disapproved_rsir = 0 WHERE interface = 'ADMIN-PM'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -146,14 +146,14 @@ if ($method == 'update_notif_pending_rsir') {
 			break;
 	}
 	if (!empty($interface)) {
-		$sql = "UPDATE `notif_pm_approvers` SET `pending_rsir`= 0 WHERE interface = '$interface'";
+		$sql = "UPDATE notif_pm_approvers SET pending_rsir = 0 WHERE interface = '$interface'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 	}
 }
 
 if ($method == 'update_notif_public_pm_concerns') {
-	$sql = "UPDATE `notif_pm_concerns` SET `done_pm_concerns`= 0, `pending_pm_concerns`= 0 WHERE interface = 'PUBLIC-PAGE'";
+	$sql = "UPDATE notif_pm_concerns SET done_pm_concerns = 0, pending_pm_concerns = 0 WHERE interface = 'PUBLIC-PAGE'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }

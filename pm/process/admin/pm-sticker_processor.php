@@ -19,9 +19,9 @@ if ($method == 'count_ww') {
 	$machine_name = addslashes($_POST['machine_name']);
 	$machine_no = addslashes($_POST['machine_no']);
 	$equipment_no = addslashes($_POST['equipment_no']);
-	$sql = "SELECT count(id) AS total FROM `machine_pm_plan`";
+	$sql = "SELECT count(id) AS total FROM machine_pm_plan";
 	if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-		$sql = $sql . " WHERE `pm_plan_year` LIKE '$pm_plan_year%' AND `ww_no` LIKE '$ww_no%' AND `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%'";
+		$sql = $sql . " WHERE pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
 	}
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -43,16 +43,16 @@ if ($method == 'get_ww') {
 	$row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
 	$row_class = $row_class_arr[0];
 	$c = $_POST['c'];
-	$sql = "SELECT `id`, `number`, `process`, `machine_name`, `machine_no`, `equipment_no`, `pm_plan_year`, `ww_no`, `ww_start_date`, `ww_next_date`, `manpower`, `shift_engineer` FROM `machine_pm_plan`";
+	$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan";
 
 	if (empty($id)) {
 		if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-			$sql = $sql . " WHERE `pm_plan_year` LIKE '$pm_plan_year%' AND `ww_no` LIKE '$ww_no%' AND `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%'";
+			$sql = $sql . " WHERE pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
 		}
 	} else {
 		$sql = $sql . " WHERE id > '$id'";
 		if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-			$sql = $sql . " AND (`pm_plan_year` LIKE '$pm_plan_year%' AND `ww_no` LIKE '$ww_no%' AND `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%')";
+			$sql = $sql . " AND (pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%')";
 		}
 	}
 	$sql = $sql . " ORDER BY id ASC LIMIT 25";
@@ -113,7 +113,7 @@ if ($method == 'update_pm_sticker_content') {
 
 		$count = count($arr);
 		foreach ($arr as $id) {
-			$sql = "UPDATE `machine_pm_plan` SET `shift_engineer`= '$shift_engineer', `ww_next_date`= '$ww_next_date' WHERE `id`= '$id'";
+			$sql = "UPDATE machine_pm_plan SET shift_engineer = '$shift_engineer', ww_next_date = '$ww_next_date' WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			$count--;

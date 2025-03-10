@@ -31,24 +31,24 @@ $machine_name = $_GET['machine_name'];
 $process = $_GET['process'];
 $car_model = $_GET['car_model'];
 
-$sql = "SELECT `id`, `number`, `process`, `machine_name`, `machine_spec`, `car_model`, `location`, `grid`, `machine_no`, `equipment_no`, `asset_tag_no`, `trd_no`, `ns-iv_no`, `machine_status`, `is_new`, `date_updated` FROM `machine_masterlist`";
+$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, is_new, date_updated FROM machine_masterlist";
 
 if (!empty($car_model)) {
-	$sql = $sql . " WHERE `car_model`= '$car_model'";
+	$sql = $sql . " WHERE car_model = '$car_model'";
 	if ($process != 'All' && $machine_name != 'All') {
-		$sql = $sql . " AND `process`= '$process' AND `machine_name`= '$machine_name'";
+		$sql = $sql . " AND process = '$process' AND machine_name = '$machine_name'";
 	} else if ($process != 'All' && $machine_name == 'All') {
-		$sql = $sql . " AND `process`= '$process'";
+		$sql = $sql . " AND process = '$process'";
 	} else if ($process == 'All' && $machine_name != 'All') {
-		$sql = $sql . " AND `machine_name`= '$machine_name'";
+		$sql = $sql . " AND machine_name = '$machine_name'";
 	}
 } else {
 	if ($process != 'All' && $machine_name != 'All') {
-		$sql = $sql . " WHERE `process`= '$process' AND `machine_name`= '$machine_name'";
+		$sql = $sql . " WHERE process = '$process' AND machine_name = '$machine_name'";
 	} else if ($process != 'All' && $machine_name == 'All') {
-		$sql = $sql . " WHERE `process`= '$process'";
+		$sql = $sql . " WHERE process = '$process'";
 	} else if ($process == 'All' && $machine_name != 'All') {
-		$sql = $sql . " WHERE `machine_name`= '$machine_name'";
+		$sql = $sql . " WHERE machine_name = '$machine_name'";
 	}
 }
 

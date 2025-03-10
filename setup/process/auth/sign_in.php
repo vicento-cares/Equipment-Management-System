@@ -13,7 +13,7 @@ if (!isset($_POST['username']) && !isset($_POST['password'])) {
 	$username = addslashes($_POST['username']);
 	$password = addslashes($_POST['password']);
 
-	$sql = "SELECT `username`, `name`, `role`, `approver_role`, `process` FROM `machine_setup_accounts` WHERE `username` = BINARY convert('$username' using utf8mb4) collate utf8mb4_bin AND `password` = BINARY convert('$password' using utf8mb4) collate utf8mb4_bin";
+	$sql = "SELECT username, name, role, approver_role, process FROM machine_setup_accounts WHERE username = BINARY convert('$username' using utf8mb4) collate utf8mb4_bin AND password = BINARY convert('$password' using utf8mb4) collate utf8mb4_bin";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {

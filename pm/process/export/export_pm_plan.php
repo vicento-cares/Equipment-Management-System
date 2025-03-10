@@ -29,10 +29,10 @@ switch (true) {
 $pm_plan_year = $_GET['pm_plan_year'];
 $ww_no = $_GET['ww_no'];
 
-$sql = "SELECT `id`, `number`, `process`, `machine_name`, `machine_spec`, `car_model`, `location`, `grid`, `machine_no`, `equipment_no`, `trd_no`, `ns-iv_no`, `pm_plan_year`, `ww_no`, `ww_start_date`, `frequency`, `machine_status`, `pm_status` FROM `machine_pm_plan` WHERE `pm_plan_year` LIKE '$pm_plan_year%'";
+$sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, ns-iv_no, pm_plan_year, ww_no, ww_start_date, frequency, machine_status, pm_status FROM machine_pm_plan WHERE pm_plan_year LIKE '$pm_plan_year%'";
 
 if (!empty($ww_no)) {
-  $sql = $sql . " AND `ww_no` LIKE '$ww_no%'";
+  $sql = $sql . " AND ww_no LIKE '$ww_no%'";
 }
 
 $stmt = $conn -> prepare($sql);

@@ -17,7 +17,7 @@ $date_updated = date('Y-m-d H:i:s');
 
 // Get Manpower Dropdown
 if ($method == 'fetch_manpower_dropdown_search') {
-	$sql = "SELECT `manpower` FROM `machine_pm_plan` GROUP BY manpower ORDER BY manpower ASC";
+	$sql = "SELECT manpower FROM machine_pm_plan GROUP BY manpower ORDER BY manpower ASC";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -62,38 +62,38 @@ if ($method == 'count_ww') {
 		}
 	}
 	
-	$sql = "SELECT count(id) AS total FROM `machine_pm_plan`";
+	$sql = "SELECT count(id) AS total FROM machine_pm_plan";
 
 	if ($ww_opt == 1 && !empty($ww_no)) {
-		$sql = $sql . " WHERE `ww_no` LIKE '$ww_no%'";
+		$sql = $sql . " WHERE ww_no LIKE '$ww_no%'";
 	} else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
 		$sql = $sql . " WHERE (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
 	} else {
-		$sql = $sql . " WHERE `ww_no` != ''";
+		$sql = $sql . " WHERE ww_no != ''";
 	}
 
 	if (!empty($pm_plan_year)) {
-		$sql = $sql . " AND `pm_plan_year` LIKE '$pm_plan_year%'";
+		$sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
 	}
 	if (!empty($car_model)) {
-		$sql = $sql . " AND `car_model` LIKE '$car_model%'";
+		$sql = $sql . " AND car_model LIKE '$car_model%'";
 	}
 	if (!empty($machine_name)) {
-		$sql = $sql . " AND `machine_name` LIKE '$machine_name%'";
+		$sql = $sql . " AND machine_name LIKE '$machine_name%'";
 	}
 	if (!empty($machine_no)) {
-		$sql = $sql . " AND `machine_no` LIKE '$machine_no%'";
+		$sql = $sql . " AND machine_no LIKE '$machine_no%'";
 	}
 	if (!empty($equipment_no)) {
-		$sql = $sql . " AND `equipment_no` LIKE '$equipment_no%'";
+		$sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
 	}
 	if (!empty($manpower)) {
 		if ($manpower == 'All') {
-			$sql = $sql . " AND `manpower` LIKE '%'";
+			$sql = $sql . " AND manpower LIKE '%'";
 		} else if ($manpower == 'N/A') {
-			$sql = $sql . " AND `manpower` IN ('', 'N/A', NULL)";
+			$sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
 		} else {
-			$sql = $sql . " AND `manpower` LIKE '$manpower%'";
+			$sql = $sql . " AND manpower LIKE '$manpower%'";
 		}
 	}
 
@@ -142,74 +142,74 @@ if ($method == 'get_ww') {
 	$row_class = $row_class_arr[0];
 	$c = $_POST['c'];
 
-	$sql = "SELECT `id`, `number`, `process`, `machine_name`, `car_model`, `machine_no`, `equipment_no`, `pm_status`, `machine_status`, `pm_plan_year`, `ww_no`, `ww_start_date`, `frequency`, `manpower`, `sched_start_date_time`, `sched_end_date_time` FROM `machine_pm_plan`";
+	$sql = "SELECT id, number, process, machine_name, car_model, machine_no, equipment_no, pm_status, machine_status, pm_plan_year, ww_no, ww_start_date, frequency, manpower, sched_start_date_time, sched_end_date_time FROM machine_pm_plan";
 
 	if (empty($id)) {
 		if ($ww_opt == 1 && !empty($ww_no)) {
-			$sql = $sql . " WHERE `ww_no` LIKE '$ww_no%'";
+			$sql = $sql . " WHERE ww_no LIKE '$ww_no%'";
 		} else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
 			$sql = $sql . " WHERE (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
 		} else {
-			$sql = $sql . " WHERE `ww_no` != ''";
+			$sql = $sql . " WHERE ww_no != ''";
 		}
 
 		if (!empty($pm_plan_year)) {
-			$sql = $sql . " AND `pm_plan_year` LIKE '$pm_plan_year%'";
+			$sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
 		}
 		if (!empty($car_model)) {
-			$sql = $sql . " AND `car_model` LIKE '$car_model%'";
+			$sql = $sql . " AND car_model LIKE '$car_model%'";
 		}
 		if (!empty($machine_name)) {
-			$sql = $sql . " AND `machine_name` LIKE '$machine_name%'";
+			$sql = $sql . " AND machine_name LIKE '$machine_name%'";
 		}
 		if (!empty($machine_no)) {
-			$sql = $sql . " AND `machine_no` LIKE '$machine_no%'";
+			$sql = $sql . " AND machine_no LIKE '$machine_no%'";
 		}
 		if (!empty($equipment_no)) {
-			$sql = $sql . " AND `equipment_no` LIKE '$equipment_no%'";
+			$sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
 		}
 		if (!empty($manpower)) {
 			if ($manpower == 'All') {
-				$sql = $sql . " AND `manpower` LIKE '%'";
+				$sql = $sql . " AND manpower LIKE '%'";
 			} else if ($manpower == 'N/A') {
-				$sql = $sql . " AND `manpower` IN ('', 'N/A', NULL)";
+				$sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
 			} else {
-				$sql = $sql . " AND `manpower` LIKE '$manpower%'";
+				$sql = $sql . " AND manpower LIKE '$manpower%'";
 			}
 		}
 	} else {
 		$sql = $sql . " WHERE id > '$id'";
 
 		if ($ww_opt == 1 && !empty($ww_no)) {
-			$sql = $sql . " AND `ww_no` LIKE '$ww_no%'";
+			$sql = $sql . " AND ww_no LIKE '$ww_no%'";
 		} else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
 			$sql = $sql . " AND (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
 		} else {
-			$sql = $sql . " AND `ww_no` != ''";
+			$sql = $sql . " AND ww_no != ''";
 		}
 
 		if (!empty($pm_plan_year)) {
-			$sql = $sql . " AND `pm_plan_year` LIKE '$pm_plan_year%'";
+			$sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
 		}
 		if (!empty($car_model)) {
-			$sql = $sql . " AND `car_model` LIKE '$car_model%'";
+			$sql = $sql . " AND car_model LIKE '$car_model%'";
 		}
 		if (!empty($machine_name)) {
-			$sql = $sql . " AND `machine_name` LIKE '$machine_name%'";
+			$sql = $sql . " AND machine_name LIKE '$machine_name%'";
 		}
 		if (!empty($machine_no)) {
-			$sql = $sql . " AND `machine_no` LIKE '$machine_no%'";
+			$sql = $sql . " AND machine_no LIKE '$machine_no%'";
 		}
 		if (!empty($equipment_no)) {
-			$sql = $sql . " AND `equipment_no` LIKE '$equipment_no%'";
+			$sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
 		}
 		if (!empty($manpower)) {
 			if ($manpower == 'All') {
-				$sql = $sql . " AND `manpower` LIKE '%'";
+				$sql = $sql . " AND manpower LIKE '%'";
 			} else if ($manpower == 'N/A') {
-				$sql = $sql . " AND `manpower` IN ('', 'N/A', NULL)";
+				$sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
 			} else {
-				$sql = $sql . " AND `manpower` LIKE '$manpower%'";
+				$sql = $sql . " AND manpower LIKE '$manpower%'";
 			}
 		}
 	}
@@ -284,7 +284,7 @@ if ($method == 'update_ww_manpower') {
 
 		$count = count($arr);
 		foreach ($arr as $id) {
-			$sql = "UPDATE `machine_pm_plan` SET `manpower`= '$manpower' WHERE `id`= '$id' AND ((`sched_start_date_time` = '' OR `sched_start_date_time`IS NULL) AND (`sched_end_date_time` = '' OR `sched_end_date_time` IS NULL))";
+			$sql = "UPDATE machine_pm_plan SET manpower = '$manpower' WHERE id = '$id' AND ((sched_start_date_time = '' OR sched_start_date_timeIS NULL) AND (sched_end_date_time = '' OR sched_end_date_time IS NULL))";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			$count--;
@@ -322,7 +322,7 @@ if ($method == 'update_ww_content') {
 		$sched_end_date_time = date_create($sched_end_date_time);
 		$sched_end_date_time = date_format($sched_end_date_time,"Y-m-d H:i:s");
 
-		$sql = "UPDATE `machine_pm_plan` SET `manpower`= '$manpower', `sched_start_date_time`= '$sched_start_date_time', `sched_end_date_time`= '$sched_end_date_time' WHERE `id`= '$id'";
+		$sql = "UPDATE machine_pm_plan SET manpower = '$manpower', sched_start_date_time = '$sched_start_date_time', sched_end_date_time = '$sched_end_date_time' WHERE id = '$id'";
 		$stmt = $conn -> prepare($sql);
 		$stmt -> execute();
 		echo 'success';
@@ -333,7 +333,7 @@ if ($method == 'set_as_done_ww') {
 	$id = $_POST['id'];
 	$allow_set_as_done = false;
 
-	$sql = "SELECT `machine_name`, `machine_no`, `equipment_no`, `ww_start_date`, `frequency` FROM `machine_pm_plan` WHERE `id`= '$id'";
+	$sql = "SELECT machine_name, machine_no, equipment_no, ww_start_date, frequency FROM machine_pm_plan WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -346,7 +346,7 @@ if ($method == 'set_as_done_ww') {
 		}
 	}
 
-	$sql = "SELECT `rsir_date` FROM `pm_rsir_history` WHERE `machine_name`= '$machine_name' AND `machine_no`= '$machine_no' AND `equipment_no`= '$equipment_no'";
+	$sql = "SELECT rsir_date FROM pm_rsir_history WHERE machine_name = '$machine_name' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -396,7 +396,7 @@ if ($method == 'set_as_done_ww') {
 
 		if ($allow_set_as_done == true) {
 			$pm_status = 'Waiting For Confirmation';
-			$sql = "UPDATE `machine_pm_plan` SET `pm_status`= '$pm_status' WHERE `id`= '$id'";
+			$sql = "UPDATE machine_pm_plan SET pm_status = '$pm_status' WHERE id = '$id'";
 			$stmt = $conn -> prepare($sql);
 			$stmt -> execute();
 			echo 'success';
@@ -412,7 +412,7 @@ if ($method == 'set_as_done_ww') {
 if ($method == 'confirm_as_done_ww') {
 	$id = $_POST['id'];
 	$pm_status = 'Done';
-	$sql = "UPDATE `machine_pm_plan` SET `pm_status`= '$pm_status' WHERE `id`= '$id'";
+	$sql = "UPDATE machine_pm_plan SET pm_status = '$pm_status' WHERE id = '$id'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	echo 'success';

@@ -39,13 +39,13 @@ $kigyo_no = $_GET['kigyo_no'];
 $machine_no = $_GET['machine_no'];
 $equipment_no = $_GET['equipment_no'];
 
-$sql = "SELECT `id`, `sou_no`, `kigyo_no`, `asset_name`, `sup_asset_name`, `orig_asset_no`, `sou_date`, `quantity`, `managing_dept_code`, `managing_dept_name`, `install_area_code`, `install_area_name`, `machine_no`, `equipment_no`, `no_of_units`, `ntc_or_sa`, `use_purpose`, `date_updated` FROM `sou_forms`";
+$sql = "SELECT id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, date_updated FROM sou_forms";
 
 if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-    $sql = $sql . " WHERE `asset_name` LIKE '$asset_name%' AND `kigyo_no` LIKE '$kigyo_no%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND `sou_no` LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+    $sql = $sql . " WHERE asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
 }
 
-$sql = $sql . " ORDER BY `id` DESC";
+$sql = $sql . " ORDER BY id DESC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

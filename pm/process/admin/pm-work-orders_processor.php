@@ -45,7 +45,7 @@ function check_work_order_file($work_order_file_info, $conn) {
 	$work_order_filename = addslashes($work_order_file_info['work_order_filename']);
 	$work_order_filetype = addslashes($work_order_file_info['work_order_filetype']);
 	$work_order_url = addslashes($work_order_file_info['work_order_url']);
-	$sql = "SELECT id FROM `machine_pm_wo` WHERE `file_name`= '$work_order_filename' AND `file_type`= '$work_order_filetype' AND `file_url`= '$work_order_url'";
+	$sql = "SELECT id FROM machine_pm_wo WHERE file_name = '$work_order_filename' AND file_type = '$work_order_filetype' AND file_url = '$work_order_url'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
@@ -88,7 +88,7 @@ function save_work_order_info($work_order_file_info, $conn) {
 	$work_order_url = addslashes($work_order_file_info['work_order_url']);
 	$date_updated = date('Y-m-d H:i:s');
 
-	$sql = "INSERT INTO `machine_pm_wo` (`wo_id`, `process`, `machine_name`, `machine_no`, `equipment_no`, `file_name`, `file_type`, `file_url`, `date_updated`) VALUES ('$wo_id', '$process', '$machine_name', '$machine_no', '$equipment_no', '$work_order_filename', '$work_order_filetype', '$work_order_url', '$date_updated')";
+	$sql = "INSERT INTO machine_pm_wo (wo_id, process, machine_name, machine_no, equipment_no, file_name, file_type, file_url, date_updated) VALUES ('$wo_id', '$process', '$machine_name', '$machine_no', '$equipment_no', '$work_order_filename', '$work_order_filetype', '$work_order_url', '$date_updated')";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 }
@@ -108,9 +108,9 @@ if ($method == 'count_work_orders') {
 	$machine_no = addslashes($_POST['machine_no']);
 	$equipment_no = addslashes($_POST['equipment_no']);
 	$machine_name = addslashes($_POST['machine_name']);
-	$sql = "SELECT count(id) AS total FROM `machine_pm_wo`";
+	$sql = "SELECT count(id) AS total FROM machine_pm_wo";
 	if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-		$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
+		$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
 	}
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
@@ -139,16 +139,16 @@ if ($method == 'get_work_orders') {
 	$machine_name = addslashes($_POST['machine_name']);
 	$c = $_POST['c'];
 	
-	$sql = "SELECT `id`, `wo_id`, `process`, `machine_name`, `machine_no`, `equipment_no`, `file_name`, `file_url`, `date_updated` FROM `machine_pm_wo`";
+	$sql = "SELECT id, wo_id, process, machine_name, machine_no, equipment_no, file_name, file_url, date_updated FROM machine_pm_wo";
 
 	if (empty($id)) {
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-			$sql = $sql . " WHERE `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
+			$sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
 		}
 	} else {
-		$sql = $sql . " WHERE `id` < '$id'";
+		$sql = $sql . " WHERE id < '$id'";
 		if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-			$sql = $sql . " AND (`machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to'))";
+			$sql = $sql . " AND (machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to'))";
 		}
 	}
 	$sql = $sql . " ORDER BY id DESC LIMIT 25";

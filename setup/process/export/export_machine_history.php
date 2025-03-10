@@ -40,12 +40,12 @@ $machine_name = $_GET['machine_name'];
 $machine_no = $_GET['machine_no'];
 $equipment_no = $_GET['equipment_no'];
 
-$sql = "SELECT `id`, `number`, `machine_name`, `machine_spec`, `car_model`, `location`, `grid`, `machine_no`, `equipment_no`, `asset_tag_no`, `trd_no`, `ns-iv_no`, `machine_status`, `new_car_model`, `new_location`, `new_grid`, `pic`, `status_date`, `history_date_time` FROM `machine_history`";
+$sql = "SELECT id, number, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns-iv_no, machine_status, new_car_model, new_location, new_grid, pic, status_date, history_date_time FROM machine_history";
 
 if (!empty($car_model) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($history_date_from) && !empty($history_date_to))) {
     $sql = $sql . ' WHERE';
     if (!empty($car_model) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-        $sql = $sql . " `car_model` LIKE '$car_model%' AND `machine_name` LIKE '$machine_name%' AND `machine_no` LIKE '$machine_no%' AND `equipment_no` LIKE '$equipment_no%'";
+        $sql = $sql . " car_model LIKE '$car_model%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
         if (!empty($history_date_from) && !empty($history_date_to)) {
             $sql = $sql . " AND (history_date_time >= '$history_date_from' AND history_date_time <= '$history_date_to')";
         }

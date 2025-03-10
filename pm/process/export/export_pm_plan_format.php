@@ -29,7 +29,7 @@ $f = fopen('php://memory', 'w');
 $fields = array('Number', 'Process', 'Machine Name', 'Machine Specification', 'Car Model', 'Location', 'Grid', 'Machine No.', 'Equipment No.', 'TRD No.', 'NS-IV No.', 'PM Plan Year', 'WW No.', 'WW Start Date', 'Frequency'); 
 fputcsv($f, $fields, $delimiter); 
 
-$sql = "SELECT `number`, `process`, `machine_name`, `machine_spec`, `car_model`, `location`, `grid`, `machine_no`, `equipment_no`, `trd_no`, `ns-iv_no` FROM `machine_masterlist` ORDER BY id DESC LIMIT 1";
+$sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, ns-iv_no FROM machine_masterlist ORDER BY id DESC LIMIT 1";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();

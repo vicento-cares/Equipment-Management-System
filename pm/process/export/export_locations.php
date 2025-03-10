@@ -18,7 +18,7 @@ if (!isset($_SESSION['pm_username'])) {
 
 require('../db/conn.php');
 
-$sql = "SELECT `location` FROM `locations` ORDER BY `location` ASC";
+$sql = "SELECT location FROM locations ORDER BY location ASC";
 
 $stmt = $conn -> prepare($sql);
 $stmt -> execute();
