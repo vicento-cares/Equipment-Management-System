@@ -34,7 +34,7 @@ function get_machine_details($machine_name, $conn) {
 	$trd = 0;
 	$ns_iv = 0;
 
-	$sql = "SELECT process, trd, ns-iv FROM machines WHERE machine_name = '$machine_name'";
+	$sql = "SELECT process, trd, `ns-iv` FROM machines WHERE machine_name = '$machine_name'";
 	$stmt = $conn -> prepare($sql);
 	$stmt -> execute();
 	if ($stmt -> rowCount() > 0) {
