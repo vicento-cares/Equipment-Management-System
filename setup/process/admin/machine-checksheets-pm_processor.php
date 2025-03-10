@@ -14,6 +14,7 @@ if (!isset($_POST['method'])) {
 }
 $method = $_POST['method'];
 $date_updated = date('Y-m-d H:i:s');
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 
 function generate_rsir_no($rsir_no) {
 	if ($rsir_no == "") {
