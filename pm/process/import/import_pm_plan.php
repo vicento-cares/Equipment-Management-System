@@ -4,16 +4,16 @@ session_name("ems");
 session_start();
 
 if (!isset($_SESSION['pm_username'])) {
-  header('location:../../../login/');
-  exit;
+    header('location:../../../login/');
+    exit;
 } else {
-  if ($_SESSION['pm_role'] == "Prod") {
-    header('location:../prod/home.php');
-    exit;
-  } else if ($_SESSION['pm_role'] == "QA") {
-    header('location:../qa/home.php');
-    exit;
-  }
+    if ($_SESSION['pm_role'] == "Prod") {
+        header('location:../prod/home.php');
+        exit;
+    } else if ($_SESSION['pm_role'] == "QA") {
+        header('location:../qa/home.php');
+        exit;
+    }
 }
 
 //error_reporting(0); // comment this line to see errors
@@ -28,12 +28,13 @@ $subsql = "";
 
 $date_updated = date('Y-m-d H:i:s');
 
-function count_row ($file) {
+function count_row($file)
+{
     $linecount = -3;
     $handle = fopen($file, "r");
-    while(!feof($handle)){
-      $line = fgets($handle);
-      $linecount++;
+    while (!feof($handle)) {
+        $line = fgets($handle);
+        $linecount++;
     }
 
     fclose($handle);
@@ -41,14 +42,20 @@ function count_row ($file) {
     return $linecount;
 }
 
-function check_csv ($file, $conn) {
+function check_csv($file, $conn)
+{
     // READ FILE
-    $csvFile = fopen($file,'r');
+    $csvFile = fopen($file, 'r');
 
     // SKIP FIRST LINE
     $first_line = fgets($csvFile);
 
-    $hasError = 0; $hasBlankError = 0; $isExistsOnDb = 0; $isDuplicateOnCsv = 0; $notExistsMachine = 0; $notValidWWStartDate = 0;
+    $hasError = 0;
+    $hasBlankError = 0;
+    $isExistsOnDb = 0;
+    $isDuplicateOnCsv = 0;
+    $notExistsMachine = 0;
+    $notValidWWStartDate = 0;
     $hasBlankErrorArr = array();
     $isExistsOnDbArr = array();
     $isDuplicateOnCsvArr = array();
@@ -111,9 +118,9 @@ function check_csv ($file, $conn) {
 
             // CHECK ROW VALIDATION
             $sql = "SELECT id FROM machine_masterlist WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no'";
-            $stmt = $conn -> prepare($sql);
-            $stmt -> execute();
-            if ($stmt -> rowCount() <= 0) {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            if ($stmt->rowCount() <= 0) {
                 $notExistsMachine++;
                 $hasError = 1;
                 array_push($notExistsMachineArr, $check_csv_row);
@@ -133,9 +140,9 @@ function check_csv ($file, $conn) {
 
             // CHECK ROWS IF EXISTS
             $sql = "SELECT id FROM machine_pm_plan WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no' AND pm_plan_year = '$pm_plan_year' AND ww_no = '$ww_no' AND frequency = '$frequency'";
-            $stmt = $conn -> prepare($sql);
-            $stmt -> execute();
-            if ($stmt -> rowCount() > 0) {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
                 $isExistsOnDb = 1;
                 $hasError = 1;
                 array_push($isExistsOnDbArr, $check_csv_row);
@@ -144,7 +151,7 @@ function check_csv ($file, $conn) {
     } else {
         $message = $message . 'Invalid CSV Table Header. Maybe an incorrect CSV file or incorrect CSV header ';
     }
-    
+
     fclose($csvFile);
 
     if ($hasError == 1) {
@@ -171,7 +178,7 @@ $mimes = array('text/x-comma-separated-values', 'text/comma-separated-values', '
 
 if (!empty($_FILES['file']['name'])) {
 
-    if (in_array($_FILES['file']['type'],$mimes)) {
+    if (in_array($_FILES['file']['type'], $mimes)) {
 
         if (is_uploaded_file($_FILES['file']['tmp_name'])) {
 
@@ -191,7 +198,7 @@ if (!empty($_FILES['file']['name'])) {
                         if (empty(implode('', $read_data))) {
                             continue; // Skip blank lines
                         }
-                        
+
                         $ww_start_date = $read_data[13];
 
                         $column_count = count($read_data);
@@ -213,19 +220,19 @@ if (!empty($_FILES['file']['name'])) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);
                             $insertsql = $insertsql . $subsql . ";";
                             $insertsql = substr($insertsql, 0, strlen($insertsql));
-                            $stmt = $conn -> prepare($insertsql);
-                            $stmt -> execute();
+                            $stmt = $conn->prepare($insertsql);
+                            $stmt->execute();
                             $insertsql = "INSERT INTO machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no`, pm_plan_year, ww_no, ww_start_date, frequency, date_updated) VALUES ";
                             $subsql = "";
                         } else if ($temp_count == $row_count) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);
                             $insertsql2 = $insertsql . $subsql . ";";
                             $insertsql2 = substr($insertsql2, 0, strlen($insertsql2));
-                            $stmt = $conn -> prepare($insertsql2);
-                            $stmt -> execute();
+                            $stmt = $conn->prepare($insertsql2);
+                            $stmt->execute();
                         }
                     }
-                    
+
                     fclose($csv_file);
 
                 } else {
@@ -249,4 +256,3 @@ if (!empty($_FILES['file']['name'])) {
 }
 
 $conn = null;
-?>

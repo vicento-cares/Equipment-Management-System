@@ -4,19 +4,19 @@ session_name("ems");
 session_start();
 
 if (!isset($_SESSION['setup_username'])) {
-  header('location:../../../login/');
-  exit;
+    header('location:../../../login/');
+    exit;
 } else {
-  if ($_SESSION['setup_approver_role'] == "1") {
-    header('location:../approver1/home.php');
-    exit;
-  } else if ($_SESSION['setup_approver_role'] == "2") {
-    header('location:../approver2/home.php');
-    exit;
-  } else if ($_SESSION['setup_approver_role'] == "3") {
-    header('location:../approver3/home.php');
-    exit;
-  }
+    if ($_SESSION['setup_approver_role'] == "1") {
+        header('location:../approver1/home.php');
+        exit;
+    } else if ($_SESSION['setup_approver_role'] == "2") {
+        header('location:../approver2/home.php');
+        exit;
+    } else if ($_SESSION['setup_approver_role'] == "3") {
+        header('location:../approver3/home.php');
+        exit;
+    }
 }
 
 //error_reporting(0); // comment this line to see errors
@@ -25,14 +25,15 @@ require('../db/conn.php');
 require('../lib/validate.php');
 require('../lib/main.php');
 
-function get_current_number_by_name($machine_name, $conn) {
+function get_current_number_by_name($machine_name, $conn)
+{
     $machine_name = addslashes($machine_name);
     $number = 0;
     $sql = "SELECT number FROM machines WHERE machine_name = '$machine_name' ORDER BY number DESC LIMIT 1";
-    $stmt = $conn -> prepare($sql);
-    $stmt -> execute();
-    if ($stmt -> rowCount() > 0) {
-        while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    if ($stmt->rowCount() > 0) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $number = intval($row['number']);
         }
     }
@@ -45,64 +46,69 @@ $subsql = "";
 
 $date_updated = date('Y-m-d H:i:s');
 
-function get_machines($conn) {
+function get_machines($conn)
+{
     $data = array();
 
     $sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
-    $stmt = $conn -> prepare($sql);
-    $stmt -> execute();
-    while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($data, $row['machine_name']);
     }
 
     return $data;
 }
 
-function get_lines_final($conn) {
+function get_lines_final($conn)
+{
     $data = array();
 
     $sql = "SELECT car_model FROM line_no_final ORDER BY car_model ASC";
-    $stmt = $conn -> prepare($sql);
-    $stmt -> execute();
-    while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($data, $row['car_model']);
     }
-    
+
     return $data;
 }
 
-function get_lines_initial($conn) {
+function get_lines_initial($conn)
+{
     $data = array();
 
     $sql = "SELECT car_model FROM line_no_initial ORDER BY car_model ASC";
-    $stmt = $conn -> prepare($sql);
-    $stmt -> execute();
-    while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($data, $row['car_model']);
     }
-    
+
     return $data;
 }
 
-function get_locations($conn) {
+function get_locations($conn)
+{
     $data = array();
 
     $sql = "SELECT location FROM locations ORDER BY location ASC";
-    $stmt = $conn -> prepare($sql);
-    $stmt -> execute();
-    while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($data, $row['location']);
     }
-    
+
     return $data;
 }
 
-function count_row ($file) {
+function count_row($file)
+{
     $linecount = -2;
     $handle = fopen($file, "r");
-    while(!feof($handle)){
-      $line = fgets($handle);
-      $linecount++;
+    while (!feof($handle)) {
+        $line = fgets($handle);
+        $linecount++;
     }
 
     fclose($handle);
@@ -110,9 +116,10 @@ function count_row ($file) {
     return $linecount;
 }
 
-function check_csv ($file, $conn) {
+function check_csv($file, $conn)
+{
     // READ FILE
-    $csvFile = fopen($file,'r');
+    $csvFile = fopen($file, 'r');
 
     // SKIP FIRST LINE
     $first_line = fgets($csvFile);
@@ -122,13 +129,16 @@ function check_csv ($file, $conn) {
     $lines_final_arr = get_lines_final($conn);
     $locations_arr = get_locations($conn);
 
-    $hasError = 0; $hasBlankError = 0; $isExistsOnDb = 0; $isDuplicateOnCsv = 0;
+    $hasError = 0;
+    $hasBlankError = 0;
+    $isExistsOnDb = 0;
+    $isDuplicateOnCsv = 0;
     $hasBlankErrorArr = array();
     $isExistsOnDbArr = array();
     $isDuplicateOnCsvArr = array();
     $dup_temp_arr = array();
 
-    $row_valid_arr = array(0,0,0,0,0,0,0,0,0,0);
+    $row_valid_arr = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     $notExistsMachineNameArr = array();
     $notExistsLineNoArr = array();
@@ -172,7 +182,7 @@ function check_csv ($file, $conn) {
 
             $machine_name_raw = $line[2];
             $car_model_raw = $line[4];
-            
+
             if (empty($asset_tag_no)) {
                 $asset_tag_no = 'N/A';
             }
@@ -211,17 +221,17 @@ function check_csv ($file, $conn) {
                 $hasError = 1;
                 $row_valid_arr[3] = 1;
                 array_push($existsMachineNoArr, $check_csv_row);
-            } 
+            }
             if ($is_exists_arr['equipment_no_exists'] == true) {
                 $hasError = 1;
                 $row_valid_arr[4] = 1;
                 array_push($existsEquipmentNoArr, $check_csv_row);
-            } 
+            }
             if ($is_exists_arr['trd_no_exists'] == true) {
                 $hasError = 1;
                 $row_valid_arr[5] = 1;
                 array_push($existsTrdNoArr, $check_csv_row);
-            } 
+            }
             if ($is_exists_arr['ns_iv_no_exists'] == true) {
                 $hasError = 1;
                 $row_valid_arr[6] = 1;
@@ -257,9 +267,9 @@ function check_csv ($file, $conn) {
 
             // CHECK ROWS IF EXISTS
             $sql = "SELECT id FROM machine_masterlist WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND asset_tag_no = '$asset_tag_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no'";
-            $stmt = $conn -> prepare($sql);
-            $stmt -> execute();
-            if ($stmt -> rowCount() > 0) {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
                 $isExistsOnDb = 1;
                 $hasError = 1;
                 array_push($isExistsOnDbArr, $check_csv_row);
@@ -268,7 +278,7 @@ function check_csv ($file, $conn) {
     } else {
         $message = $message . 'Invalid CSV Table Header. Maybe an incorrect CSV file or incorrect CSV header ';
     }
-    
+
     fclose($csvFile);
 
     if ($hasError == 1) {
@@ -320,7 +330,7 @@ $mimes = array('text/x-comma-separated-values', 'text/comma-separated-values', '
 
 if (!empty($_FILES['file']['name'])) {
 
-    if (in_array($_FILES['file']['type'],$mimes)) {
+    if (in_array($_FILES['file']['type'], $mimes)) {
 
         if (is_uploaded_file($_FILES['file']['tmp_name'])) {
 
@@ -339,7 +349,7 @@ if (!empty($_FILES['file']['name'])) {
                         if (empty(implode('', $read_data))) {
                             continue; // Skip blank lines
                         }
-            
+
                         $current_number = get_current_number_by_name($read_data[2], $conn);
                         $machine_name = addslashes(custom_trim($read_data[2]));
                         $asset_tag_no = addslashes(custom_trim($read_data[9]));
@@ -369,19 +379,19 @@ if (!empty($_FILES['file']['name'])) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);
                             $insertsql = $insertsql . $subsql . ";";
                             $insertsql = substr($insertsql, 0, strlen($insertsql));
-                            $stmt = $conn -> prepare($insertsql);
-                            $stmt -> execute();
+                            $stmt = $conn->prepare($insertsql);
+                            $stmt->execute();
                             $insertsql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, is_new, date_updated) VALUES ";
                             $subsql = "";
                         } else if ($temp_count == $row_count) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);
                             $insertsql2 = $insertsql . $subsql . ";";
                             $insertsql2 = substr($insertsql2, 0, strlen($insertsql2));
-                            $stmt = $conn -> prepare($insertsql2);
-                            $stmt -> execute();
+                            $stmt = $conn->prepare($insertsql2);
+                            $stmt->execute();
                         }
                     }
-                    
+
                     fclose($csv_file);
 
                 } else {
@@ -405,4 +415,3 @@ if (!empty($_FILES['file']['name'])) {
 }
 
 $conn = null;
-?>
