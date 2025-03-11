@@ -5,14 +5,14 @@ session_start();
 
 if (!isset($_SESSION['setup_username'])) {
     header('location:../../../login/');
-    exit;
+    exit();
 } else {
     if ($_SESSION['setup_approver_role'] == "1") {
         header('location:../approver1/home.php');
-        exit;
+        exit();
     } else if ($_SESSION['setup_approver_role'] == "2") {
         header('location:../approver2/home.php');
-        exit;
+        exit();
     }
 }
 
@@ -27,7 +27,7 @@ switch (true) {
     case !isset($_GET['machine_no']):
     case !isset($_GET['equipment_no']):
         echo 'Query Parameters Not Set';
-        exit;
+        exit();
         break;
 }
 

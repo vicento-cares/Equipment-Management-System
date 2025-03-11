@@ -5,7 +5,7 @@ session_start();
 
 if (!isset($_SESSION['sp_username'])) {
   header('location:../../login/');
-  exit;
+  exit();
 } else {
   if(!isset($_COOKIE['sp_name'])) {
     $name = $_SESSION['sp_name'];

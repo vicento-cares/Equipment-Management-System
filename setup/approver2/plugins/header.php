@@ -5,17 +5,17 @@ session_start();
 
 if (!isset($_SESSION['setup_username'])) {
   header('location:../../login/');
-  exit;
+  exit();
 } else {
   if ($_SESSION['setup_approver_role'] == "1") {
     header('location:../approver1/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "3") {
     header('location:../approver3/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "N/A") {
     header('location:../admin/home.php');
-    exit;
+    exit();
   }
   if(!isset($_COOKIE['setup_name'])) {
     $name = $_SESSION['setup_name'];

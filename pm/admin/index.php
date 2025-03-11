@@ -4,7 +4,7 @@ session_name("ems");
 session_start();
 
 header('location:../../login/');
-exit;
+exit();
 
 /*session_set_cookie_params(0, "/ems/pm");
 session_name("ems_pm");
@@ -12,7 +12,7 @@ session_start();
 
 if (isset($_SESSION['pm_username'])) {
   header('location:home.php');
-  exit;
+  exit();
 }*/
 ?>
 <!DOCTYPE html>

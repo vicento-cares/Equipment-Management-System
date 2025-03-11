@@ -5,7 +5,7 @@ session_start();
 
 if (!isset($_SESSION['sp_username'])) {
     header('location:../../../login/');
-    exit;
+    exit();
 }
 
 require('../db/conn.php');
@@ -18,7 +18,7 @@ switch (true) {
     case !isset($_GET['pm_concern_id']):
     case !isset($_GET['pm_concern_status']):
         echo 'Query Parameters Not Set';
-        exit;
+        exit();
         break;
 }
 

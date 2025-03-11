@@ -4,7 +4,7 @@ session_name("ems");
 session_start();
 
 header('location:../../login/');
-exit;
+exit();
 
 /*session_set_cookie_params(0, "/ems/setup");
 session_name("ems_setup");
@@ -13,16 +13,16 @@ session_start();
 if (isset($_SESSION['setup_username'])) {
   if ($_SESSION['setup_approver_role'] == "1") {
     header('location:../approver1/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "2") {
     header('location:../approver2/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "3") {
     header('location:../approver3/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "N/A") {
     header('location:home.php');
-    exit;
+    exit();
   }
 }*/
 ?>

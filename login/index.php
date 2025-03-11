@@ -9,31 +9,31 @@ session_start();
 if (isset($_SESSION['setup_username'])) {
   if ($_SESSION['setup_approver_role'] == "1") {
     header('location:../setup/approver1/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "2") {
     header('location:../setup/approver2/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "3") {
     header('location:../setup/approver3/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['setup_approver_role'] == "N/A") {
     header('location:../setup/admin/home.php');
-    exit;
+    exit();
   }
 } else if (isset($_SESSION['pm_username'])) {
   if ($_SESSION['pm_role'] == "Prod") {
     header('location:../pm/prod/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['pm_role'] == "QA") {
     header('location:../pm/qa/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['pm_role'] == "Admin" || $_SESSION['pm_role'] == "PM") {
     header('location:../pm/admin/home.php');
-    exit;
+    exit();
   }
 } else if (isset($_SESSION['sp_username'])) {
   header('location:../sp/admin/approver-2.php');
-  exit;
+  exit();
 }
 ?>
 <!DOCTYPE html>

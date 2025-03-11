@@ -5,14 +5,14 @@ session_start();
 
 if (!isset($_SESSION['pm_username'])) {
     header('location:../../../login/');
-    exit;
+    exit();
 } else {
     if ($_SESSION['pm_role'] == "Prod") {
         header('location:../prod/home.php');
-        exit;
+        exit();
     } else if ($_SESSION['pm_role'] == "QA") {
         header('location:../qa/home.php');
-        exit;
+        exit();
     }
 }
 
@@ -26,7 +26,7 @@ switch (true) {
     case !isset($_GET['machine_no']):
     case !isset($_GET['equipment_no']):
         echo 'Query Parameters Not Set';
-        exit;
+        exit();
         break;
 }
 

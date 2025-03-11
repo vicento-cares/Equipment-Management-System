@@ -5,14 +5,14 @@ session_start();
 
 if (!isset($_SESSION['pm_username'])) {
   header('location:../../login/');
-  exit;
+  exit();
 } else {
   if ($_SESSION['pm_role'] == "QA") {
     header('location:../qa/home.php');
-    exit;
+    exit();
   } else if ($_SESSION['pm_role'] == "Admin") {
     header('location:../admin/home.php');
-    exit;
+    exit();
   }
   if(!isset($_COOKIE['pm_name'])) {
     $name = $_SESSION['pm_name'];
