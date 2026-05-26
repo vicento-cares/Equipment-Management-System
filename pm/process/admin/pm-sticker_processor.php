@@ -16,19 +16,30 @@ $date_updated = date('Y-m-d H:i:s');
 if ($method == 'count_ww') {
     $pm_plan_year = $_POST['pm_plan_year'];
     $ww_no = $_POST['ww_no'];
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
-    $sql = "SELECT count(id) AS total FROM machine_pm_plan";
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
+
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_pm_plan";
+    $params = [];
+
     if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-        $sql = $sql . " WHERE pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
+        $sql = $sql . " WHERE pm_plan_year LIKE ? AND ww_no LIKE ? AND 
+                        machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?";
+        $params = [
+            $pm_plan_year . "%",
+            $ww_no . "%",
+            $machine_name . "%",
+            $machine_no . "%",
+            $equipment_no . "%"
+        ];
     }
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -37,30 +48,53 @@ if ($method == 'get_ww') {
     $id = $_POST['id'];
     $pm_plan_year = $_POST['pm_plan_year'];
     $ww_no = $_POST['ww_no'];
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
     $row_class = $row_class_arr[0];
     $c = $_POST['c'];
-    $sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan";
+
+    $sql = "SELECT TOP 25 
+                id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer 
+            FROM t_machine_pm_plan";
+
+    $params = [];
 
     if (empty($id)) {
         if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-            $sql = $sql . " WHERE pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
+            $sql = $sql . " WHERE pm_plan_year LIKE ? AND ww_no LIKE ? AND 
+                            machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?";
+            $params = [
+                $pm_plan_year . "%",
+                $ww_no . "%",
+                $machine_name . "%",
+                $machine_no . "%",
+                $equipment_no . "%"
+            ];
         }
     } else {
-        $sql = $sql . " WHERE id > '$id'";
+        $sql = $sql . " WHERE id > ?";
+        $params[] = $id;
         if (!empty($pm_plan_year) || !empty($ww_no) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-            $sql = $sql . " AND (pm_plan_year LIKE '$pm_plan_year%' AND ww_no LIKE '$ww_no%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%')";
+            $sql = $sql . " AND (pm_plan_year LIKE ? AND ww_no LIKE ? AND 
+                            machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?)";
+            $params[] = $pm_plan_year . "%";
+            $params[] = $ww_no . "%";
+            $params[] = $machine_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
         }
     }
-    $sql = $sql . " ORDER BY id ASC LIMIT 25";
+    $sql = $sql . " ORDER BY id ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if (empty($row['manpower']) || empty($row['ww_next_date']) || empty($row['shift_engineer'])) {
                 $row_class = $row_class_arr[1];
@@ -83,7 +117,7 @@ if ($method == 'get_ww') {
                 echo '<td>' . date("Y-m-d", strtotime($row['ww_next_date'])) . '</td>';
             }
             echo '<td>' . htmlspecialchars($row['shift_engineer']) . '</td></tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="11" style="text-align:center; color:red;">No Results Found</td>';
@@ -109,15 +143,14 @@ if ($method == 'update_pm_sticker_content') {
         echo 'Next Date Not Set';
 
     if ($is_valid == true) {
-        $shift_engineer = addslashes($shift_engineer);
         $ww_next_date = date_create($ww_next_date);
         $ww_next_date = date_format($ww_next_date, "Y-m-d");
 
         $count = count($arr);
         foreach ($arr as $id) {
-            $sql = "UPDATE machine_pm_plan SET shift_engineer = '$shift_engineer', ww_next_date = '$ww_next_date' WHERE id = '$id'";
+            $sql = "UPDATE t_machine_pm_plan SET shift_engineer = ?, ww_next_date = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$shift_engineer, $ww_next_date, $id]);
             $count--;
         }
 

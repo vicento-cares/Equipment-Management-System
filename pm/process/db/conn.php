@@ -1,16 +1,21 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-//$user = 'server_113.4';
-$password = '';
-//$password = 'SystemGroup@2022'; 
-$database = 'ems_db';
-$port = 3306;
+// MS SQL Server Connection
+
+$servername = '172.25.112.131, 1433\SQLEXPRESS';
+$username = 'SA';
+$password = 'SystemGroup2018';
+$database = 'eems_db';
+
+// $servername = '172.25.116.188';
+// $username = 'SA';
+// $password = 'SystemGroup@2022';
+// $database = 'eems_db';
 
 try {
-    $conn = new PDO("mysql:host=$host;port=$port;dbname=$database", $user, $password);
-    // set the PDO error mode to exception
+    $conn = new PDO ("sqlsrv:Server=$servername;Database=$database",$username,$password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    echo 'NO CONNECTION'.$e->getMessage();
 }
+
+//end database

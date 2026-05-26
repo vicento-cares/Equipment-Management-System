@@ -51,13 +51,16 @@ function check_machine_docs_file($machine_docs_file_info, $conn)
         $file_valid_arr[2] = 1;
     }
     // Check File Information Exists on Database
-    $machine_docs_filename = addslashes($machine_docs_file_info['machine_docs_filename']);
-    $machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
-    $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
-    $sql = "SELECT id FROM machine_pm_docs WHERE file_name = '$machine_docs_filename' AND file_type = '$machine_docs_filetype' AND file_url = '$machine_docs_url'";
+    $machine_docs_filename = $machine_docs_file_info['machine_docs_filename'];
+    $machine_docs_filetype = $machine_docs_file_info['machine_docs_filetype'];
+    $machine_docs_url = $machine_docs_file_info['machine_docs_url'];
+    $sql = "SELECT id FROM t_machine_pm_docs WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$machine_docs_filename, $machine_docs_filetype, $machine_docs_url]);
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         $hasError = 1;
         $file_valid_arr[3] = 1;
     }
@@ -85,16 +88,26 @@ function check_machine_docs_file($machine_docs_file_info, $conn)
 function save_machine_docs_info($machine_docs_file_info, $conn)
 {
     $process = $machine_docs_file_info['process'];
-    $machine_name = addslashes($machine_docs_file_info['machine_name']);
+    $machine_name = $machine_docs_file_info['machine_name'];
     $machine_docs_type = $machine_docs_file_info['machine_docs_type'];
     $machine_docs_filename = basename($machine_docs_file_info['machine_docs_filename']);
-    $machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
-    $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
+    $machine_docs_filetype = $machine_docs_file_info['machine_docs_filetype'];
+    $machine_docs_url = $machine_docs_file_info['machine_docs_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO machine_pm_docs (process, machine_name, machine_docs_type, file_name, file_type, file_url, date_updated) VALUES ('$process', '$machine_name', '$machine_docs_type', '$machine_docs_filename', '$machine_docs_filetype', '$machine_docs_url', '$date_updated')";
+    $sql = "INSERT INTO t_machine_pm_docs (process, machine_name, machine_docs_type, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $process,
+        $machine_name,
+        $machine_docs_type,
+        $machine_docs_filename,
+        $machine_docs_filetype,
+        $machine_docs_url,
+        $date_updated
+    ]);
 }
 
 // Declaration & Initialization

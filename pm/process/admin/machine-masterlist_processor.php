@@ -14,42 +14,54 @@ $date_updated = date('Y-m-d H:i:s');
 
 function get_current_number_by_name($machine_name, $conn)
 {
-    $machine_name = addslashes($machine_name);
     $number = 0;
-    $sql = "SELECT number FROM machine_masterlist WHERE machine_name = '$machine_name' ORDER BY number DESC LIMIT 1";
+    $sql = "SELECT TOP 1 number FROM m_machine_masterlist WHERE machine_name = ? ORDER BY number DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $number = intval($row['number']);
-        }
-    }
+    $stmt->execute([$machine_name]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $number = intval($row['number']);
+    
     return ++$number;
 }
 
 // Count
 if ($method == 'count_data') {
     $process = $_POST['process'];
-    $car_model = addslashes($_POST['car_model']);
-    $machine_spec = addslashes($_POST['machine_spec']);
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
-    $sql = "SELECT count(id) AS total FROM machine_masterlist";
+    $car_model = $_POST['car_model'];
+    $machine_spec = $_POST['machine_spec'];
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
+
+    $sql = "SELECT COUNT(id) AS total FROM m_machine_masterlist";
+    $params = [];
     if (!empty($car_model) || !empty($machine_spec) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-        $sql = $sql . " WHERE car_model LIKE '$car_model%' AND machine_spec LIKE '$machine_spec%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
+        $sql = $sql . " WHERE car_model LIKE ? AND machine_spec LIKE ? AND 
+                        machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?";
+
+        $params = [
+            $car_model . "%",
+            $machine_spec . "%",
+            $machine_name . "%",
+            $machine_no . "%",
+            $equipment_no . "%",
+        ];
+        
         if ($process != 'All') {
-            $sql = $sql . " AND process = '$process'";
+            $sql = $sql . " AND process = ?";
+            $params[] = $process;
         }
     } else if ($process != 'All') {
-        $sql = $sql . " WHERE process = '$process'";
+        $sql = $sql . " WHERE process = ?";
+        $params[] = $process;
     }
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -57,44 +69,70 @@ if ($method == 'count_data') {
 if ($method == 'fetch_data') {
     $id = $_POST['id'];
     $process = $_POST['process'];
-    $car_model = addslashes($_POST['car_model']);
-    $machine_spec = addslashes($_POST['machine_spec']);
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $car_model = $_POST['car_model'];
+    $machine_spec = $_POST['machine_spec'];
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $c = $_POST['c'];
-    $sql = "SELECT id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, is_new, date_updated FROM machine_masterlist";
+
+    $sql = "SELECT TOP 25 
+                id, number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], machine_status, is_new, date_updated 
+            FROM m_machine_masterlist";
+    $params = [];
 
     if (empty($id)) {
         if (!empty($car_model) || !empty($machine_spec) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-            $sql = $sql . " WHERE car_model LIKE '$car_model%' AND machine_spec LIKE '$machine_spec%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
+            $sql = $sql . " WHERE car_model LIKE ? AND machine_spec LIKE ? AND 
+                            machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?";
+            $params = [
+                $car_model . "%",
+                $machine_spec . "%",
+                $machine_name . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+            ];
             if ($process != 'All') {
-                $sql = $sql . " AND process = '$process'";
+                $sql = $sql . " AND process = ?";
+                $params[] = $process;
             }
         } else if ($process != 'All') {
-            $sql = $sql . " WHERE process = '$process'";
+            $sql = $sql . " WHERE process = ?";
+            $params[] = $process;
         }
     } else {
-        $sql = $sql . " WHERE id > '$id'";
+        $sql = $sql . " WHERE id > ?";
+        $params[] = $id;
         if (!empty($car_model) || !empty($machine_spec) || !empty($machine_name) || !empty($machine_no) || !empty($equipment_no)) {
-            $sql = $sql . " AND (car_model LIKE '$car_model%' AND machine_spec LIKE '$machine_spec%' AND machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%'";
+            $sql = $sql . " AND (car_model LIKE ? AND machine_spec LIKE ? 
+                            AND machine_name LIKE ? AND machine_no LIKE ? AND equipment_no LIKE ?";
+            $params[] = $car_model . "%";
+            $params[] = $machine_spec . "%";
+            $params[] = $machine_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
             if ($process != 'All') {
-                $sql = $sql . " AND process = '$process'";
+                $sql = $sql . " AND process = ?";
+                $params[] = $process;
             }
             $sql = $sql . ")";
         } else if ($process != 'All') {
-            $sql = $sql . " AND (process = '$process'";
+            $sql = $sql . " AND (process = ?";
+            $params[] = $process;
             $sql = $sql . ")";
         }
     }
-    $sql = $sql . " ORDER BY id ASC LIMIT 25";
+    $sql = $sql . " ORDER BY id ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
-            echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#MachineInfoModal" data-id="' . $row['id'] . '" data-number="' . $row['number'] . '" data-process="' . $row['process'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_spec="' . htmlspecialchars($row['machine_spec']) . '" data-car_model="' . htmlspecialchars($row['car_model']) . '" data-location="' . htmlspecialchars($row['location']) . '" data-grid="' . htmlspecialchars($row['grid']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-asset_tag_no="' . $row['asset_tag_no'] . '" data-trd_no="' . $row['trd_no'] . '" data-ns_iv_no="' . $row['ns-iv_no'] . '" data-machine_status="' . $row['machine_status'] . '" data-is_new="' . $row['is_new'] . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details(this)">';
+            echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#MachineInfoModal" data-id="' . $row['id'] . '" data-number="' . $row['number'] . '" data-process="' . $row['process'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_spec="' . htmlspecialchars($row['machine_spec']) . '" data-car_model="' . htmlspecialchars($row['car_model']) . '" data-location="' . htmlspecialchars($row['location']) . '" data-grid="' . htmlspecialchars($row['grid']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-asset_tag_no="' . $row['asset_tag_no'] . '" data-trd_no="' . $row['trd_no'] . '" data-ns_iv_no="' . $row['ns_iv_no'] . '" data-machine_status="' . $row['machine_status'] . '" data-is_new="' . $row['is_new'] . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details(this)">';
             echo '<td>' . $row['number'] . '</td>';
             echo '<td>' . htmlspecialchars($row['machine_name']) . '</td>';
             echo '<td>' . htmlspecialchars($row['machine_spec']) . '</td>';
@@ -104,7 +142,7 @@ if ($method == 'fetch_data') {
             echo '<td>' . htmlspecialchars($row['equipment_no']) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -168,20 +206,34 @@ if ($method == 'save_data') {
         } else {
             $current_number = get_current_number_by_name($machine_name, $conn);
 
-            $machine_name = addslashes($machine_name);
-            $machine_spec = addslashes($machine_spec);
             if ($process == 'Initial') {
                 $car_model = 'EQ-Initial';
             } else if ($process == 'Final') {
                 $car_model = 'EQ-Final';
             }
-            $machine_no = addslashes($machine_no);
-            $equipment_no = addslashes($equipment_no);
-            $asset_tag_no = addslashes($asset_tag_no);
 
-            $sql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, is_new, date_updated) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$is_new', '$date_updated')";
+            $sql = "INSERT INTO m_machine_masterlist 
+                        (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, ns_iv_no, is_new, date_updated) 
+                    VALUES 
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                $current_number,
+                $process,
+                $machine_name,
+                $machine_spec,
+                $car_model,
+                $location,
+                $grid,
+                $machine_no,
+                $equipment_no,
+                $asset_tag_no,
+                $trd_no,
+                $ns_iv_no,
+                $is_new,
+                $date_updated
+            ]);
 
             save_current_number($machine_name, $current_number, $conn);
 
@@ -248,17 +300,9 @@ if ($method == 'update_data') {
                   // Code For Insert New Machine
               }*/
 
-        /*$machine_name = addslashes($machine_name);
-              $machine_spec = addslashes($machine_spec);*/
-        $car_model = addslashes($car_model);
-        $grid = addslashes($grid);
-        /*$machine_no = addslashes($machine_no);
-              $equipment_no = addslashes($equipment_no);*/
-        $asset_tag_no = addslashes($asset_tag_no);
-
-        $sql = "UPDATE machine_masterlist SET car_model = '$car_model', location = '$location', grid = '$grid', asset_tag_no = '$asset_tag_no', date_updated = '$date_updated' WHERE id = '$id'";
+        $sql = "UPDATE m_machine_masterlist SET car_model = ?, location = ?, grid = ?, asset_tag_no = ?, date_updated = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$car_model, $location, $grid, $asset_tag_no, $date_updated, $id]);
         echo 'success';
     }
 }
@@ -271,11 +315,9 @@ if ($method == 'update_asset_tag_no') {
         $asset_tag_no = 'N/A';
     }
 
-    $asset_tag_no = addslashes($asset_tag_no);
-
-    $sql = "UPDATE machine_masterlist SET asset_tag_no = '$asset_tag_no', date_updated = '$date_updated' WHERE id = '$id'";
+    $sql = "UPDATE m_machine_masterlist SET asset_tag_no = ?, date_updated = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$asset_tag_no, $date_updated, $id]);
     echo 'success';
 }
 
@@ -283,9 +325,9 @@ if ($method == 'update_asset_tag_no') {
 if ($method == 'delete_data') {
     $id = $_POST['id'];
 
-    $sql = "DELETE FROM machine_masterlist WHERE id = '$id'";
+    $sql = "DELETE FROM m_machine_masterlist WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
     echo 'success';
 }
 

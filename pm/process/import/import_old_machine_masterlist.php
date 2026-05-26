@@ -24,21 +24,20 @@ require('../lib/main.php');
 
 function get_current_number_by_name($machine_name, $conn)
 {
-    $machine_name = addslashes($machine_name);
     $number = 0;
-    $sql = "SELECT number FROM machines WHERE machine_name = '$machine_name' ORDER BY number DESC LIMIT 1";
+    $sql = "SELECT TOP 1 number FROM m_machines WHERE machine_name = ? ORDER BY number DESC";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $number = intval($row['number']);
-        }
-    }
+    $stmt->execute([$machine_name]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $number = intval($row['number']);
+
     return ++$number;
 }
 
 $start_row = 1;
-$insertsql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, is_new, date_updated, machine_status) VALUES ";
+$insertsql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
 $subsql = "";
 
 $date_updated = date('Y-m-d H:i:s');
@@ -47,7 +46,7 @@ function get_machines($conn)
 {
     $data = array();
 
-    $sql = "SELECT machine_name FROM machines ORDER BY machine_name ASC";
+    $sql = "SELECT machine_name FROM m_machines ORDER BY machine_name ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -61,7 +60,7 @@ function get_lines_final($conn)
 {
     $data = array();
 
-    $sql = "SELECT car_model FROM line_no_final ORDER BY car_model ASC";
+    $sql = "SELECT car_model FROM m_line_no_final ORDER BY car_model ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -75,7 +74,7 @@ function get_lines_initial($conn)
 {
     $data = array();
 
-    $sql = "SELECT car_model FROM line_no_initial ORDER BY car_model ASC";
+    $sql = "SELECT car_model FROM m_line_no_initial ORDER BY car_model ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -89,7 +88,7 @@ function get_locations($conn)
 {
     $data = array();
 
-    $sql = "SELECT location FROM locations ORDER BY location ASC";
+    $sql = "SELECT location FROM m_locations ORDER BY location ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -164,14 +163,14 @@ function check_csv($file, $conn)
 
             $number = intval(custom_trim($line[0]));
             $process = custom_trim($line[1]);
-            $machine_name = addslashes(custom_trim($line[2]));
-            $machine_spec = addslashes(custom_trim($line[3]));
-            $car_model = addslashes(custom_trim($line[4]));
+            $machine_name = custom_trim($line[2]);
+            $machine_spec = custom_trim($line[3]);
+            $car_model = custom_trim($line[4]);
             $location = custom_trim($line[5]);
-            $grid = addslashes(custom_trim($line[6]));
-            $machine_no = addslashes(custom_trim($line[7]));
-            $equipment_no = addslashes(custom_trim($line[8]));
-            $asset_tag_no = addslashes(custom_trim($line[9]));
+            $grid = custom_trim($line[6]);
+            $machine_no = custom_trim($line[7]);
+            $equipment_no = custom_trim($line[8]);
+            $asset_tag_no = custom_trim($line[9]);
             $trd_no = custom_trim($line[10]);
             $ns_iv_no = custom_trim($line[11]);
 
@@ -251,10 +250,20 @@ function check_csv($file, $conn)
             }
 
             // CHECK ROWS IF EXISTS
-            $sql = "SELECT id FROM machine_masterlist WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND asset_tag_no = '$asset_tag_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no'";
+            $sql = "SELECT id FROM m_machine_masterlist 
+                        WHERE process = ? AND machine_name = ? AND machine_spec = ? AND 
+                            car_model = ? AND location = ? AND grid = ? AND machine_no = ? AND 
+                            equipment_no = ? AND asset_tag_no = ? AND trd_no = ? AND [ns_iv_no] = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            if ($stmt->rowCount() > 0) {
+            $stmt->execute([
+                $process, $machine_name, $machine_spec, 
+                $car_model, $location, $grid, $machine_no, 
+                $equipment_no, $asset_tag_no, $trd_no, $ns_iv_no
+            ]);
+            
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row) {
                 $isExistsOnDb = 1;
                 $hasError = 1;
                 array_push($isExistsOnDbArr, $check_csv_row);
@@ -345,7 +354,7 @@ if (!empty($_FILES['file']['name'])) {
 
                         save_current_number($read_data[2], $current_number, $conn);
 
-                        $column_count = count($read_data);
+                        $column_count = COUNT($read_data);
                         $subsql = $subsql . " (";
                         $temp_count++;
                         $start_row++;
@@ -366,7 +375,7 @@ if (!empty($_FILES['file']['name'])) {
                             $insertsql = substr($insertsql, 0, strlen($insertsql));
                             $stmt = $conn->prepare($insertsql);
                             $stmt->execute();
-                            $insertsql = "INSERT INTO machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, is_new, date_updated, machine_status) VALUES ";
+                            $insertsql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
                             $subsql = "";
                         } else if ($temp_count == $row_count) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);

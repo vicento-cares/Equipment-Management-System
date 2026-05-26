@@ -11,27 +11,28 @@ $method = $_POST['method'];
 
 // Get Factory Area Dropdown
 if ($method == 'fetch_location_dropdown') {
-    $sql = "SELECT location FROM locations ORDER BY location ASC";
+    $sql = "SELECT location FROM m_locations ORDER BY location ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         echo '<option disabled selected value="">Select Location</option>';
-        foreach ($stmt->fetchAll() as $row) {
+        do {
             echo '<option value="' . htmlspecialchars($row['location']) . '">' . htmlspecialchars($row['location']) . '</option>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<option disabled selected value="">Select Location</option>';
     }
 }
 
 if ($method == 'fetch_location_datalist_search') {
-    $sql = "SELECT location FROM locations ORDER BY location ASC";
+    $sql = "SELECT location FROM m_locations ORDER BY location ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
-            echo '<option value="' . $row['location'] . '">';
-        }
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo '<option value="' . $row['location'] . '">';
     }
 }
 

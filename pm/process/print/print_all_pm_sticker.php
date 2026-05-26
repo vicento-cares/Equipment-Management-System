@@ -31,14 +31,18 @@ switch (true) {
 $pm_plan_year = $_GET['pm_plan_year'];
 $ww_no = $_GET['ww_no'];
 
-$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan WHERE pm_plan_year = '$pm_plan_year'";
+$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer 
+        FROM t_machine_pm_plan WHERE pm_plan_year = ?";
+
+$params[] = $pm_plan_year;
 
 if (!empty($ww_no)) {
-    $sql = $sql . " AND ww_no = '$ww_no'";
+    $sql = $sql . " AND ww_no = ?";
+    $params[] = $ww_no;
 }
 
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute($params);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,7 +91,7 @@ $stmt->execute();
         <span>Call IT Personnel Immediately!!! They will fix it right away.</span>
     </noscript>
     <div class="row">
-        <?php foreach ($stmt->fetchAll() as $row) { ?>
+        <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
             <div class="col-6">
                 <table class="mx-0 my-0" style="height:100%;width:100%;table-layout:fixed;">
                     <tbody>

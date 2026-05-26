@@ -30,7 +30,7 @@ function generate_rsir_no($rsir_no)
 function update_notif_count_machine_checksheets($interface, $rsir_process_status, $conn)
 {
     if ($rsir_process_status != 'Saved') {
-        $sql = "UPDATE notif_pm_approvers";
+        $sql = "UPDATE t_notif_pm_approvers";
         if ($rsir_process_status == 'Confirmed') {
             $sql = $sql . " SET pending_rsir = pending_rsir + 1";
         } else if ($rsir_process_status == 'Approved') {
@@ -38,9 +38,9 @@ function update_notif_count_machine_checksheets($interface, $rsir_process_status
         } else if ($rsir_process_status == 'Disapproved') {
             $sql = $sql . " SET disapproved_rsir = disapproved_rsir + 1";
         }
-        $sql = $sql . " WHERE interface = '$interface'";
+        $sql = $sql . " WHERE interface = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$interface]);
     }
 }
 
@@ -48,9 +48,9 @@ function machine_checksheets_mark_as_read($rsir_no, $rsir_process_status, $inter
 {
     $sql = "";
     if ($rsir_process_status == 'Approved' || $rsir_process_status == 'Disapproved') {
-        $sql = $sql . "UPDATE pm_rsir_history";
+        $sql = $sql . "UPDATE t_pm_rsir_history";
     } else {
-        $sql = $sql . "UPDATE pm_rsir";
+        $sql = $sql . "UPDATE t_pm_rsir";
     }
     if ($interface == 'ADMIN-PM') {
         $sql = $sql . " SET is_read_pm = 1";
@@ -59,12 +59,12 @@ function machine_checksheets_mark_as_read($rsir_no, $rsir_process_status, $inter
     } else if ($interface == 'APPROVER-QA-MGR') {
         $sql = $sql . " SET is_read_qa = 1";
     }
-    $sql = $sql . " WHERE rsir_no = '$rsir_no'";
+    $sql = $sql . " WHERE rsir_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$rsir_no]);
 
     if ($rsir_process_status != 'Saved' && $rsir_process_status != 'Returned') {
-        $sql = "UPDATE notif_pm_approvers";
+        $sql = "UPDATE t_notif_pm_approvers";
         if ($rsir_process_status == 'Confirmed') {
             $sql = $sql . " SET pending_rsir = CASE WHEN pending_rsir > 0 THEN pending_rsir - 1 END";
         } else if ($rsir_process_status == 'Approved') {
@@ -72,9 +72,9 @@ function machine_checksheets_mark_as_read($rsir_no, $rsir_process_status, $inter
         } else if ($rsir_process_status == 'Disapproved') {
             $sql = $sql . " SET disapproved_rsir = CASE WHEN disapproved_rsir > 0 THEN disapproved_rsir - 1 END";
         }
-        $sql = $sql . " WHERE interface = '$interface'";
+        $sql = $sql . " WHERE interface = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$interface]);
     }
 }
 
@@ -113,13 +113,16 @@ function check_rsir_file($rsir_file_info, $action, $conn)
         }
     }
     // Check File Information Exists on Database
-    $rsir_filename = addslashes($rsir_file_info['rsir_filename']);
-    $rsir_filetype = addslashes($rsir_file_info['rsir_filetype']);
-    $rsir_url = addslashes($rsir_file_info['rsir_url']);
-    $sql = "SELECT id FROM pm_rsir WHERE file_name = '$rsir_filename' AND file_type = '$rsir_filetype' AND file_url = '$rsir_url'";
+    $rsir_filename = $rsir_file_info['rsir_filename'];
+    $rsir_filetype = $rsir_file_info['rsir_filetype'];
+    $rsir_url = $rsir_file_info['rsir_url'];
+    $sql = "SELECT id FROM t_pm_rsir WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$rsir_filename, $rsir_filetype, $rsir_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         if ($action == 'Insert') {
             $hasError = 1;
             $file_valid_arr[3] = 1;
@@ -129,10 +132,13 @@ function check_rsir_file($rsir_file_info, $action, $conn)
         }
     }
     // Check File Information Exists on Database (History)
-    $sql = "SELECT id FROM pm_rsir_history WHERE file_name = '$rsir_filename' AND file_type = '$rsir_filetype' AND file_url = '$rsir_url'";
+    $sql = "SELECT id FROM t_pm_rsir_history WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$rsir_filename, $rsir_filetype, $rsir_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         if ($action == 'Insert') {
             $hasError = 1;
             $file_valid_arr[3] = 1;
@@ -165,10 +171,13 @@ function check_rsir_no_returned($rsir_no, $conn)
 {
     $rsir_no_exist = false;
 
-    $sql = "SELECT rsir_no FROM pm_rsir WHERE rsir_no = '$rsir_no'";
+    $sql = "SELECT rsir_no FROM t_pm_rsir WHERE rsir_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$rsir_no]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         $rsir_no_exist = true;
     }
 
@@ -180,13 +189,13 @@ function save_rsir_info($rsir_file_info, $conn)
 {
     $rsir_no = $rsir_file_info['rsir_no'];
     $rsir_type = $rsir_file_info['rsir_type'];
-    $machine_name = addslashes($rsir_file_info['machine_name']);
-    $machine_no = addslashes($rsir_file_info['machine_no']);
-    $equipment_no = addslashes($rsir_file_info['equipment_no']);
+    $machine_name = $rsir_file_info['machine_name'];
+    $machine_no = $rsir_file_info['machine_no'];
+    $equipment_no = $rsir_file_info['equipment_no'];
     $rsir_date = date_create($rsir_file_info['rsir_date']);
     $rsir_date = date_format($rsir_date, "Y-m-d");
-    $repair_details = addslashes($rsir_file_info['repair_details']);
-    $repaired_by = addslashes($rsir_file_info['repaired_by']);
+    $repair_details = $rsir_file_info['repair_details'];
+    $repaired_by = $rsir_file_info['repaired_by'];
     $repair_date = date_create($rsir_file_info['repair_date']);
     $repair_date = date_format($repair_date, "Y-m-d");
     $next_pm_date = date_create($rsir_file_info['next_pm_date']);
@@ -195,36 +204,57 @@ function save_rsir_info($rsir_file_info, $conn)
     $rsir_username = $_SESSION['setup_username'];
     $rsir_approver_role = $rsir_file_info['rsir_approver_role'];
     $rsir_filename = basename($rsir_file_info['rsir_filename']);
-    $rsir_filetype = addslashes($rsir_file_info['rsir_filetype']);
-    $rsir_url = addslashes($rsir_file_info['rsir_url']);
+    $rsir_filetype = $rsir_file_info['rsir_filetype'];
+    $rsir_url = $rsir_file_info['rsir_url'];
     $rsir_eq_group = 'setup';
     $date_updated = date('Y-m-d H:i:s');
 
     $mstprc_no = $rsir_file_info['mstprc_no'];
 
-    $sql = "INSERT INTO pm_rsir (rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, repair_details, repaired_by, repair_date, next_pm_date, inspected_by, rsir_username, rsir_approver_role, rsir_process_status, file_name, file_type, file_url, rsir_eq_group, date_updated) VALUES ('$rsir_no', '$rsir_type', '$machine_name', '$machine_no', '$equipment_no', '$rsir_date', '$repair_details', '$repaired_by', '$repair_date', '$next_pm_date', '$inspected_by', '$rsir_username', '$rsir_approver_role', 'Saved', '$rsir_filename', '$rsir_filetype', '$rsir_url', '$rsir_eq_group', '$date_updated')";
+    $sql = "INSERT INTO t_pm_rsir (rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, repair_details, repaired_by, repair_date, next_pm_date, inspected_by, rsir_username, rsir_approver_role, rsir_process_status, file_name, file_type, file_url, rsir_eq_group, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $rsir_no,
+        $rsir_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $rsir_date,
+        $repair_details,
+        $repaired_by,
+        $repair_date,
+        $next_pm_date,
+        $inspected_by,
+        $rsir_username,
+        $rsir_approver_role,
+        'Saved',
+        $rsir_filename,
+        $rsir_filetype,
+        $rsir_url,
+        $rsir_eq_group,
+        $date_updated
+    ]);
 
-    $sql = "UPDATE setup_mstprc SET rsir_no = '$rsir_no' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc SET rsir_no = ? WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    $sql = "UPDATE setup_mstprc_history SET rsir_no = '$rsir_no' WHERE mstprc_no = '$mstprc_no'";
+    $stmt->execute([$rsir_no, $mstprc_no]);
+    $sql = "UPDATE t_setup_mstprc_history SET rsir_no = ? WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$rsir_no, $mstprc_no]);
 }
 
 function update_rsir_info_returned($rsir_file_info, $conn)
 {
     $rsir_no = $rsir_file_info['rsir_no'];
     $rsir_type = $rsir_file_info['rsir_type'];
-    $machine_name = addslashes($rsir_file_info['machine_name']);
-    $machine_no = addslashes($rsir_file_info['machine_no']);
-    $equipment_no = addslashes($rsir_file_info['equipment_no']);
+    $machine_name = $rsir_file_info['machine_name'];
+    $machine_no = $rsir_file_info['machine_no'];
+    $equipment_no = $rsir_file_info['equipment_no'];
     $rsir_date = date_create($rsir_file_info['rsir_date']);
     $rsir_date = date_format($rsir_date, "Y-m-d");
-    $repair_details = addslashes($rsir_file_info['repair_details']);
-    $repaired_by = addslashes($rsir_file_info['repaired_by']);
+    $repair_details = $rsir_file_info['repair_details'];
+    $repaired_by = $rsir_file_info['repaired_by'];
     $repair_date = date_create($rsir_file_info['repair_date']);
     $repair_date = date_format($repair_date, "Y-m-d");
     $next_pm_date = date_create($rsir_file_info['next_pm_date']);
@@ -233,23 +263,72 @@ function update_rsir_info_returned($rsir_file_info, $conn)
     $rsir_username = $_SESSION['setup_username'];
     $rsir_approver_role = $rsir_file_info['rsir_approver_role'];
     $rsir_filename = basename($rsir_file_info['rsir_filename']);
-    $rsir_filetype = addslashes($rsir_file_info['rsir_filetype']);
-    $rsir_url = addslashes($rsir_file_info['rsir_url']);
+    $rsir_filetype = $rsir_file_info['rsir_filetype'];
+    $rsir_url = $rsir_file_info['rsir_url'];
     $rsir_eq_group = 'setup';
     $date_updated = date('Y-m-d H:i:s');
 
     $mstprc_no = $rsir_file_info['mstprc_no'];
 
-    $sql = "UPDATE pm_rsir SET rsir_type = '$rsir_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',rsir_date = '$rsir_date',repair_details = '$repair_details',repaired_by = '$repaired_by',repair_date = '$repair_date',next_pm_date = '$next_pm_date',inspected_by = '$inspected_by',rsir_username = '$rsir_username',rsir_approver_role = '$rsir_approver_role',rsir_process_status = 'Saved',is_read_pm =0,file_name = '$rsir_filename',file_type = '$rsir_filetype',file_url = '$rsir_url',rsir_eq_group = '$rsir_eq_group',date_updated = '$date_updated' WHERE rsir_no = '$rsir_no'";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $sql = "UPDATE t_pm_rsir SET 
+                rsir_type = ?, 
+                machine_name = ?, 
+                machine_no = ?, 
+                equipment_no = ?, 
+                rsir_date = ?, 
+                repair_details = ?, 
+                repaired_by = ?, 
+                repair_date = ?, 
+                next_pm_date = ?, 
+                inspected_by = ?, 
+                rsir_username = ?, 
+                rsir_approver_role = ?, 
+                rsir_process_status = ?, 
+                is_read_pm = ?, 
+                file_name = ?, 
+                file_type = ?, 
+                file_url = ?, 
+                rsir_eq_group = ?, 
+                date_updated = ? 
+            WHERE rsir_no = ?";
 
-    $sql = "UPDATE setup_mstprc SET rsir_no = '$rsir_no' WHERE mstprc_no = '$mstprc_no'";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    $sql = "UPDATE setup_mstprc_history SET rsir_no = '$rsir_no' WHERE mstprc_no = '$mstprc_no'";
+    $stmt->execute([
+        $rsir_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $rsir_date,
+        $repair_details,
+        $repaired_by,
+        $repair_date,
+        $next_pm_date,
+        $inspected_by,
+        $rsir_username,
+        $rsir_approver_role,
+        'Saved',
+        0,
+        $rsir_filename,
+        $rsir_filetype,
+        $rsir_url,
+        $rsir_eq_group,
+        $date_updated,
+        $rsir_no
+    ]);
+
+    $sql = "UPDATE t_setup_mstprc SET rsir_no = ? WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $rsir_no,
+        $mstprc_no
+    ]);
+
+    $sql = "UPDATE t_setup_mstprc_history SET rsir_no = ? WHERE mstprc_no = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([
+        $rsir_no,
+        $mstprc_no
+    ]);
 }
 
 if ($method == 'goto_rsir_step2') {
@@ -432,17 +511,20 @@ if ($method == 'count_need_rsir_machine_checksheets') {
     $sql = "";
 
     if ($history_option == 1) {
-        $sql = $sql . "SELECT count(id) AS total FROM setup_mstprc WHERE rsir_no = '' AND mstprc_type = 'Setup'";
+        $sql = $sql . "SELECT COUNT(id) AS total FROM t_setup_mstprc WHERE rsir_no = '' AND mstprc_type = 'Setup'";
     } else if ($history_option == 2) {
-        $sql = $sql . "SELECT count(id) AS total FROM setup_mstprc_history WHERE rsir_no = '' AND mstprc_type = 'Setup' AND mstprc_process_status!= 'Disapproved'";
+        $sql = $sql . "SELECT COUNT(id) AS total FROM t_setup_mstprc_history WHERE rsir_no = '' AND mstprc_type = 'Setup' AND mstprc_process_status!= 'Disapproved'";
     }
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -455,16 +537,19 @@ if ($method == 'get_need_rsir_machine_checksheets') {
     $sql = "";
 
     if ($history_option == 1) {
-        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url FROM setup_mstprc WHERE rsir_no = '' AND mstprc_type = 'Setup' ORDER BY id DESC";
+        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url FROM t_setup_mstprc WHERE rsir_no = '' AND mstprc_type = 'Setup' ORDER BY id DESC";
     } else if ($history_option == 2) {
-        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url FROM setup_mstprc_history WHERE rsir_no = '' AND mstprc_type = 'Setup' AND mstprc_process_status!= 'Disapproved' ORDER BY id DESC";
+        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url FROM t_setup_mstprc_history WHERE rsir_no = '' AND mstprc_type = 'Setup' AND mstprc_process_status!= 'Disapproved' ORDER BY id DESC";
     }
 
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="NRMC_' . $row['mstprc_no'] . '" data-toggle="modal" data-target="#NeedRsirMachineChecksheetInfoModal" data-mstprc_no="' . $row['mstprc_no'] . '" data-mstprc_type="' . $row['mstprc_type'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-car_model="' . htmlspecialchars($row['car_model']) . '" data-location="' . htmlspecialchars($row['location']) . '" data-grid="' . htmlspecialchars($row['grid']) . '" data-to_car_model="' . htmlspecialchars($row['to_car_model']) . '" data-to_location="' . htmlspecialchars($row['to_location']) . '" data-to_grid="' . htmlspecialchars($row['to_grid']) . '" data-pullout_location="' . htmlspecialchars($row['pullout_location']) . '" data-transfer_reason="' . htmlspecialchars($row['transfer_reason']) . '" data-pullout_reason="' . htmlspecialchars($row['pullout_reason']) . '" data-mstprc_eq_member="' . htmlspecialchars($row['mstprc_eq_member']) . '" data-mstprc_eq_g_leader="' . htmlspecialchars($row['mstprc_eq_g_leader']) . '" data-mstprc_safety_officer="' . htmlspecialchars($row['mstprc_safety_officer']) . '" data-mstprc_eq_manager="' . htmlspecialchars($row['mstprc_eq_manager']) . '" data-mstprc_eq_sp_personnel="' . htmlspecialchars($row['mstprc_eq_sp_personnel']) . '" data-mstprc_prod_engr_manager="' . htmlspecialchars($row['mstprc_prod_engr_manager']) . '" data-mstprc_prod_supervisor="' . htmlspecialchars($row['mstprc_prod_supervisor']) . '" data-mstprc_prod_manager="' . htmlspecialchars($row['mstprc_prod_manager']) . '" data-mstprc_qa_supervisor="' . htmlspecialchars($row['mstprc_qa_supervisor']) . '" data-mstprc_qa_manager="' . htmlspecialchars($row['mstprc_qa_manager']) . '" data-mstprc_process_status="' . $row['mstprc_process_status'] . '" data-mstprc_date="' . date("d-M-y", strtotime($row['mstprc_date'])) . '" data-file_name="' . htmlspecialchars($row['file_name']) . '" data-file_url="' . htmlspecialchars($protocol . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . $row['file_url']) . '" onclick="get_details_need_rsir_machine_checksheets(this)">';
             echo '<td>' . $c . '</td>';
@@ -476,7 +561,7 @@ if ($method == 'get_need_rsir_machine_checksheets') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -486,13 +571,16 @@ if ($method == 'get_need_rsir_machine_checksheets') {
 
 // Count
 if ($method == 'count_pending_machine_checksheets') {
-    $sql = "SELECT count(id) AS total FROM pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'setup'";
+    $sql = "SELECT COUNT(id) AS total FROM t_pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'setup'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -502,12 +590,15 @@ if ($method == 'count_pending_machine_checksheets') {
 if ($method == 'get_pending_machine_checksheets') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning', 'modal-trigger bg-orange');
     $row_class = $row_class_arr[0];
-    $sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, is_read_pm, file_name, file_url, date_updated FROM pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'setup' ORDER BY id DESC";
+    $sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, is_read_pm, file_name, file_url, date_updated FROM t_pm_rsir WHERE (rsir_process_status = 'Saved' OR rsir_process_status = 'Confirmed') AND rsir_eq_group = 'setup' ORDER BY id DESC";
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_pm'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -527,7 +618,7 @@ if ($method == 'get_pending_machine_checksheets') {
             echo '<td>' . $row['rsir_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['rsir_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="7" style="text-align:center; color:red;">No Results Found</td>';
@@ -541,13 +632,16 @@ if ($method == 'pending_machine_checksheets_mark_as_read') {
 
 // Count
 if ($method == 'count_returned_machine_checksheets') {
-    $sql = "SELECT count(id) AS total FROM pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'setup'";
+    $sql = "SELECT COUNT(id) AS total FROM t_pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'setup'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -557,12 +651,15 @@ if ($method == 'count_returned_machine_checksheets') {
 if ($method == 'get_returned_machine_checksheets') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning');
     $row_class = $row_class_arr[0];
-    $sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, returned_by, returned_date_time, is_read_pm, file_name, file_url, date_updated FROM pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'setup' ORDER BY id DESC";
+    $sql = "SELECT rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_approver_role, rsir_process_status, returned_by, returned_date_time, is_read_pm, file_name, file_url, date_updated FROM t_pm_rsir WHERE rsir_process_status = 'Returned' AND rsir_eq_group = 'setup' ORDER BY id DESC";
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_pm'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -582,7 +679,7 @@ if ($method == 'get_returned_machine_checksheets') {
             echo '<td>' . htmlspecialchars($row['returned_by']) . '</td>';
             echo '<td>' . date("Y-m-d h:i A", strtotime($row['returned_date_time'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="9" style="text-align:center; color:red;">No Results Found</td>';
@@ -598,9 +695,9 @@ if ($method == 'return_pending_rsir') {
     $rsir_no = $_POST['rsir_no'];
     $confirmed_by = $_SESSION['setup_name'];
 
-    $sql = "UPDATE pm_rsir SET returned_by = '$confirmed_by', returned_date_time = '$date_updated', rsir_process_status = 'Returned', is_read_pm =0 WHERE rsir_no = '$rsir_no'";
+    $sql = "UPDATE t_pm_rsir SET returned_by = ?, returned_date_time = ?, rsir_process_status = 'Returned', is_read_pm = 0 WHERE rsir_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$confirmed_by, $date_updated, $rsir_no]);
 
     //update_notif_count_machine_checksheets('ADMIN-PM', 'Returned', $conn);
 
@@ -622,9 +719,9 @@ if ($method == 'confirm_pending_rsir') {
         echo "Judgement Of Equipment Empty";
 
     if ($is_valid == true) {
-        $sql = "UPDATE pm_rsir SET judgement_of_eq = '$judgement_of_eq', confirmed_by = '$confirmed_by', rsir_process_status = 'Confirmed' WHERE rsir_no = '$rsir_no'";
+        $sql = "UPDATE t_pm_rsir SET judgement_of_eq = ?, confirmed_by = ?, rsir_process_status = 'Confirmed' WHERE rsir_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$judgement_of_eq, $confirmed_by, $rsir_no]);
 
         if ($rsir_approver_role == 'Prod') {
             update_notif_count_machine_checksheets('APPROVER-PROD-MGR', 'Confirmed', $conn);
@@ -648,12 +745,15 @@ if ($method == 'get_recent_pm_records') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_pm, file_name, file_url, date_updated FROM pm_rsir_history WHERE (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_eq_group = 'setup' ORDER BY id DESC LIMIT 25";
+    $sql = "SELECT TOP 25 id, rsir_no, rsir_type, machine_name, machine_no, equipment_no, rsir_date, judgement_of_eq, repair_details, repaired_by, repair_date, next_pm_date, judgement_of_prod, inspected_by, confirmed_by, judgement_by, rsir_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_pm, file_name, file_url, date_updated FROM t_pm_rsir_history WHERE (rsir_process_status = 'Approved' OR rsir_process_status = 'Disapproved') AND rsir_eq_group = 'setup' ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_pm'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -673,7 +773,7 @@ if ($method == 'get_recent_pm_records') {
             echo '<td>' . $row['rsir_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['rsir_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="7" style="text-align:center; color:red;">No Results Found</td>';

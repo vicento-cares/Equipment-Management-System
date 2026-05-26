@@ -25,52 +25,52 @@ if (!isset($_GET['id'])) {
 
 $id = $_GET['id'];
 
-$sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, date_updated FROM fat_forms WHERE id = '$id' ORDER BY id DESC";
+$sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, date_updated 
+        FROM t_fat_forms WHERE id = ? ORDER BY id DESC";
 
 $stmt = $conn->prepare($sql);
-$stmt->execute();
-if ($stmt->rowCount() > 0) {
-    $delimiter = ",";
-    $datenow = date('Y-m-d');
-    $filename = "EMS-Setup_FAT-" . $datenow . ".csv";
+$stmt->execute([$id]);
 
-    // Create a file pointer 
-    $f = fopen('php://memory', 'w');
+$delimiter = ",";
+$datenow = date('Y-m-d');
+$filename = "EMS-Setup_FAT-" . $datenow . ".csv";
 
-    // Set column headers 
-    $fields = array('FAT No.', 'Item Name', 'Item Description', 'Machine No.', 'Equipment No.', 'Asset Tag No.', 'Previous Location - Group', 'Previous Location - Line/Grid', 'Date Transferred', 'New Location - Group', 'New Location - Line/Grid', 'Reason for Transfer', 'Date Updated');
-    fputcsv($f, $fields, $delimiter);
+// Create a file pointer 
+$f = fopen('php://memory', 'w');
 
-    // Output each row of the data, format line as csv and write to file pointer 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $machine_no = "=\"" . $row['machine_no'] . "\"";
-        $equipment_no = "=\"" . $row['equipment_no'] . "\"";
-        $previous_location_line_grid = "";
-        if (!empty($row['prev_location_grid'])) {
-            $previous_location_line_grid = $row['prev_location_loc'] . "/" . $row['prev_location_grid'];
-        } else {
-            $previous_location_line_grid = $row['prev_location_loc'];
-        }
-        $new_location_line_grid = "";
-        if (!empty($row['new_location_grid'])) {
-            $new_location_line_grid = $row['new_location_loc'] . "/" . $row['new_location_grid'];
-        } else {
-            $new_location_line_grid = $row['new_location_loc'];
-        }
+// Set column headers 
+$fields = array('FAT No.', 'Item Name', 'Item Description', 'Machine No.', 'Equipment No.', 'Asset Tag No.', 'Previous Location - Group', 'Previous Location - Line/Grid', 'Date Transferred', 'New Location - Group', 'New Location - Line/Grid', 'Reason for Transfer', 'Date Updated');
+fputcsv($f, $fields, $delimiter);
 
-        $lineData = array($row['fat_no'], $row['item_name'], $row['item_description'], $machine_no, $equipment_no, $row['asset_tag_no'], $row['prev_location_group'], $previous_location_line_grid, $row['date_transfer'], $row['new_location_group'], $new_location_line_grid, $row['reason'], date("Y-m-d h:iA", strtotime($row['date_updated'])));
-        fputcsv($f, $lineData, $delimiter);
+// Output each row of the data, format line as csv and write to file pointer 
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $machine_no = "=\"" . $row['machine_no'] . "\"";
+    $equipment_no = "=\"" . $row['equipment_no'] . "\"";
+    $previous_location_line_grid = "";
+    if (!empty($row['prev_location_grid'])) {
+        $previous_location_line_grid = $row['prev_location_loc'] . "/" . $row['prev_location_grid'];
+    } else {
+        $previous_location_line_grid = $row['prev_location_loc'];
+    }
+    $new_location_line_grid = "";
+    if (!empty($row['new_location_grid'])) {
+        $new_location_line_grid = $row['new_location_loc'] . "/" . $row['new_location_grid'];
+    } else {
+        $new_location_line_grid = $row['new_location_loc'];
     }
 
-    // Move back to beginning of file 
-    fseek($f, 0);
-
-    // Set headers to download file rather than displayed 
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer 
-    fpassthru($f);
+    $lineData = array($row['fat_no'], $row['item_name'], $row['item_description'], $machine_no, $equipment_no, $row['asset_tag_no'], $row['prev_location_group'], $previous_location_line_grid, $row['date_transfer'], $row['new_location_group'], $new_location_line_grid, $row['reason'], date("Y-m-d h:iA", strtotime($row['date_updated'])));
+    fputcsv($f, $lineData, $delimiter);
 }
+
+// Move back to beginning of file 
+fseek($f, 0);
+
+// Set headers to download file rather than displayed 
+header('Content-Type: text/csv');
+header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+//output all remaining data on a file pointer 
+fpassthru($f);
 
 $conn = null;

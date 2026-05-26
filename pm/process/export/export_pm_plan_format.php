@@ -29,16 +29,19 @@ $f = fopen('php://memory', 'w');
 $fields = array('Number', 'Process', 'Machine Name', 'Machine Specification', 'Car Model', 'Location', 'Grid', 'Machine No.', 'Equipment No.', 'TRD No.', 'NS-IV No.', 'PM Plan Year', 'WW No.', 'WW Start Date', 'Frequency');
 fputcsv($f, $fields, $delimiter);
 
-$sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no` FROM machine_masterlist ORDER BY id DESC LIMIT 1";
+$sql = "SELECT TOP 1
+            number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, [ns_iv_no] 
+        FROM m_machine_masterlist ORDER BY id DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->execute();
-if ($stmt->rowCount() > 0) {
+
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($row) {
     // Output each row of the data, format line as csv and write to file pointer 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $lineData = array('Example: ' . $row['number'], 'Process List: (Initial, Final)', $row['machine_name'], $row['machine_spec'], $row['car_model'], $row['location'], $row['grid'], $row['machine_no'], $row['equipment_no'], $row['trd_no'], $row['ns-iv_no'], 'Example: 2023', 'Example: WW1', 'Format: yyyy/mm/dd', 'Freq List: (W, M, 2, 3, 6, Y)');
-        fputcsv($f, $lineData, $delimiter);
-    }
+    $lineData = array('Example: ' . $row['number'], 'Process List: (Initial, Final)', $row['machine_name'], $row['machine_spec'], $row['car_model'], $row['location'], $row['grid'], $row['machine_no'], $row['equipment_no'], $row['trd_no'], $row['ns_iv_no'], 'Example: 2023', 'Example: WW1', 'Format: yyyy/mm/dd', 'Freq List: (W, M, 2, 3, 6, Y)');
+    fputcsv($f, $lineData, $delimiter);
 } else {
     $lineData = array('Example: 1', 'Process List: (Initial, Final)', 'Example: Wire Stripper', 'machine spec', 'car model', 'location', 'grid', 'machine no.', 'equipment no.', 'trd no.', 'ns-iv no.', 'Example: 2023', 'Example: WW1', 'Format: yyyy/mm/dd', 'Freq List: (W, M, 2, 3, 6, Y)');
     fputcsv($f, $lineData, $delimiter);

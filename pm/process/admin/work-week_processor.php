@@ -17,15 +17,18 @@ $date_updated = date('Y-m-d H:i:s');
 
 // Get Manpower Dropdown
 if ($method == 'fetch_manpower_dropdown_search') {
-    $sql = "SELECT manpower FROM machine_pm_plan GROUP BY manpower ORDER BY manpower ASC";
+    $sql = "SELECT manpower FROM t_machine_pm_plan GROUP BY manpower ORDER BY manpower ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         echo '<option value="All">All</option>';
         echo '<option value="N/A">N/A</option>';
-        foreach ($stmt->fetchAll() as $row) {
+        do {
             echo '<option value="' . htmlspecialchars($row['manpower']) . '">' . htmlspecialchars($row['manpower']) . '</option>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<option value="All">All</option>';
         echo '<option value="N/A">N/A</option>';
@@ -47,45 +50,54 @@ if ($method == 'count_ww') {
         $ww_start_date_to = date_create($ww_start_date_to);
         $ww_start_date_to = date_format($ww_start_date_to, "Y-m-d");
     }
-    $car_model = addslashes($_POST['car_model']);
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $car_model = $_POST['car_model'];
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $manpower = '';
     if (isset($_SESSION['pm_name']) && isset($_SESSION['pm_role'])) {
         $pm_name = $_SESSION['pm_name'];
         $pm_role = $_SESSION['pm_role'];
         if (!empty($_POST['manpower']) && $pm_role == 'Admin') {
-            $manpower = addslashes($_POST['manpower']);
+            $manpower = $_POST['manpower'];
         } else if ($pm_role == 'PM') {
             $manpower = $pm_name;
         }
     }
 
-    $sql = "SELECT count(id) AS total FROM machine_pm_plan";
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_pm_plan";
+    $params = [];
 
     if ($ww_opt == 1 && !empty($ww_no)) {
-        $sql = $sql . " WHERE ww_no LIKE '$ww_no%'";
+        $sql = $sql . " WHERE ww_no LIKE ?";
+        $params[] = $ww_no . "%";
     } else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
-        $sql = $sql . " WHERE (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
+        $sql = $sql . " WHERE (ww_start_date >= ? AND ww_start_date <= ?)";
+        $params[] = $ww_start_date_from;
+        $params[] = $ww_start_date_to;
     } else {
         $sql = $sql . " WHERE ww_no != ''";
     }
 
     if (!empty($pm_plan_year)) {
-        $sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
+        $sql = $sql . " AND pm_plan_year LIKE ?";
+        $params[] = $pm_plan_year . "%";
     }
     if (!empty($car_model)) {
-        $sql = $sql . " AND car_model LIKE '$car_model%'";
+        $sql = $sql . " AND car_model LIKE ?";
+        $params[] = $car_model . "%";
     }
     if (!empty($machine_name)) {
-        $sql = $sql . " AND machine_name LIKE '$machine_name%'";
+        $sql = $sql . " AND machine_name LIKE ?";
+        $params[] = $machine_name . "%";
     }
     if (!empty($machine_no)) {
-        $sql = $sql . " AND machine_no LIKE '$machine_no%'";
+        $sql = $sql . " AND machine_no LIKE ?";
+        $params[] = $machine_no . "%";
     }
     if (!empty($equipment_no)) {
-        $sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
+        $sql = $sql . " AND equipment_no LIKE ?";
+        $params[] = $equipment_no . "%";
     }
     if (!empty($manpower)) {
         if ($manpower == 'All') {
@@ -93,16 +105,16 @@ if ($method == 'count_ww') {
         } else if ($manpower == 'N/A') {
             $sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
         } else {
-            $sql = $sql . " AND manpower LIKE '$manpower%'";
+            $sql = $sql . " AND manpower LIKE ?";
+            $params[] = $manpower . "%";
         }
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -123,16 +135,16 @@ if ($method == 'get_ww') {
         $ww_start_date_to = date_create($ww_start_date_to);
         $ww_start_date_to = date_format($ww_start_date_to, "Y-m-d");
     }
-    $car_model = addslashes($_POST['car_model']);
-    $machine_name = addslashes($_POST['machine_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $car_model = $_POST['car_model'];
+    $machine_name = $_POST['machine_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $manpower = '';
     if (isset($_SESSION['pm_name']) && isset($_SESSION['pm_role'])) {
         $pm_name = $_SESSION['pm_name'];
         $pm_role = $_SESSION['pm_role'];
         if (!empty($_POST['manpower']) && $pm_role == 'Admin') {
-            $manpower = addslashes($_POST['manpower']);
+            $manpower = $_POST['manpower'];
         } else if ($pm_role == 'PM') {
             $manpower = $pm_name;
         }
@@ -142,31 +154,42 @@ if ($method == 'get_ww') {
     $row_class = $row_class_arr[0];
     $c = $_POST['c'];
 
-    $sql = "SELECT id, number, process, machine_name, car_model, machine_no, equipment_no, pm_status, machine_status, pm_plan_year, ww_no, ww_start_date, frequency, manpower, sched_start_date_time, sched_end_date_time FROM machine_pm_plan";
+    $sql = "SELECT TOP 25 
+                id, number, process, machine_name, car_model, machine_no, equipment_no, pm_status, machine_status, pm_plan_year, ww_no, ww_start_date, frequency, manpower, sched_start_date_time, sched_end_date_time 
+            FROM t_machine_pm_plan";
+    $params = [];
 
     if (empty($id)) {
         if ($ww_opt == 1 && !empty($ww_no)) {
-            $sql = $sql . " WHERE ww_no LIKE '$ww_no%'";
+            $sql = $sql . " WHERE ww_no LIKE ?";
+            $params[] = $ww_no . "%";
         } else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
-            $sql = $sql . " WHERE (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
+            $sql = $sql . " WHERE (ww_start_date >= ? AND ww_start_date <= ?)";
+            $params[] = $ww_start_date_from;
+            $params[] = $ww_start_date_to;
         } else {
             $sql = $sql . " WHERE ww_no != ''";
         }
 
         if (!empty($pm_plan_year)) {
-            $sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
+            $sql = $sql . " AND pm_plan_year LIKE ?";
+            $params[] = $pm_plan_year . "%";
         }
         if (!empty($car_model)) {
-            $sql = $sql . " AND car_model LIKE '$car_model%'";
+            $sql = $sql . " AND car_model LIKE ?";
+            $params[] = $car_model . "%";
         }
         if (!empty($machine_name)) {
-            $sql = $sql . " AND machine_name LIKE '$machine_name%'";
+            $sql = $sql . " AND machine_name LIKE ?";
+            $params[] = $machine_name . "%";
         }
         if (!empty($machine_no)) {
-            $sql = $sql . " AND machine_no LIKE '$machine_no%'";
+            $sql = $sql . " AND machine_no LIKE ?";
+            $params[] = $machine_no . "%";
         }
         if (!empty($equipment_no)) {
-            $sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
+            $sql = $sql . " AND equipment_no LIKE ?";
+            $params[] = $equipment_no . "%";
         }
         if (!empty($manpower)) {
             if ($manpower == 'All') {
@@ -174,34 +197,44 @@ if ($method == 'get_ww') {
             } else if ($manpower == 'N/A') {
                 $sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
             } else {
-                $sql = $sql . " AND manpower LIKE '$manpower%'";
+                $sql = $sql . " AND manpower LIKE ?";
+                $params[] = $manpower . "%";
             }
         }
     } else {
         $sql = $sql . " WHERE id > '$id'";
+        $params[] = $id;
 
         if ($ww_opt == 1 && !empty($ww_no)) {
-            $sql = $sql . " AND ww_no LIKE '$ww_no%'";
+            $sql = $sql . " AND ww_no LIKE ?";
+            $params[] = $ww_no . "%";
         } else if ($ww_opt == 2 && !empty($ww_start_date_from) && !empty($ww_start_date_to)) {
-            $sql = $sql . " AND (ww_start_date >= '$ww_start_date_from' AND ww_start_date <= '$ww_start_date_to')";
+            $sql = $sql . " AND (ww_start_date >= ? AND ww_start_date <= ?)";
+            $params[] = $ww_start_date_from;
+            $params[] = $ww_start_date_to;
         } else {
             $sql = $sql . " AND ww_no != ''";
         }
 
         if (!empty($pm_plan_year)) {
-            $sql = $sql . " AND pm_plan_year LIKE '$pm_plan_year%'";
+            $sql = $sql . " AND pm_plan_year LIKE ?";
+            $params[] = $pm_plan_year . "%";
         }
         if (!empty($car_model)) {
-            $sql = $sql . " AND car_model LIKE '$car_model%'";
+            $sql = $sql . " AND car_model LIKE ?";
+            $params[] = $car_model . "%";
         }
         if (!empty($machine_name)) {
-            $sql = $sql . " AND machine_name LIKE '$machine_name%'";
+            $sql = $sql . " AND machine_name LIKE ?";
+            $params[] = $machine_name . "%";
         }
         if (!empty($machine_no)) {
-            $sql = $sql . " AND machine_no LIKE '$machine_no%'";
+            $sql = $sql . " AND machine_no LIKE ?";
+            $params[] = $machine_no . "%";
         }
         if (!empty($equipment_no)) {
-            $sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
+            $sql = $sql . " AND equipment_no LIKE ?";
+            $params[] = $equipment_no . "%";
         }
         if (!empty($manpower)) {
             if ($manpower == 'All') {
@@ -209,17 +242,21 @@ if ($method == 'get_ww') {
             } else if ($manpower == 'N/A') {
                 $sql = $sql . " AND manpower IN ('', 'N/A', NULL)";
             } else {
-                $sql = $sql . " AND manpower LIKE '$manpower%'";
+                $sql = $sql . " AND manpower LIKE ?";
+                $params[] = $manpower . "%";
             }
         }
     }
 
-    $sql = $sql . " ORDER BY id ASC LIMIT 25";
+    $sql = $sql . " ORDER BY id ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if (empty($row['manpower'])) {
                 $row_class = $row_class_arr[4];
@@ -260,7 +297,7 @@ if ($method == 'get_ww') {
             } else {
                 echo '<td>' . date("Y-m-d h:iA", strtotime($row['sched_end_date_time'])) . '</td>';
             }
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="12" style="text-align:center; color:red;">No Results Found</td>';
@@ -285,9 +322,13 @@ if ($method == 'update_ww_manpower') {
 
         $count = count($arr);
         foreach ($arr as $id) {
-            $sql = "UPDATE machine_pm_plan SET manpower = '$manpower' WHERE id = '$id' AND ((sched_start_date_time = '' OR sched_start_date_timeIS NULL) AND (sched_end_date_time = '' OR sched_end_date_time IS NULL))";
+            $sql = "UPDATE t_machine_pm_plan 
+                    SET manpower = ? 
+                    WHERE id = ? AND 
+                        ((sched_start_date_time = '' OR sched_start_date_timeIS NULL) AND 
+                        (sched_end_date_time = '' OR sched_end_date_time IS NULL))";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$manpower, $id]);
             $count--;
         }
 
@@ -320,15 +361,16 @@ if ($method == 'update_ww_content') {
         echo 'Start Date Time Not Set';
 
     if ($is_valid == true) {
-        $manpower = addslashes($manpower);
         $sched_start_date_time = date_create($sched_start_date_time);
         $sched_start_date_time = date_format($sched_start_date_time, "Y-m-d H:i:s");
         $sched_end_date_time = date_create($sched_end_date_time);
         $sched_end_date_time = date_format($sched_end_date_time, "Y-m-d H:i:s");
 
-        $sql = "UPDATE machine_pm_plan SET manpower = '$manpower', sched_start_date_time = '$sched_start_date_time', sched_end_date_time = '$sched_end_date_time' WHERE id = '$id'";
+        $sql = "UPDATE t_machine_pm_plan 
+                SET manpower = ?, sched_start_date_time = ?, sched_end_date_time = ? 
+                WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$manpower, $sched_start_date_time, $sched_end_date_time, $id]);
         echo 'success';
     }
 }
@@ -337,26 +379,28 @@ if ($method == 'set_as_done_ww') {
     $id = $_POST['id'];
     $allow_set_as_done = false;
 
-    $sql = "SELECT machine_name, machine_no, equipment_no, ww_start_date, frequency FROM machine_pm_plan WHERE id = '$id'";
+    $sql = "SELECT machine_name, machine_no, equipment_no, ww_start_date, frequency FROM t_machine_pm_plan WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
-            $machine_name = $row['machine_name'];
-            $machine_no = $row['machine_no'];
-            $equipment_no = $row['equipment_no'];
-            $ww_start_date = $row['ww_start_date'];
-            $frequency = $row['frequency'];
-        }
+    $stmt->execute([$id]);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $machine_name = $row['machine_name'];
+        $machine_no = $row['machine_no'];
+        $equipment_no = $row['equipment_no'];
+        $ww_start_date = $row['ww_start_date'];
+        $frequency = $row['frequency'];
     }
 
-    $sql = "SELECT rsir_date FROM pm_rsir_history WHERE machine_name = '$machine_name' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+    $sql = "SELECT rsir_date FROM t_pm_rsir_history WHERE machine_name = ? AND machine_no = ? AND equipment_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([$machine_name, $machine_no, $equipment_no]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $rsir_date = $row['rsir_date'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
 
         switch ($frequency) {
             case 'Y':
@@ -400,9 +444,9 @@ if ($method == 'set_as_done_ww') {
 
         if ($allow_set_as_done == true) {
             $pm_status = 'Waiting For Confirmation';
-            $sql = "UPDATE machine_pm_plan SET pm_status = '$pm_status' WHERE id = '$id'";
+            $sql = "UPDATE t_machine_pm_plan SET pm_status = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$pm_status, $id]);
             echo 'success';
         } else {
             echo 'Updated RSIR Not Found';
@@ -416,9 +460,9 @@ if ($method == 'set_as_done_ww') {
 if ($method == 'confirm_as_done_ww') {
     $id = $_POST['id'];
     $pm_status = 'Done';
-    $sql = "UPDATE machine_pm_plan SET pm_status = '$pm_status' WHERE id = '$id'";
+    $sql = "UPDATE t_machine_pm_plan SET pm_status = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$pm_status, $id]);
     echo 'success';
 }
 

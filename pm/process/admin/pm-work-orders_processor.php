@@ -43,13 +43,16 @@ function check_work_order_file($work_order_file_info, $conn)
         $file_valid_arr[2] = 1;
     }
     // Check File Information Exists on Database
-    $work_order_filename = addslashes($work_order_file_info['work_order_filename']);
-    $work_order_filetype = addslashes($work_order_file_info['work_order_filetype']);
-    $work_order_url = addslashes($work_order_file_info['work_order_url']);
-    $sql = "SELECT id FROM machine_pm_wo WHERE file_name = '$work_order_filename' AND file_type = '$work_order_filetype' AND file_url = '$work_order_url'";
+    $work_order_filename = $work_order_file_info['work_order_filename'];
+    $work_order_filetype = $work_order_file_info['work_order_filetype'];
+    $work_order_url = $work_order_file_info['work_order_url'];
+    $sql = "SELECT id FROM t_machine_pm_wo WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$work_order_filename, $work_order_filetype, $work_order_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         $hasError = 1;
         $file_valid_arr[3] = 1;
     }
@@ -81,18 +84,30 @@ function save_work_order_info($work_order_file_info, $conn)
     $wo_id = 'PM-WO:' . $wo_id;
     $wo_id = $wo_id . '' . $rand;
 
-    $machine_no = addslashes($work_order_file_info['machine_no']);
-    $equipment_no = addslashes($work_order_file_info['equipment_no']);
+    $machine_no = $work_order_file_info['machine_no'];
+    $equipment_no = $work_order_file_info['equipment_no'];
     $process = $work_order_file_info['process'];
-    $machine_name = addslashes($work_order_file_info['machine_name']);
+    $machine_name = $work_order_file_info['machine_name'];
     $work_order_filename = basename($work_order_file_info['work_order_filename']);
-    $work_order_filetype = addslashes($work_order_file_info['work_order_filetype']);
-    $work_order_url = addslashes($work_order_file_info['work_order_url']);
+    $work_order_filetype = $work_order_file_info['work_order_filetype'];
+    $work_order_url = $work_order_file_info['work_order_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO machine_pm_wo (wo_id, process, machine_name, machine_no, equipment_no, file_name, file_type, file_url, date_updated) VALUES ('$wo_id', '$process', '$machine_name', '$machine_no', '$equipment_no', '$work_order_filename', '$work_order_filetype', '$work_order_url', '$date_updated')";
+    $sql = "INSERT INTO t_machine_pm_wo (wo_id, process, machine_name, machine_no, equipment_no, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $wo_id,
+        $process,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $work_order_filename,
+        $work_order_filetype,
+        $work_order_url,
+        $date_updated
+    ]);
 }
 
 // Count
@@ -107,19 +122,30 @@ if ($method == 'count_work_orders') {
         $wo_date_to = date_create($wo_date_to);
         $wo_date_to = date_format($wo_date_to, "Y-m-d H:i:s");
     }
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
-    $machine_name = addslashes($_POST['machine_name']);
-    $sql = "SELECT count(id) AS total FROM machine_pm_wo";
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
+    $machine_name = $_POST['machine_name'];
+
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_pm_wo";
+    $params = [];
+
     if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-        $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
+        $sql = $sql . " WHERE machine_name LIKE ? AND machine_no LIKE ? AND 
+                        equipment_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+        $params = [
+            $machine_name . "%",
+            $machine_no . "%",
+            $equipment_no . "%",
+            $wo_date_from,
+            $wo_date_to,
+        ];
     }
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -136,29 +162,48 @@ if ($method == 'get_work_orders') {
         $wo_date_to = date_create($wo_date_to);
         $wo_date_to = date_format($wo_date_to, "Y-m-d H:i:s");
     }
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
-    $machine_name = addslashes($_POST['machine_name']);
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
+    $machine_name = $_POST['machine_name'];
     $c = $_POST['c'];
 
-    $sql = "SELECT id, wo_id, process, machine_name, machine_no, equipment_no, file_name, file_url, date_updated FROM machine_pm_wo";
+    $sql = "SELECT TOP 25 id, wo_id, process, machine_name, machine_no, equipment_no, file_name, file_url, date_updated FROM t_machine_pm_wo";
+    $params = [];
 
     if (empty($id)) {
         if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to')";
+            $sql = $sql . " WHERE machine_name LIKE ? AND machine_no LIKE ? AND 
+                            equipment_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+            $params = [
+                $machine_name . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $wo_date_from,
+                $wo_date_to,
+            ];
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($machine_name) || !empty($machine_no) || !empty($equipment_no) || (!empty($wo_date_from) && !empty($wo_date_to))) {
-            $sql = $sql . " AND (machine_name LIKE '$machine_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND (date_updated >= '$wo_date_from' AND date_updated <= '$wo_date_to'))";
+            $sql = $sql . " AND (machine_name LIKE ? AND machine_no LIKE ? AND 
+                            equipment_no LIKE ? AND (date_updated >= ? AND date_updated <= ?))";
+            $params[] = $machine_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $wo_date_from;
+            $params[] = $wo_date_to;
         }
     }
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#WorkOrderDetailsModal" data-id="' . $row['id'] . '" data-wo_id="' . $row['wo_id'] . '" data-process="' . $row['process'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-file_name="' . htmlspecialchars($row['file_name']) . '" data-file_url="' . htmlspecialchars($protocol . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . $row['file_url']) . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details(this)">';
             echo '<td>' . $c . '</td>';
@@ -168,7 +213,7 @@ if ($method == 'get_work_orders') {
             echo '<td>' . htmlspecialchars($row['equipment_no']) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="6" style="text-align:center; color:red;">No Results Found</td>';

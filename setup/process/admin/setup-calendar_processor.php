@@ -13,7 +13,7 @@ $date_updated = date('Y-m-d H:i:s');
 
 function update_notif_count_setup_activities($interface, $setup_activity_status, $conn)
 {
-    $sql = "UPDATE notif_setup_activities";
+    $sql = "UPDATE t_notif_setup_activities";
     if ($setup_activity_status == 'For Confirmation') {
         $sql = $sql . " SET new_act_sched = new_act_sched + 1";
     } else if ($setup_activity_status == 'Accepted') {
@@ -21,24 +21,24 @@ function update_notif_count_setup_activities($interface, $setup_activity_status,
     } else if ($setup_activity_status == 'Declined') {
         $sql = $sql . " SET declined_act_sched = declined_act_sched + 1";
     }
-    $sql = $sql . " WHERE interface = '$interface'";
+    $sql = $sql . " WHERE interface = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$interface]);
 }
 
 function setup_activities_mark_as_read($id, $setup_activity_status, $interface, $conn)
 {
-    $sql = "UPDATE machine_setup_activities";
+    $sql = "UPDATE t_machine_setup_activities";
     if ($interface == 'PUBLIC-PAGE') {
         $sql = $sql . " SET is_read = 1";
     } else if ($interface == 'ADMIN-SETUP') {
         $sql = $sql . " SET is_read_setup = 1";
     }
-    $sql = $sql . " WHERE id = '$id'";
+    $sql = $sql . " WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
 
-    $sql = "UPDATE notif_setup_activities";
+    $sql = "UPDATE t_notif_setup_activities";
     if ($setup_activity_status == 'For Confirmation') {
         $sql = $sql . " SET new_act_sched = CASE WHEN new_act_sched > 0 THEN new_act_sched - 1 END";
     } else if ($setup_activity_status == 'Accepted') {
@@ -46,9 +46,9 @@ function setup_activities_mark_as_read($id, $setup_activity_status, $interface, 
     } else if ($setup_activity_status == 'Declined') {
         $sql = $sql . " SET declined_act_sched = CASE WHEN declined_act_sched > 0 THEN declined_act_sched - 1 END";
     }
-    $sql = $sql . " WHERE interface = '$interface'";
+    $sql = $sql . " WHERE interface = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$interface]);
 }
 
 if ($method == 'get_setup_activities_day') {
@@ -56,13 +56,16 @@ if ($method == 'get_setup_activities_day') {
     $activity_date = date_format($activity_date, "Y-m-d");
     $data = '';
 
-    $sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
+    $sql = "SELECT activity_details FROM t_machine_setup_activities WHERE activity_date = ? AND activity_status != 'Declined' AND activity_status != 'For Confirmation' ORDER BY id ASC";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([$activity_date]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $data = $data . '<tr><td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td></tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         $data = $data . '<tr><td colspan="1" style="text-align:center; color:red;">No Scheduled Activity Found</td></tr>';
     }
@@ -82,13 +85,16 @@ if ($method == 'get_previous_setup_activities') {
     $activity_date = date('Y-m-d', strtotime('-1 day', strtotime($activity_date)));
     $data = '';
 
-    $sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
+    $sql = "SELECT activity_details FROM t_machine_setup_activities WHERE activity_date = ? AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([$activity_date]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $data = $data . '<tr><td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td></tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         $data = $data . '<tr><td colspan="1" style="text-align:center; color:red;">No Scheduled Activity Found</td></tr>';
     }
@@ -108,13 +114,16 @@ if ($method == 'get_next_setup_activities') {
     $activity_date = date('Y-m-d', strtotime('+1 day', strtotime($activity_date)));
     $data = '';
 
-    $sql = "SELECT activity_details FROM machine_setup_activities WHERE activity_date = '$activity_date' AND activity_status!= 'Declined' AND activity_status!= 'For Confirmation' ORDER BY id ASC";
+    $sql = "SELECT activity_details FROM t_machine_setup_activities WHERE activity_date = ? AND activity_status != 'Declined' AND activity_status != 'For Confirmation' ORDER BY id ASC";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([$activity_date]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $data = $data . '<tr><td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td></tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         $data = $data . '<tr><td colspan="1" style="text-align:center; color:red;">No Scheduled Activity Found</td></tr>';
     }
@@ -152,13 +161,12 @@ if ($method == 'count_setup_activities') {
     $setup_activity_month = sprintf("%02d", $_POST['setup_activity_month']);
     $activity_date = $setup_activity_year . "-" . $setup_activity_month;
 
-    $sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE activity_date LIKE '$activity_date%' AND activity_status = 'Accepted'";
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_setup_activities WHERE activity_date LIKE ? AND activity_status = 'Accepted'";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute([$activity_date . "%"]);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -172,12 +180,15 @@ if ($method == 'get_setup_activities') {
     $row_class = $row_class_arr[0];
     $date_today = date("Y-m-d");
 
-    $sql = "SELECT id, activity_details, activity_status, activity_date FROM machine_setup_activities WHERE activity_date LIKE '$activity_date%' AND activity_status = 'Accepted' ORDER BY activity_date ASC";
+    $sql = "SELECT id, activity_details, activity_status, activity_date FROM t_machine_setup_activities WHERE activity_date LIKE ? AND activity_status = 'Accepted' ORDER BY activity_date ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([$activity_date . "%"]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             if ($date_today == $row['activity_date']) {
                 $row_class = $row_class_arr[1];
             } else {
@@ -187,7 +198,7 @@ if ($method == 'get_setup_activities') {
             echo '<td>' . date("D M d, Y", strtotime($row['activity_date'])) . '</td>';
             echo '<td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="2" style="text-align:center; color:red;">No Scheduled Activity Found</td>';
@@ -204,7 +215,7 @@ if ($method == 'setup_activities_mark_as_read_public') {
 
 if ($method == 'save_act_sched') {
     $activity_date = $_POST['activity_date'];
-    $activity_details = addslashes($_POST['activity_details']);
+    $activity_details = $_POST['activity_details'];
 
     $is_valid = false;
     if (!empty($activity_date)) {
@@ -221,9 +232,18 @@ if ($method == 'save_act_sched') {
         $start_date_time = $activity_date . " 00:00:00";
         $end_date_time = $activity_date . " 23:59:59";
 
-        $sql = "INSERT INTO machine_setup_activities (activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) VALUES ('$activity_details', 'Accepted', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
+        $sql = "INSERT INTO t_machine_setup_activities (activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) 
+                VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $activity_details,
+            'Accepted',
+            $activity_date,
+            $start_date_time,
+            $end_date_time,
+            $date_updated
+        ]);
+
         echo 'success';
     }
 }
@@ -231,7 +251,7 @@ if ($method == 'save_act_sched') {
 if ($method == 'update_act_sched') {
     $id = $_POST['id'];
     $activity_date = $_POST['activity_date'];
-    $activity_details = addslashes($_POST['activity_details']);
+    $activity_details = $_POST['activity_details'];
 
     $is_valid = false;
     if (!empty($activity_date)) {
@@ -248,9 +268,15 @@ if ($method == 'update_act_sched') {
         $start_date_time = $activity_date . " 00:00:00";
         $end_date_time = $activity_date . " 23:59:59";
 
-        $sql = "UPDATE machine_setup_activities SET activity_details = '$activity_details', activity_date = '$activity_date', start_date_time = '$start_date_time', end_date_time = '$end_date_time', date_updated = '$date_updated' WHERE id = '$id'";
+        $sql = "UPDATE t_machine_setup_activities 
+                SET activity_details = ? activity_date = ?, 
+                start_date_time = ?, end_date_time = ?, date_updated = ? 
+                WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $activity_details, $activity_date, 
+            $start_date_time, $end_date_time, $date_updated, $id
+        ]);
         echo 'success';
     }
 }
@@ -258,9 +284,9 @@ if ($method == 'update_act_sched') {
 if ($method == 'delete_act_sched') {
     $id = $_POST['id'];
 
-    $sql = "DELETE FROM machine_setup_activities WHERE id = '$id'";
+    $sql = "DELETE FROM t_machine_setup_activities WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
     echo 'success';
 }
 
@@ -286,17 +312,24 @@ if ($method == 'send_req_act_sched') {
         echo 'Activity Date Not Set';
 
     if ($is_valid == true) {
-        $car_model = addslashes($car_model);
-        $requestor_name = addslashes($requestor_name);
-        $activity_details = addslashes($activity_details);
         $activity_date = date_create($activity_date);
         $activity_date = date_format($activity_date, "Y-m-d");
         $start_date_time = $activity_date . " 00:00:00";
         $end_date_time = $activity_date . " 23:59:59";
 
-        $sql = "INSERT INTO machine_setup_activities (car_model, requestor_name, activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) VALUES ('$car_model', '$requestor_name', '$activity_details', 'For Confirmation', '$activity_date', '$start_date_time', '$end_date_time', '$date_updated')";
+        $sql = "INSERT INTO t_machine_setup_activities (car_model, requestor_name, activity_details, activity_status, activity_date, start_date_time, end_date_time, date_updated) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $car_model,
+            $requestor_name,
+            $activity_details,
+            'For Confirmation',
+            $activity_date,
+            $start_date_time,
+            $end_date_time,
+            $date_updated
+        ]);
 
         update_notif_count_setup_activities('ADMIN-SETUP', 'For Confirmation', $conn);
         echo 'success';
@@ -305,13 +338,12 @@ if ($method == 'send_req_act_sched') {
 
 // Count
 if ($method == 'count_requested_setup_activities') {
-    $sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation'";
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_setup_activities WHERE car_model != '' AND requestor_name != '' AND activity_status = 'For Confirmation'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -321,12 +353,15 @@ if ($method == 'get_requested_setup_activities') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read_setup FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
+    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read_setup FROM t_machine_setup_activities WHERE car_model != '' AND requestor_name != '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if (intval($row['is_read_setup']) == 0) {
                 $row_class = $row_class_arr[1];
@@ -341,7 +376,7 @@ if ($method == 'get_requested_setup_activities') {
             echo '<td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="6" style="text-align:center; color:red;">No Scheduled Activity Found</td>';
@@ -355,12 +390,15 @@ if ($method == 'get_requested_setup_activities_public') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
+    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, is_read FROM t_machine_setup_activities WHERE car_model != '' AND requestor_name != '' AND activity_status = 'For Confirmation' ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if (intval($row['is_read']) == 0) {
                 $row_class = $row_class_arr[1];
@@ -375,7 +413,7 @@ if ($method == 'get_requested_setup_activities_public') {
             echo '<td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="6" style="text-align:center; color:red;">No Scheduled Activity Found</td>';
@@ -385,13 +423,12 @@ if ($method == 'get_requested_setup_activities_public') {
 
 // Count
 if ($method == 'count_recent_setup_activities_history') {
-    $sql = "SELECT count(id) AS total FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND (activity_status = 'Accepted' OR activity_status = 'Declined')";
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_setup_activities WHERE car_model != '' AND requestor_name != '' AND (activity_status = 'Accepted' OR activity_status = 'Declined')";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -401,12 +438,15 @@ if ($method == 'get_recent_setup_activities_history') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, decline_reason, is_read_setup FROM machine_setup_activities WHERE car_model!= '' AND requestor_name!= '' AND (activity_status = 'Accepted' OR activity_status = 'Declined') ORDER BY id DESC";
+    $sql = "SELECT id, car_model, requestor_name, activity_details, activity_status, activity_date, date_updated, decline_reason, is_read_setup FROM t_machine_setup_activities WHERE car_model != '' AND requestor_name != '' AND (activity_status = 'Accepted' OR activity_status = 'Declined') ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['activity_status'] == 'Accepted') {
                 $row_class = $row_class_arr[2];
@@ -423,7 +463,7 @@ if ($method == 'get_recent_setup_activities_history') {
             echo '<td class="text-left">' . nl2br(htmlspecialchars($row['activity_details'])) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="6" style="text-align:center; color:red;">No Scheduled Activity Found</td>';
@@ -433,9 +473,9 @@ if ($method == 'get_recent_setup_activities_history') {
 
 if ($method == 'accept_activity_schedule') {
     $id = $_POST['id'];
-    $sql = "UPDATE machine_setup_activities SET activity_status = 'Accepted' WHERE id = '$id'";
+    $sql = "UPDATE t_machine_setup_activities SET activity_status = 'Accepted' WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
 
     update_notif_count_setup_activities('PUBLIC-PAGE', 'Accepted', $conn);
     echo 'success';
@@ -443,10 +483,10 @@ if ($method == 'accept_activity_schedule') {
 
 if ($method == 'decline_activity_schedule') {
     $id = $_POST['id'];
-    $decline_reason = addslashes(custom_trim($_POST['decline_reason']));
-    $sql = "UPDATE machine_setup_activities SET activity_status = 'Declined', decline_reason = '$decline_reason' WHERE id = '$id'";
+    $decline_reason = custom_trim($_POST['decline_reason']);
+    $sql = "UPDATE t_machine_setup_activities SET activity_status = 'Declined', decline_reason = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$decline_reason, $id]);
 
     update_notif_count_setup_activities('PUBLIC-PAGE', 'Declined', $conn);
     echo 'success';

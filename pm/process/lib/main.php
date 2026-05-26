@@ -4,11 +4,14 @@
 // Check Line No.
 function check_line_no_initial($car_model, $conn)
 {
-    $sql = "SELECT id FROM line_no_initial WHERE car_model = ?";
+    $sql = "SELECT id FROM m_line_no_initial WHERE car_model = ?";
     $stmt = $conn->prepare($sql);
     $params = array($car_model);
     $stmt->execute($params);
-    if ($stmt->rowCount() > 0) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         return true;
     } else {
         return false;
@@ -18,11 +21,14 @@ function check_line_no_initial($car_model, $conn)
 // Check Line No.
 function check_line_no_final($car_model, $conn)
 {
-    $sql = "SELECT id FROM line_no_final WHERE car_model = ?";
+    $sql = "SELECT id FROM m_line_no_final WHERE car_model = ?";
     $stmt = $conn->prepare($sql);
     $params = array($car_model);
     $stmt->execute($params);
-    if ($stmt->rowCount() > 0) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         return true;
     } else {
         return false;
@@ -32,20 +38,18 @@ function check_line_no_final($car_model, $conn)
 // Get Machine Details
 function get_machine_details($machine_name, $conn)
 {
-    $machine_name = addslashes($machine_name);
     $process = '';
     $trd = 0;
     $ns_iv = 0;
 
-    $sql = "SELECT process, trd, `ns-iv` FROM machines WHERE machine_name = '$machine_name'";
+    $sql = "SELECT process, trd, [ns_iv] FROM m_machines WHERE machine_name = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $process = $row['process'];
-            $trd = intval($row['trd']);
-            $ns_iv = intval($row['ns-iv']);
-        }
+    $stmt->execute([$machine_name]);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $process = $row['process'];
+        $trd = intval($row['trd']);
+        $ns_iv = intval($row['ns-iv']);
     }
 
     $response_arr = array(
@@ -59,10 +63,9 @@ function get_machine_details($machine_name, $conn)
 
 function save_current_number($machine_name, $current_number, $conn)
 {
-    $machine_name = addslashes($machine_name);
-    $sql = "UPDATE machines SET number = '$current_number' WHERE machine_name = '$machine_name'";
+    $sql = "UPDATE m_machines SET number = ? WHERE machine_name = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$current_number, $machine_name]);
 }
 
 function check_existing_machine_info($machine_info, $id, $conn)
@@ -73,50 +76,70 @@ function check_existing_machine_info($machine_info, $id, $conn)
     $ns_iv_no_exists = false;
 
     if (!empty($machine_info['machine_no'])) {
-        $machine_no = addslashes($machine_info['machine_no']);
-        $sql = "SELECT machine_no FROM machine_masterlist WHERE machine_no = '$machine_no'";
+        $machine_no = $machine_info['machine_no'];
+        $sql = "SELECT machine_no FROM m_machine_masterlist WHERE machine_no = ?";
+        $params[] = $machine_no;
         if (!empty($id)) {
-            $sql = $sql . " AND id!= '$id'";
+            $sql = $sql . " AND id != ?";
+            $params[] = $id;
         }
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
+        $stmt->execute($params);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
             $machine_no_exists = true;
         }
     }
     if (!empty($machine_info['equipment_no'])) {
-        $equipment_no = addslashes($machine_info['equipment_no']);
-        $sql = "SELECT equipment_no FROM machine_masterlist WHERE equipment_no = '$equipment_no'";
+        $equipment_no = $machine_info['equipment_no'];
+        $sql = "SELECT equipment_no FROM m_machine_masterlist WHERE equipment_no = ?";
+        $params[] = $equipment_no;
         if (!empty($id)) {
-            $sql = $sql . " AND id!= '$id'";
+            $sql = $sql . " AND id != ?";
+            $params[] = $id;
         }
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
+        $stmt->execute($params);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
             $equipment_no_exists = true;
         }
     }
     if (!empty($machine_info['trd_no'])) {
         $trd_no = $machine_info['trd_no'];
-        $sql = "SELECT trd_no FROM machine_masterlist WHERE trd_no = '$trd_no'";
+        $sql = "SELECT trd_no FROM m_machine_masterlist WHERE trd_no = ?";
+        $params[] = $trd_no;
         if (!empty($id)) {
-            $sql = $sql . " AND id!= '$id'";
+            $sql = $sql . " AND id != ?";
+            $params[] = $id;
         }
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
+        $stmt->execute($params);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
             $trd_no_exists = true;
         }
     }
     if (!empty($machine_info['ns_iv_no'])) {
         $ns_iv_no = $machine_info['ns_iv_no'];
-        $sql = "SELECT `ns-iv_no` FROM machine_masterlist WHERE `ns-iv_no` = '$ns_iv_no'";
+        $sql = "SELECT [ns_iv_no] FROM m_machine_masterlist WHERE [ns_iv_no] = ?";
+        $params[] = $ns_iv_no;
         if (!empty($id)) {
-            $sql = $sql . " AND id!= '$id'";
+            $sql = $sql . " AND id != ?";
+            $params[] = $id;
         }
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
+        $stmt->execute($params);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
             $ns_iv_no_exists = true;
         }
     }
@@ -134,8 +157,6 @@ function check_existing_machine_info($machine_info, $id, $conn)
 
 function get_machine_details_by_id($machine_no, $equipment_no, $conn)
 {
-    $machine_no = addslashes($machine_no);
-    $equipment_no = addslashes($equipment_no);
     $number = '';
     $asset_tag_no = '';
     $trd_no = '';
@@ -150,7 +171,8 @@ function get_machine_details_by_id($machine_no, $equipment_no, $conn)
     $is_new = 0;
     $registered = false;
 
-    $sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, is_new FROM machine_masterlist";
+    $sql = "SELECT number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], machine_status, is_new 
+            FROM m_machine_masterlist";
     if (!empty($machine_no) && !empty($equipment_no)) {
         $sql = $sql . " WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
     } else if (!empty($machine_no)) {
@@ -160,8 +182,11 @@ function get_machine_details_by_id($machine_no, $equipment_no, $conn)
     }
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $number = $row['number'];
             $process = $row['process'];
             $machine_name = $row['machine_name'];
@@ -173,10 +198,10 @@ function get_machine_details_by_id($machine_no, $equipment_no, $conn)
             $equipment_no = $row['equipment_no'];
             $asset_tag_no = $row['asset_tag_no'];
             $trd_no = $row['trd_no'];
-            $ns_iv_no = $row['ns-iv_no'];
+            $ns_iv_no = $row['ns_iv_no'];
             $machine_status = $row['machine_status'];
             $is_new = intval($row['is_new']);
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
         $registered = true;
     }
 
@@ -204,10 +229,14 @@ function get_machine_details_by_id($machine_no, $equipment_no, $conn)
 // Check RSIR that is already on process of approval
 function check_pm_rsir_on_process($machine_no, $equipment_no, $rsir_eq_group, $conn)
 {
-    $sql = "SELECT id FROM pm_rsir WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND rsir_process_status != 'Returned' AND rsir_eq_group = '$rsir_eq_group'";
+    $sql = "SELECT id FROM t_pm_rsir 
+            WHERE machine_no = ? AND equipment_no = ? AND rsir_process_status != 'Returned' AND rsir_eq_group = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$machine_no, $equipment_no, $rsir_eq_group]);
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         echo true;
     } else {
         echo false;

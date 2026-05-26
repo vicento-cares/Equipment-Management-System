@@ -23,7 +23,7 @@ require('../lib/validate.php');
 require('../lib/main.php');
 
 $start_row = 1;
-$insertsql = "INSERT INTO machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no`, pm_plan_year, ww_no, ww_start_date, frequency, date_updated) VALUES ";
+$insertsql = "INSERT INTO t_machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, [ns_iv_no], pm_plan_year, ww_no, ww_start_date, frequency, date_updated) VALUES ";
 $subsql = "";
 
 $date_updated = date('Y-m-d H:i:s');
@@ -85,13 +85,13 @@ function check_csv($file, $conn)
 
             $number = intval(custom_trim($line[0]));
             $process = custom_trim($line[1]);
-            $machine_name = addslashes(custom_trim($line[2]));
-            $machine_spec = addslashes(custom_trim($line[3]));
-            $car_model = addslashes(custom_trim($line[4]));
+            $machine_name = custom_trim($line[2]);
+            $machine_spec = custom_trim($line[3]);
+            $car_model = custom_trim($line[4]);
             $location = custom_trim($line[5]);
-            $grid = addslashes(custom_trim($line[6]));
-            $machine_no = addslashes(custom_trim($line[7]));
-            $equipment_no = addslashes(custom_trim($line[8]));
+            $grid = custom_trim($line[6]);
+            $machine_no = custom_trim($line[7]);
+            $equipment_no = custom_trim($line[8]);
             $trd_no = custom_trim($line[9]);
             $ns_iv_no = custom_trim($line[10]);
             $pm_plan_year = custom_trim($line[11]);
@@ -117,10 +117,20 @@ function check_csv($file, $conn)
             }
 
             // CHECK ROW VALIDATION
-            $sql = "SELECT id FROM machine_masterlist WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no'";
+            $sql = "SELECT id FROM m_machine_masterlist 
+                    WHERE process = ? AND machine_name = ? AND machine_spec = ? AND car_model = ? AND 
+                        location = ? AND grid = ? AND machine_no = ? AND 
+                        equipment_no = ? AND trd_no = ? AND [ns_iv_no] = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            if ($stmt->rowCount() <= 0) {
+            $stmt->execute([
+                $process, $machine_name, $machine_spec, $car_model, 
+                $location, $grid, $machine_no, 
+                $equipment_no, $trd_no, $ns_iv_no
+            ]);
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row) {
                 $notExistsMachine++;
                 $hasError = 1;
                 array_push($notExistsMachineArr, $check_csv_row);
@@ -139,10 +149,22 @@ function check_csv($file, $conn)
             }
 
             // CHECK ROWS IF EXISTS
-            $sql = "SELECT id FROM machine_pm_plan WHERE process = '$process' AND machine_name = '$machine_name' AND machine_spec = '$machine_spec' AND car_model = '$car_model' AND location = '$location' AND grid = '$grid' AND machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND trd_no = '$trd_no' AND `ns-iv_no` = '$ns_iv_no' AND pm_plan_year = '$pm_plan_year' AND ww_no = '$ww_no' AND frequency = '$frequency'";
+            $sql = "SELECT id FROM t_machine_pm_plan 
+                    WHERE process = ? AND machine_name = ? AND machine_spec = ? AND car_model = ? AND 
+                        location = ? AND grid = ? AND machine_no = ? AND 
+                        equipment_no = ? AND trd_no = ? AND [ns_iv_no] = ? AND 
+                        pm_plan_year = ? AND ww_no = ? AND frequency = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            if ($stmt->rowCount() > 0) {
+            $stmt->execute([
+                $process, $machine_name, $machine_spec, $car_model, 
+                $location, $grid, $machine_no, 
+                $equipment_no, $trd_no, $ns_iv_no, 
+                $pm_plan_year, $ww_no, $frequency
+            ]);
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row) {
                 $isExistsOnDb = 1;
                 $hasError = 1;
                 array_push($isExistsOnDbArr, $check_csv_row);
@@ -201,7 +223,7 @@ if (!empty($_FILES['file']['name'])) {
 
                         $ww_start_date = $read_data[13];
 
-                        $column_count = count($read_data);
+                        $column_count = COUNT($read_data);
                         $subsql = $subsql . " (";
                         $temp_count++;
                         $start_row++;
@@ -222,7 +244,7 @@ if (!empty($_FILES['file']['name'])) {
                             $insertsql = substr($insertsql, 0, strlen($insertsql));
                             $stmt = $conn->prepare($insertsql);
                             $stmt->execute();
-                            $insertsql = "INSERT INTO machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, `ns-iv_no`, pm_plan_year, ww_no, ww_start_date, frequency, date_updated) VALUES ";
+                            $insertsql = "INSERT INTO t_machine_pm_plan (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, trd_no, [ns_iv_no], pm_plan_year, ww_no, ww_start_date, frequency, date_updated) VALUES ";
                             $subsql = "";
                         } else if ($temp_count == $row_count) {
                             $subsql = substr($subsql, 0, strlen($subsql) - 3);

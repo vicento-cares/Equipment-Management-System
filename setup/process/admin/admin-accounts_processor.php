@@ -16,11 +16,13 @@ $date_updated = date('Y-m-d H:i:s');
 
 function check_existing_username($username, $conn)
 {
-    $username = addslashes($username);
-    $sql = "SELECT username FROM machine_setup_accounts WHERE username = '$username'";
+    $sql = "SELECT username FROM m_machine_setup_accounts WHERE username = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$username]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         return true;
     } else {
         return false;
@@ -29,9 +31,9 @@ function check_existing_username($username, $conn)
 
 function check_own_username($id, $own_username, $conn)
 {
-    $sql = "SELECT username FROM machine_setup_accounts WHERE id = '$id'";
+    $sql = "SELECT username FROM m_machine_setup_accounts WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         if ($own_username == $row['username']) {
             return true;
@@ -43,14 +45,16 @@ function check_own_username($id, $own_username, $conn)
 
 function change_username($id, $username, $date_updated, $conn)
 {
-    $username = addslashes($username);
-    $sql = "SELECT username FROM machine_setup_accounts WHERE username = '$username'";
+    $sql = "SELECT username FROM m_machine_setup_accounts WHERE username = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() <= 0) {
-        $sql = "UPDATE machine_setup_accounts SET username = '$username', date_updated = '$date_updated' WHERE id = '$id'";
+    $stmt->execute([$username]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        $sql = "UPDATE m_machine_setup_accounts SET username = ?, date_updated = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$username, $date_updated, $id]);
         return true;
     } else {
         return false;
@@ -58,14 +62,17 @@ function change_username($id, $username, $date_updated, $conn)
 }
 
 if ($method == 'get_accounts_setup_dropdown') {
-    $sql = "SELECT name, process FROM machine_setup_accounts WHERE role = 'Setup' ORDER BY name ASC";
+    $sql = "SELECT name, process FROM m_machine_setup_accounts WHERE role = 'Setup' ORDER BY name ASC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         echo '<option disabled selected value="">Select Setup Account</option>';
-        foreach ($stmt->fetchAll() as $row) {
+        do {
             echo '<option value="' . htmlspecialchars($row['name']) . '">' . htmlspecialchars($row['name']) . ' - ' . $row['process'] . '</option>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<option disabled selected value="">Select Setup Account</option>';
     }
@@ -73,45 +80,73 @@ if ($method == 'get_accounts_setup_dropdown') {
 
 // Count
 if ($method == 'count_data') {
-    $search = addslashes($_POST['search']);
-    $sql = "SELECT count(id) AS total FROM machine_setup_accounts";
+    $search = $_POST['search'];
+    $sql = "SELECT COUNT(id) AS total FROM m_machine_setup_accounts";
+    $params = [];
     if (!empty($search)) {
-        $sql = $sql . " WHERE username LIKE '$search%' OR name LIKE '$search%' OR role LIKE '$search%' OR approver_role LIKE '$search%' OR process LIKE '$search%'";
+        $sql = $sql . " WHERE username LIKE ? OR name LIKE ? OR role LIKE ? OR approver_role LIKE ? OR process LIKE ?";
+        $params = [
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     }
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
 // Read / Load
 if ($method == 'fetch_data') {
     $id = $_POST['id'];
-    $search = addslashes($_POST['search']);
+    $search = $_POST['search'];
     $c = $_POST['c'];
     $own_username = $_SESSION['setup_username'];
     $own_role = $_COOKIE['setup_role'];
     $own_name = $_COOKIE['setup_name'];
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
     $row_class = $row_class_arr[0];
-    $sql = "SELECT id, username, password, name, role, approver_role, process, date_updated FROM machine_setup_accounts";
+
+    $sql = "SELECT TOP 10 id, username, password, name, role, approver_role, process, date_updated FROM m_machine_setup_accounts";
+    $params = [];
 
     if (!empty($id) && empty($search)) {
-        $sql = $sql . " WHERE id > '$id'";
+        $sql = $sql . " WHERE id > ?";
+        $params[] = $id;
     } else if (empty($id) && !empty($search)) {
-        $sql = $sql . " WHERE username LIKE '$search%' OR name LIKE '$search%' OR role LIKE '$search%' OR approver_role LIKE '$search%' OR process LIKE '$search%'";
+        $sql = $sql . " WHERE username LIKE ? OR name LIKE ? OR role LIKE ? OR approver_role LIKE ? OR process LIKE ?";
+        $params = [
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     } else if (!empty($id) && !empty($search)) {
-        $sql = $sql . " WHERE id > '$id' AND (username LIKE '$search%' OR name LIKE '$search%' OR role LIKE '$search%' OR approver_role LIKE '$search%' OR process LIKE '$search%')";
+        $sql = $sql . " WHERE id > ? AND (username LIKE ? OR name LIKE ? OR role LIKE ? OR approver_role LIKE ? OR process LIKE ?)";
+        $params = [
+            $id, 
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     }
-    $sql = $sql . " ORDER BY id ASC LIMIT 10";
+    $sql = $sql . " ORDER BY id ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($own_username == $row['username'] && $own_name == $row['name'] && $own_role == $row['role']) {
                 $row_class = $row_class_arr[1];
@@ -127,7 +162,7 @@ if ($method == 'fetch_data') {
             echo '<td>' . $row['process'] . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="7" style="text-align:center; color:red;">No Results Found</td>';
@@ -176,12 +211,19 @@ if ($method == 'save_data') {
         if ($own_role == 'Admin') {
             $is_existing = check_existing_username($username, $conn);
             if ($is_existing == false) {
-                $username = addslashes($username);
-                $password = addslashes($password);
-                $name = addslashes($name);
-                $sql = "INSERT INTO machine_setup_accounts (username, password, name, role, approver_role, process, date_updated) VALUES ('$username', '$password', '$name', '$role', '$approver_role', '$process', '$date_updated')";
+                $sql = "INSERT INTO m_machine_setup_accounts (username, password, name, role, approver_role, process, date_updated) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)";
+
                 $stmt = $conn->prepare($sql);
-                $stmt->execute();
+                $stmt->execute([
+                    $username,
+                    $password,
+                    $name,
+                    $role,
+                    $approver_role,
+                    $process,
+                    $date_updated
+                ]);
                 echo 'success';
             } else {
                 echo 'Username Exists';
@@ -234,10 +276,9 @@ if ($method == 'update_password') {
         if ($own_role != 'Admin' && $is_own_username == false) {
             echo 'Unauthorized Access';
         } else {
-            $password = addslashes($password);
-            $sql = "UPDATE machine_setup_accounts SET password = '$password', date_updated = '$date_updated' WHERE id = '$id'";
+            $sql = "UPDATE m_machine_setup_accounts SET password = ?, date_updated = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$password, $date_updated, $id]);
             echo 'success';
         }
     } else {
@@ -281,10 +322,9 @@ if ($method == 'update_data') {
             if ($is_own_username == true && $role != 'Admin') {
                 echo 'Own Account';
             } else {
-                $name = addslashes($name);
-                $sql = "UPDATE machine_setup_accounts SET name = '$name', role = '$role', approver_role = '$approver_role', process = '$process', date_updated = '$date_updated' WHERE id = '$id'";
+                $sql = "UPDATE m_machine_setup_accounts SET name = ?, role = ?, approver_role = ?, process = ?, date_updated = ? WHERE id = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->execute();
+                $stmt->execute([$name, $role, $approver_role, $process, $date_updated, $id]);
                 if ($is_own_username == true) {
                     setcookie('setup_name', $name, 0, "/ems");
                     $_SESSION['setup_name'] = $name;
@@ -297,10 +337,9 @@ if ($method == 'update_data') {
             } else if ($is_own_username == false) {
                 echo 'Unauthorized Access';
             } else {
-                $name = addslashes($name);
-                $sql = "UPDATE machine_setup_accounts SET name = '$name', date_updated = '$date_updated' WHERE id = '$id'";
+                $sql = "UPDATE m_machine_setup_accounts SET name = ?, date_updated = ? WHERE id = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->execute();
+                $stmt->execute([$name, $date_updated, $id]);
                 if ($is_own_username == true) {
                     setcookie('setup_name', $name, 0, "/ems");
                 }
@@ -320,9 +359,9 @@ if ($method == 'delete_data') {
 
     if ($is_own_username == false) {
         if ($own_role == 'Admin') {
-            $sql = "DELETE FROM machine_setup_accounts WHERE id = '$id'";
+            $sql = "DELETE FROM m_machine_setup_accounts WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$id]);
             echo 'success';
         } else {
             echo 'Unauthorized Access';

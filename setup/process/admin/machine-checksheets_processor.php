@@ -30,7 +30,7 @@ function generate_mstprc_no($mstprc_no)
 function update_notif_count_machine_checksheets($interface, $mstprc_process_status, $conn)
 {
     if ($mstprc_process_status != 'Added' && $mstprc_process_status != 'Saved') {
-        $sql = "UPDATE notif_setup_approvers";
+        $sql = "UPDATE t_notif_setup_approvers";
         if ($mstprc_process_status == 'Confirmed') {
             $sql = $sql . " SET pending_mstprc = pending_mstprc + 1";
         } else if ($mstprc_process_status == 'Approved 1') {
@@ -40,9 +40,9 @@ function update_notif_count_machine_checksheets($interface, $mstprc_process_stat
         } else if ($mstprc_process_status == 'Disapproved') {
             $sql = $sql . " SET disapproved_mstprc = disapproved_mstprc + 1";
         }
-        $sql = $sql . " WHERE interface = '$interface'";
+        $sql = $sql . " WHERE interface = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$interface]);
     }
 }
 
@@ -50,9 +50,9 @@ function machine_checksheets_mark_as_read($mstprc_no, $mstprc_process_status, $i
 {
     $sql = "";
     if ($mstprc_process_status == 'Approved 2' || $mstprc_process_status == 'Disapproved') {
-        $sql = $sql . "UPDATE setup_mstprc_history";
+        $sql = $sql . "UPDATE t_setup_mstprc_history";
     } else {
-        $sql = $sql . "UPDATE setup_mstprc";
+        $sql = $sql . "UPDATE t_setup_mstprc";
     }
     if ($interface == 'ADMIN-SETUP') {
         $sql = $sql . " SET is_read_setup = 1";
@@ -73,12 +73,12 @@ function machine_checksheets_mark_as_read($mstprc_no, $mstprc_process_status, $i
     } else if ($interface == 'APPROVER-2-QA-MGR') {
         $sql = $sql . " SET is_read_qa_mgr = 1";
     }
-    $sql = $sql . " WHERE mstprc_no = '$mstprc_no'";
+    $sql = $sql . " WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$mstprc_no]);
 
     if ($mstprc_process_status != 'Added' && $mstprc_process_status != 'Saved' && $mstprc_process_status != 'Returned') {
-        $sql = "UPDATE notif_setup_approvers";
+        $sql = "UPDATE t_notif_setup_approvers";
         if ($mstprc_process_status == 'Confirmed') {
             $sql = $sql . " SET pending_mstprc = CASE WHEN pending_mstprc > 0 THEN pending_mstprc - 1 END";
         } else if ($mstprc_process_status == 'Approved 1') {
@@ -88,19 +88,22 @@ function machine_checksheets_mark_as_read($mstprc_no, $mstprc_process_status, $i
         } else if ($mstprc_process_status == 'Disapproved') {
             $sql = $sql . " SET disapproved_mstprc = CASE WHEN disapproved_mstprc > 0 THEN disapproved_mstprc - 1 END";
         }
-        $sql = $sql . " WHERE interface = '$interface'";
+        $sql = $sql . " WHERE interface = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$interface]);
     }
 }
 
 // Check MSTPRC that is already on process of approval
 function check_setup_mstprc_on_process($machine_no, $equipment_no, $conn)
 {
-    $sql = "SELECT id FROM setup_mstprc WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no' AND mstprc_process_status != 'Returned'";
+    $sql = "SELECT id FROM t_setup_mstprc WHERE machine_no = ? AND equipment_no = ? AND mstprc_process_status != 'Returned'";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$machine_no, $equipment_no]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         echo true;
     } else {
         echo false;
@@ -118,12 +121,15 @@ function check_setup_mstprc_no_returned($mstprc_no, $conn)
     $sou_no = '';
     $rsir_no = '';
 
-    $sql = "SELECT mstprc_no, fat_no, sou_no, rsir_no FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+    $sql = "SELECT mstprc_no, fat_no, sou_no, rsir_no FROM t_setup_mstprc WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$mstprc_no]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         $mstprc_no_exist = true;
-        foreach ($stmt->fetchAll() as $row) {
+        do {
             if (!empty($row['fat_no'])) {
                 $fat_no = $row['fat_no'];
                 $fat_no_exist = true;
@@ -136,7 +142,7 @@ function check_setup_mstprc_no_returned($mstprc_no, $conn)
                 $rsir_no = $row['rsir_no'];
                 $rsir_no_exist = true;
             }
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     }
 
     $mstprc_no_returned_arr = array(
@@ -187,13 +193,16 @@ function check_mstprc_file($mstprc_file_info, $action, $conn)
         }
     }
     // Check File Information Exists on Database
-    $mstprc_filename = addslashes($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
-    $sql = "SELECT id FROM setup_mstprc WHERE file_name = '$mstprc_filename' AND file_type = '$mstprc_filetype' AND file_url = '$mstprc_url'";
+    $mstprc_filename = $mstprc_file_info['mstprc_filename'];
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
+    $sql = "SELECT id FROM t_setup_mstprc WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$mstprc_filename, $mstprc_filetype, $mstprc_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         if ($action == 'Insert') {
             $hasError = 1;
             $file_valid_arr[3] = 1;
@@ -203,10 +212,13 @@ function check_mstprc_file($mstprc_file_info, $action, $conn)
         }
     }
     // Check File Information Exists on Database (History)
-    $sql = "SELECT id FROM setup_mstprc_history WHERE file_name = '$mstprc_filename' AND file_type = '$mstprc_filetype' AND file_url = '$mstprc_url'";
+    $sql = "SELECT id FROM t_setup_mstprc_history WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$mstprc_filename, $mstprc_filetype, $mstprc_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         if ($action == 'Insert') {
             $hasError = 1;
             $file_valid_arr[3] = 1;
@@ -240,67 +252,101 @@ function save_mstprc_setup_info($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
     $is_new = $mstprc_file_info['is_new'];
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     if (isset($mstprc_file_info['sou_no'])) {
-        $sou_no = addslashes($mstprc_file_info['sou_no']);
+        $sou_no = $mstprc_file_info['sou_no'];
     } else {
         $sou_no = '';
     }
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, sou_no, file_name, file_type, file_url, date_updated) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$is_new','$mstprc_username','$mstprc_eq_member','Saved','$fat_no','$sou_no','$mstprc_filename','$mstprc_filetype','$mstprc_url','$date_updated')";
+    $sql = "INSERT INTO t_setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, sou_no, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_no,
+        $mstprc_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $mstprc_date,
+        $car_model,
+        $location,
+        $grid,
+        $is_new,
+        $mstprc_username,
+        $mstprc_eq_member,
+        'Saved',
+        $fat_no,
+        $sou_no,
+        $mstprc_filename,
+        $mstprc_filetype,
+        $mstprc_url,
+        $date_updated
+    ]);
 }
 
 function update_mstprc_setup_info_returned($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
     $is_new = $mstprc_file_info['is_new'];
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     if (isset($mstprc_file_info['sou_no'])) {
-        $sou_no = addslashes($mstprc_file_info['sou_no']);
+        $sou_no = $mstprc_file_info['sou_no'];
     } else {
         $sou_no = '';
     }
     if (isset($mstprc_file_info['rsir_no'])) {
-        $rsir_no = addslashes($mstprc_file_info['rsir_no']);
+        $rsir_no = $mstprc_file_info['rsir_no'];
     } else {
         $rsir_no = '';
     }
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE setup_mstprc SET mstprc_type = '$mstprc_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',mstprc_date = '$mstprc_date',car_model = '$car_model',location = '$location',grid = '$grid',is_new = '$is_new',mstprc_username = '$mstprc_username',mstprc_eq_member = '$mstprc_eq_member',mstprc_process_status = 'Saved',fat_no = '$fat_no',sou_no = '$sou_no',rsir_no = '$rsir_no',is_read_setup = 0,file_name = '$mstprc_filename',file_type = '$mstprc_filetype',file_url = '$mstprc_url',date_updated = '$date_updated' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc 
+            SET mstprc_type = ?, machine_name = ?, machine_no = ?, equipment_no = ?, 
+            mstprc_date = ?, car_model = ?, location = ?, grid = ?, is_new = ?,  
+            mstprc_username = ?, mstprc_eq_member = ?, mstprc_process_status = 'Saved', 
+            fat_no = ?, sou_no = ?, rsir_no = ?, is_read_setup = 0, 
+            file_name = ?, file_type = ?, file_url = ?, date_updated = ? 
+            WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_type, $machine_name, $machine_no, $equipment_no, 
+        $mstprc_date, $car_model, $location, $grid, $is_new, 
+        $mstprc_username, $mstprc_eq_member, 
+        $fat_no, $sou_no, $rsir_no, 
+        $mstprc_filename, $mstprc_filetype, $mstprc_url, $date_updated, $mstprc_no 
+    ]);
 }
 
 // Insert File Information
@@ -308,58 +354,96 @@ function save_mstprc_transfer_info($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $to_car_model = addslashes($mstprc_file_info['to_car_model']);
-    $to_location = addslashes($mstprc_file_info['to_location']);
-    $to_grid = addslashes($mstprc_file_info['to_grid']);
-    $transfer_reason = addslashes($mstprc_file_info['transfer_reason']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $to_car_model = $mstprc_file_info['to_car_model'];
+    $to_location = $mstprc_file_info['to_location'];
+    $to_grid = $mstprc_file_info['to_grid'];
+    $transfer_reason = $mstprc_file_info['transfer_reason'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, transfer_reason, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$to_car_model','$to_location','$to_grid','$transfer_reason','$mstprc_username','$mstprc_eq_member','Saved','$fat_no','$mstprc_filename','$mstprc_filetype','$mstprc_url','$date_updated')";
+    $sql = "INSERT INTO t_setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, transfer_reason, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_no,
+        $mstprc_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $mstprc_date,
+        $car_model,
+        $location,
+        $grid,
+        $to_car_model,
+        $to_location,
+        $to_grid,
+        $transfer_reason,
+        $mstprc_username,
+        $mstprc_eq_member,
+        'Saved',
+        $fat_no,
+        $mstprc_filename,
+        $mstprc_filetype,
+        $mstprc_url,
+        $date_updated
+    ]);
 }
 
 function update_mstprc_transfer_info_returned($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $to_car_model = addslashes($mstprc_file_info['to_car_model']);
-    $to_location = addslashes($mstprc_file_info['to_location']);
-    $to_grid = addslashes($mstprc_file_info['to_grid']);
-    $transfer_reason = addslashes($mstprc_file_info['transfer_reason']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $to_car_model = $mstprc_file_info['to_car_model'];
+    $to_location = $mstprc_file_info['to_location'];
+    $to_grid = $mstprc_file_info['to_grid'];
+    $transfer_reason = $mstprc_file_info['transfer_reason'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE setup_mstprc SET mstprc_type = '$mstprc_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',mstprc_date = '$mstprc_date',car_model = '$car_model',location = '$location',grid = '$grid',to_car_model = '$to_car_model',to_location = '$to_location',to_grid = '$to_grid',transfer_reason = '$transfer_reason',mstprc_username = '$mstprc_username',mstprc_eq_member = '$mstprc_eq_member',mstprc_process_status = 'Saved',fat_no = '$fat_no',is_read_setup = 0,file_name = '$mstprc_filename',file_type = '$mstprc_filetype',file_url = '$mstprc_url',date_updated = '$date_updated' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc 
+            SET mstprc_type = ?, machine_name = ?, machine_no = ?, equipment_no = ?, 
+            mstprc_date = ?, car_model = ?, location = ?, grid = ?, 
+            to_car_model = ?, to_location = ?, to_grid = ?, transfer_reason = ?, 
+            mstprc_username = ?, mstprc_eq_member = ?, mstprc_process_status = 'Saved', 
+            fat_no = ?, is_read_setup = 0, 
+            file_name = ?, file_type = ?, file_url = ?, date_updated = ? 
+            WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_type, $machine_name, $machine_no, $equipment_no, 
+        $mstprc_date, $car_model, $location, $grid, 
+        $to_car_model, $to_location, $to_grid, $transfer_reason, 
+        $mstprc_username, $mstprc_eq_member, 
+        $fat_no, 
+        $mstprc_filename, $mstprc_filetype, $mstprc_url, $date_updated, $mstprc_no
+    ]);
 }
 
 // Insert File Information
@@ -367,54 +451,90 @@ function save_mstprc_pullout_info($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $pullout_location = addslashes($mstprc_file_info['pullout_location']);
-    $pullout_reason = addslashes($mstprc_file_info['pullout_reason']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $pullout_location = $mstprc_file_info['pullout_location'];
+    $pullout_reason = $mstprc_file_info['pullout_reason'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, pullout_location, pullout_reason, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$pullout_location','$pullout_reason','$mstprc_username','$mstprc_eq_member','Saved','$fat_no','$mstprc_filename','$mstprc_filetype','$mstprc_url','$date_updated')";
+    $sql = "INSERT INTO t_setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, pullout_location, pullout_reason, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_no,
+        $mstprc_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $mstprc_date,
+        $car_model,
+        $location,
+        $grid,
+        $pullout_location,
+        $pullout_reason,
+        $mstprc_username,
+        $mstprc_eq_member,
+        'Saved',
+        $fat_no,
+        $mstprc_filename,
+        $mstprc_filetype,
+        $mstprc_url,
+        $date_updated
+    ]);
 }
 
 function update_mstprc_pullout_info_returned($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $pullout_location = addslashes($mstprc_file_info['pullout_location']);
-    $pullout_reason = addslashes($mstprc_file_info['pullout_reason']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $pullout_location = $mstprc_file_info['pullout_location'];
+    $pullout_reason = $mstprc_file_info['pullout_reason'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE setup_mstprc SET mstprc_type = '$mstprc_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',mstprc_date = '$mstprc_date',car_model = '$car_model',location = '$location',grid = '$grid',pullout_location = '$pullout_location',pullout_reason = '$pullout_reason',mstprc_username = '$mstprc_username',mstprc_eq_member = '$mstprc_eq_member',mstprc_process_status = 'Saved',fat_no = '$fat_no',is_read_setup = 0,file_name = '$mstprc_filename',file_type = '$mstprc_filetype',file_url = '$mstprc_url',date_updated = '$date_updated' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc 
+            SET mstprc_type = ?, machine_name = ?, machine_no = ?, equipment_no = ?, 
+            mstprc_date = ?, car_model = ?, location = ?, grid = ?, 
+            pullout_location = ?, pullout_reason = ?, 
+            mstprc_username = ?, mstprc_eq_member = ?, mstprc_process_status = 'Saved', 
+            fat_no = ?, is_read_setup = 0, 
+            file_name = ?, file_type = ?, file_url = ?, date_updated = ? 
+            WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_type, $machine_name, $machine_no, $equipment_no, 
+        $mstprc_date, $car_model, $location, $grid, 
+        $pullout_location, $pullout_reason, 
+        $mstprc_username, $mstprc_eq_member, 
+        $fat_no, 
+        $mstprc_filename, $mstprc_filetype, $mstprc_url, $date_updated, $mstprc_no
+    ]);
 }
 
 // Insert File Information
@@ -422,66 +542,98 @@ function save_mstprc_relayout_info($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$mstprc_username','$mstprc_eq_member','Saved','$fat_no','$mstprc_filename','$mstprc_filetype','$mstprc_url','$date_updated')";
+    $sql = "INSERT INTO t_setup_mstprc (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, mstprc_username, mstprc_eq_member, mstprc_process_status, fat_no, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_no,
+        $mstprc_type,
+        $machine_name,
+        $machine_no,
+        $equipment_no,
+        $mstprc_date,
+        $car_model,
+        $location,
+        $grid,
+        $mstprc_username,
+        $mstprc_eq_member,
+        'Saved',
+        $fat_no,
+        $mstprc_filename,
+        $mstprc_filetype,
+        $mstprc_url,
+        $date_updated
+    ]);
 }
 
 function update_mstprc_relayout_info_returned($mstprc_file_info, $conn)
 {
     $mstprc_no = $mstprc_file_info['mstprc_no'];
     $mstprc_type = $mstprc_file_info['mstprc_type'];
-    $machine_name = addslashes($mstprc_file_info['machine_name']);
-    $machine_no = addslashes($mstprc_file_info['machine_no']);
-    $equipment_no = addslashes($mstprc_file_info['equipment_no']);
+    $machine_name = $mstprc_file_info['machine_name'];
+    $machine_no = $mstprc_file_info['machine_no'];
+    $equipment_no = $mstprc_file_info['equipment_no'];
     $mstprc_date = date_create($mstprc_file_info['mstprc_date']);
     $mstprc_date = date_format($mstprc_date, "Y-m-d");
-    $car_model = addslashes($mstprc_file_info['car_model']);
-    $location = addslashes($mstprc_file_info['location']);
-    $grid = addslashes($mstprc_file_info['grid']);
-    $mstprc_eq_member = addslashes($_SESSION['setup_name']);
-    $mstprc_username = addslashes($_SESSION['setup_username']);
-    $fat_no = addslashes($mstprc_file_info['fat_no']);
+    $car_model = $mstprc_file_info['car_model'];
+    $location = $mstprc_file_info['location'];
+    $grid = $mstprc_file_info['grid'];
+    $mstprc_eq_member = $_SESSION['setup_name'];
+    $mstprc_username = $_SESSION['setup_username'];
+    $fat_no = $mstprc_file_info['fat_no'];
     $mstprc_filename = basename($mstprc_file_info['mstprc_filename']);
-    $mstprc_filetype = addslashes($mstprc_file_info['mstprc_filetype']);
-    $mstprc_url = addslashes($mstprc_file_info['mstprc_url']);
+    $mstprc_filetype = $mstprc_file_info['mstprc_filetype'];
+    $mstprc_url = $mstprc_file_info['mstprc_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE setup_mstprc SET mstprc_type = '$mstprc_type',machine_name = '$machine_name',machine_no = '$machine_no',equipment_no = '$equipment_no',mstprc_date = '$mstprc_date',car_model = '$car_model',location = '$location',grid = '$grid',mstprc_username = '$mstprc_username',mstprc_eq_member = '$mstprc_eq_member',mstprc_process_status = 'Saved',fat_no = '$fat_no',is_read_setup = 0,file_name = '$mstprc_filename',file_type = '$mstprc_filetype',file_url = '$mstprc_url',date_updated = '$date_updated' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc 
+            SET mstprc_type = ?, machine_name = ?, machine_no = ?, equipment_no = ?, 
+            mstprc_date = ?, car_model = ?, location = ?, grid = ?, 
+            mstprc_username = ?, mstprc_eq_member = ?, mstprc_process_status = 'Saved', 
+            fat_no = ?, is_read_setup = 0, 
+            file_name = ?, file_type = ?, file_url = ?, date_updated = ? 
+            WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $mstprc_type, $machine_name, $machine_no, $equipment_no, 
+        $mstprc_date, $car_model, $location, $grid, 
+        $mstprc_username, $mstprc_eq_member, 
+        $fat_no, 
+        $mstprc_filename, $mstprc_filetype, $mstprc_url, $date_updated, $mstprc_no
+    ]);
 }
 
 function save_fat($fat_info, $conn)
 {
-    $item_description = addslashes($fat_info['item_description']);
-    $item_name = addslashes($fat_info['item_name']);
-    $machine_no = addslashes($fat_info['machine_no']);
-    $equipment_no = addslashes($fat_info['equipment_no']);
-    $asset_tag_no = addslashes($fat_info['asset_tag_no']);
-    $prev_location_group = addslashes($fat_info['prev_group']);
-    $prev_location_loc = addslashes($fat_info['prev_location']);
-    $prev_location_grid = addslashes($fat_info['prev_grid']);
-    $new_location_group = addslashes($fat_info['new_group']);
-    $new_location_loc = addslashes($fat_info['new_location']);
-    $new_location_grid = addslashes($fat_info['new_grid']);
-    $reason = addslashes($fat_info['reason']);
+    $item_description = $fat_info['item_description'];
+    $item_name = $fat_info['item_name'];
+    $machine_no = $fat_info['machine_no'];
+    $equipment_no = $fat_info['equipment_no'];
+    $asset_tag_no = $fat_info['asset_tag_no'];
+    $prev_location_group = $fat_info['prev_group'];
+    $prev_location_loc = $fat_info['prev_location'];
+    $prev_location_grid = $fat_info['prev_grid'];
+    $new_location_group = $fat_info['new_group'];
+    $new_location_loc = $fat_info['new_location'];
+    $new_location_grid = $fat_info['new_grid'];
+    $reason = $fat_info['reason'];
     $date_transfer = date_create($fat_info['date_transfer']);
     $date_transfer = date_format($date_transfer, "Y-m-d H:i:s");
     $date_updated = date('Y-m-d H:i:s');
@@ -491,91 +643,177 @@ function save_fat($fat_info, $conn)
     $fat_no = 'FAT:' . $fat_no;
     $fat_no = $fat_no . '' . $rand;
 
-    $sql = "INSERT INTO fat_forms (fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, fat_status) VALUES ('$fat_no', '$item_name', '$item_description', '$machine_no', '$equipment_no', '$asset_tag_no', '$prev_location_group', '$prev_location_loc', '$prev_location_grid', '$date_transfer', '$new_location_group', '$new_location_loc', '$new_location_grid', '$reason', 'Saved')";
+    $sql = "INSERT INTO t_fat_forms (fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, fat_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $fat_no,
+        $item_name,
+        $item_description,
+        $machine_no,
+        $equipment_no,
+        $asset_tag_no,
+        $prev_location_group,
+        $prev_location_loc,
+        $prev_location_grid,
+        $date_transfer,
+        $new_location_group,
+        $new_location_loc,
+        $new_location_grid,
+        $reason,
+        'Saved'
+    ]);
 
     return $fat_no;
 }
 
 function update_fat_returned($fat_info, $fat_no, $conn)
 {
-    $item_description = addslashes($fat_info['item_description']);
-    $item_name = addslashes($fat_info['item_name']);
-    $machine_no = addslashes($fat_info['machine_no']);
-    $equipment_no = addslashes($fat_info['equipment_no']);
-    $asset_tag_no = addslashes($fat_info['asset_tag_no']);
-    $prev_location_group = addslashes($fat_info['prev_group']);
-    $prev_location_loc = addslashes($fat_info['prev_location']);
-    $prev_location_grid = addslashes($fat_info['prev_grid']);
-    $new_location_group = addslashes($fat_info['new_group']);
-    $new_location_loc = addslashes($fat_info['new_location']);
-    $new_location_grid = addslashes($fat_info['new_grid']);
-    $reason = addslashes($fat_info['reason']);
+    $item_description = $fat_info['item_description'];
+    $item_name = $fat_info['item_name'];
+    $machine_no = $fat_info['machine_no'];
+    $equipment_no = $fat_info['equipment_no'];
+    $asset_tag_no = $fat_info['asset_tag_no'];
+    $prev_location_group = $fat_info['prev_group'];
+    $prev_location_loc = $fat_info['prev_location'];
+    $prev_location_grid = $fat_info['prev_grid'];
+    $new_location_group = $fat_info['new_group'];
+    $new_location_loc = $fat_info['new_location'];
+    $new_location_grid = $fat_info['new_grid'];
+    $reason = $fat_info['reason'];
     $date_transfer = date_create($fat_info['date_transfer']);
     $date_transfer = date_format($date_transfer, "Y-m-d H:i:s");
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE fat_forms SET item_name = '$item_name',item_description = '$item_description',machine_no = '$machine_no',equipment_no = '$equipment_no',asset_tag_no = '$asset_tag_no',prev_location_group = '$prev_location_group',prev_location_loc = '$prev_location_loc',prev_location_grid = '$prev_location_grid',date_transfer = '$date_transfer',new_location_group = '$new_location_group',new_location_loc = '$new_location_loc',new_location_grid = '$new_location_grid',reason = '$reason',fat_status = 'Saved',date_updated = '$date_updated' WHERE fat_no = '$fat_no'";
+    $sql = "UPDATE t_fat_forms 
+            SET item_name = ?, item_description = ?, machine_no = ?, equipment_no = ?, 
+            asset_tag_no = ?, prev_location_group = ?, prev_location_loc = ?, prev_location_grid = ?, 
+            date_transfer = ?, new_location_group = ?, new_location_loc = ?, new_location_grid = ?, 
+            reason = ?, fat_status = 'Saved', date_updated = ? 
+            WHERE fat_no = ?";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $item_name, $item_description, $machine_no, $equipment_no, 
+        $asset_tag_no, $prev_location_group, $prev_location_loc, $prev_location_grid, 
+        $date_transfer, $new_location_group, $new_location_loc, $new_location_grid, 
+        $reason, $date_updated, $fat_no
+    ]);
 }
 
 function save_sou($sou_info, $conn)
 {
-    $kigyo_no = addslashes($sou_info['kigyo_no']);
-    $asset_name = addslashes($sou_info['asset_name']);
-    $sup_asset_name = addslashes($sou_info['sup_asset_name']);
-    $orig_asset_no = addslashes($sou_info['orig_asset_no']);
+    $kigyo_no = $sou_info['kigyo_no'];
+    $asset_name = $sou_info['asset_name'];
+    $sup_asset_name = $sou_info['sup_asset_name'];
+    $orig_asset_no = $sou_info['orig_asset_no'];
     $sou_date = date_create($sou_info['sou_date']);
     $sou_date = date_format($sou_date, "Y-m-d");
     $sou_quantity = $sou_info['sou_quantity'];
-    $managing_dept_code = addslashes($sou_info['managing_dept_code']);
-    $managing_dept_name = addslashes($sou_info['managing_dept_name']);
-    $install_area_code = addslashes($sou_info['install_area_code']);
-    $install_area_name = addslashes($sou_info['install_area_name']);
-    $machine_no = addslashes($sou_info['machine_no']);
-    $equipment_no = addslashes($sou_info['equipment_no']);
+    $managing_dept_code = $sou_info['managing_dept_code'];
+    $managing_dept_name = $sou_info['managing_dept_name'];
+    $install_area_code = $sou_info['install_area_code'];
+    $install_area_name = $sou_info['install_area_name'];
+    $machine_no = $sou_info['machine_no'];
+    $equipment_no = $sou_info['equipment_no'];
     $no_of_units = $sou_info['no_of_units'];
     $ntc_or_sa = $sou_info['ntc_or_sa'];
-    $use_purpose = addslashes($sou_info['use_purpose']);
+    $use_purpose = $sou_info['use_purpose'];
 
     $sou_no = date("ymdh");
     $rand = substr(md5(microtime()), rand(0, 26), 5);
     $sou_no = 'SOU:' . $sou_no;
     $sou_no = $sou_no . '' . $rand;
 
-    $sql = "INSERT INTO sou_forms (sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, sou_status) VALUES ('$sou_no', '$kigyo_no', '$asset_name', '$sup_asset_name', '$orig_asset_no', '$sou_date', '$sou_quantity', '$managing_dept_code', '$managing_dept_name', '$install_area_code', '$install_area_name', '$machine_no', '$equipment_no', '$no_of_units', '$ntc_or_sa', '$use_purpose', 'Saved')";
+    $sql = "INSERT INTO t_sou_forms (sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, sou_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $sou_no,
+        $kigyo_no,
+        $asset_name,
+        $sup_asset_name,
+        $orig_asset_no,
+        $sou_date,
+        $sou_quantity,
+        $managing_dept_code,
+        $managing_dept_name,
+        $install_area_code,
+        $install_area_name,
+        $machine_no,
+        $equipment_no,
+        $no_of_units,
+        $ntc_or_sa,
+        $use_purpose,
+        'Saved'
+    ]);
 
     return $sou_no;
 }
 
 function update_sou_returned($sou_info, $sou_no, $conn)
 {
-    $kigyo_no = addslashes($sou_info['kigyo_no']);
-    $asset_name = addslashes($sou_info['asset_name']);
-    $sup_asset_name = addslashes($sou_info['sup_asset_name']);
-    $orig_asset_no = addslashes($sou_info['orig_asset_no']);
+    $kigyo_no = $sou_info['kigyo_no'];
+    $asset_name = $sou_info['asset_name'];
+    $sup_asset_name = $sou_info['sup_asset_name'];
+    $orig_asset_no = $sou_info['orig_asset_no'];
     $sou_date = date_create($sou_info['sou_date']);
     $sou_date = date_format($sou_date, "Y-m-d");
     $sou_quantity = $sou_info['sou_quantity'];
-    $managing_dept_code = addslashes($sou_info['managing_dept_code']);
-    $managing_dept_name = addslashes($sou_info['managing_dept_name']);
-    $install_area_code = addslashes($sou_info['install_area_code']);
-    $install_area_name = addslashes($sou_info['install_area_name']);
-    $machine_no = addslashes($sou_info['machine_no']);
-    $equipment_no = addslashes($sou_info['equipment_no']);
+    $managing_dept_code = $sou_info['managing_dept_code'];
+    $managing_dept_name = $sou_info['managing_dept_name'];
+    $install_area_code = $sou_info['install_area_code'];
+    $install_area_name = $sou_info['install_area_name'];
+    $machine_no = $sou_info['machine_no'];
+    $equipment_no = $sou_info['equipment_no'];
     $no_of_units = $sou_info['no_of_units'];
     $ntc_or_sa = $sou_info['ntc_or_sa'];
-    $use_purpose = addslashes($sou_info['use_purpose']);
+    $use_purpose = $sou_info['use_purpose'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE sou_forms SET kigyo_no = '$kigyo_no',asset_name = '$asset_name',sup_asset_name = '$sup_asset_name',orig_asset_no = '$orig_asset_no',sou_date = '$sou_date',quantity = '$sou_quantity',managing_dept_code = '$managing_dept_code',managing_dept_name = '$managing_dept_name',install_area_code = '$install_area_code',install_area_name = '$install_area_name',machine_no = '$machine_no',equipment_no = '$equipment_no',no_of_units = '$no_of_units',ntc_or_sa = '$ntc_or_sa',use_purpose = '$use_purpose',sou_status = 'Saved',date_updated = '$date_updated' WHERE sou_no = '$sou_no'";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $sql = "UPDATE t_sou_forms SET 
+                kigyo_no = ?, 
+                asset_name = ?, 
+                sup_asset_name = ?, 
+                orig_asset_no = ?, 
+                sou_date = ?, 
+                quantity = ?, 
+                managing_dept_code = ?, 
+                managing_dept_name = ?, 
+                install_area_code = ?, 
+                install_area_name = ?, 
+                machine_no = ?, 
+                equipment_no = ?, 
+                no_of_units = ?, 
+                ntc_or_sa = ?, 
+                use_purpose = ?, 
+                sou_status = ?, 
+                date_updated = ? 
+            WHERE sou_no = ?";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                $kigyo_no,
+                $asset_name,
+                $sup_asset_name,
+                $orig_asset_no,
+                $sou_date,
+                $sou_quantity,
+                $managing_dept_code,
+                $managing_dept_name,
+                $install_area_code,
+                $install_area_name,
+                $machine_no,
+                $equipment_no,
+                $no_of_units,
+                $ntc_or_sa,
+                $use_purpose,
+                'Saved',
+                $date_updated,
+                $sou_no
+            ]);
 }
 
 if ($method == 'goto_mstprc_setup_step2') {
@@ -1679,13 +1917,16 @@ if ($method == 'save_mstprc_relayout') {
 
 // Count
 if ($method == 'count_pending_machine_checksheets') {
-    $sql = "SELECT count(id) AS total FROM setup_mstprc WHERE mstprc_process_status = 'Saved' OR mstprc_process_status = 'Confirmed' OR mstprc_process_status = 'Approved 1'";
+    $sql = "SELECT COUNT(id) AS total FROM t_setup_mstprc WHERE mstprc_process_status = 'Saved' OR mstprc_process_status = 'Confirmed' OR mstprc_process_status = 'Approved 1'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -1696,16 +1937,52 @@ if ($method == 'get_pending_machine_checksheets') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning', 'modal-trigger bg-danger', 'modal-trigger bg-success');
     $row_class = $row_class_arr[0];
     $sql = "SELECT 
-		setup_mstprc.mstprc_no, setup_mstprc.mstprc_type, setup_mstprc.machine_name, setup_mstprc.machine_no, setup_mstprc.equipment_no, setup_mstprc.mstprc_date, setup_mstprc.car_model, setup_mstprc.location, setup_mstprc.grid, setup_mstprc.to_car_model, setup_mstprc.to_location, setup_mstprc.to_grid, setup_mstprc.pullout_location, setup_mstprc.transfer_reason, setup_mstprc.pullout_reason, setup_mstprc.mstprc_eq_member, setup_mstprc.mstprc_eq_g_leader, setup_mstprc.mstprc_safety_officer, setup_mstprc.mstprc_eq_manager, setup_mstprc.mstprc_eq_sp_personnel, setup_mstprc.mstprc_prod_engr_manager, setup_mstprc.mstprc_prod_supervisor, setup_mstprc.mstprc_prod_manager, setup_mstprc.mstprc_qa_supervisor, setup_mstprc.mstprc_qa_manager, setup_mstprc.mstprc_process_status, setup_mstprc.fat_no, setup_mstprc.sou_no, setup_mstprc.is_read_setup, setup_mstprc.file_name, setup_mstprc.file_url, 
-		machines.process FROM setup_mstprc
-		JOIN machines 
-		ON setup_mstprc.machine_name = machines.machine_name
-		WHERE setup_mstprc.mstprc_process_status = 'Saved' OR setup_mstprc.mstprc_process_status = 'Confirmed' OR setup_mstprc.mstprc_process_status = 'Approved 1' ORDER BY setup_mstprc.id DESC";
+                s.mstprc_no, 
+                s.mstprc_type, 
+                s.machine_name, 
+                s.machine_no, 
+                s.equipment_no, 
+                s.mstprc_date, 
+                s.car_model, 
+                s.location, 
+                s.grid, 
+                s.to_car_model, 
+                s.to_location, 
+                s.to_grid, 
+                s.pullout_location, 
+                s.transfer_reason, 
+                s.pullout_reason, 
+                s.mstprc_eq_member, 
+                s.mstprc_eq_g_leader, 
+                s.mstprc_safety_officer, 
+                s.mstprc_eq_manager, 
+                s.mstprc_eq_sp_personnel, 
+                s.mstprc_prod_engr_manager, 
+                s.mstprc_prod_supervisor, 
+                s.mstprc_prod_manager, 
+                s.mstprc_qa_supervisor, 
+                s.mstprc_qa_manager, 
+                s.mstprc_process_status, 
+                s.fat_no, 
+                s.sou_no, 
+                s.is_read_setup, 
+                s.file_name, 
+                s.file_url, 
+                m.process 
+            FROM t_setup_mstprc s 
+            JOIN m_machines m 
+            ON s.machine_name = m.machine_name
+            WHERE 
+                s.mstprc_process_status = 'Saved' OR s.mstprc_process_status = 'Confirmed' OR 
+                s.mstprc_process_status = 'Approved 1' ORDER BY s.id DESC";
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_setup'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -1728,7 +2005,7 @@ if ($method == 'get_pending_machine_checksheets') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -1742,13 +2019,16 @@ if ($method == 'pending_machine_checksheets_mark_as_read') {
 
 // Count
 if ($method == 'count_returned_machine_checksheets') {
-    $sql = "SELECT count(id) AS total FROM setup_mstprc WHERE mstprc_process_status = 'Returned'";
+    $sql = "SELECT COUNT(id) AS total FROM t_setup_mstprc WHERE mstprc_process_status = 'Returned'";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -1759,16 +2039,54 @@ if ($method == 'get_returned_machine_checksheets') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime', 'modal-trigger bg-warning');
     $row_class = $row_class_arr[0];
     $sql = "SELECT 
-		setup_mstprc.mstprc_no, setup_mstprc.mstprc_type, setup_mstprc.machine_name, setup_mstprc.machine_no, setup_mstprc.equipment_no, setup_mstprc.mstprc_date, setup_mstprc.car_model, setup_mstprc.location, setup_mstprc.grid, setup_mstprc.to_car_model, setup_mstprc.to_location, setup_mstprc.to_grid, setup_mstprc.pullout_location, setup_mstprc.transfer_reason, setup_mstprc.pullout_reason, setup_mstprc.mstprc_eq_member, setup_mstprc.mstprc_eq_g_leader, setup_mstprc.mstprc_safety_officer, setup_mstprc.mstprc_eq_manager, setup_mstprc.mstprc_eq_sp_personnel, setup_mstprc.mstprc_prod_engr_manager, setup_mstprc.mstprc_prod_supervisor, setup_mstprc.mstprc_prod_manager, setup_mstprc.mstprc_qa_supervisor, setup_mstprc.mstprc_qa_manager, setup_mstprc.mstprc_process_status, setup_mstprc.returned_by, setup_mstprc.returned_date_time, setup_mstprc.fat_no, setup_mstprc.sou_no, setup_mstprc.is_read_setup, setup_mstprc.file_name, setup_mstprc.file_url, 
-		machines.process FROM setup_mstprc
-		JOIN machines 
-		ON setup_mstprc.machine_name = machines.machine_name
-		WHERE setup_mstprc.mstprc_process_status = 'Returned' ORDER BY setup_mstprc.id DESC";
+                s.mstprc_no, 
+                s.mstprc_type, 
+                s.machine_name, 
+                s.machine_no, 
+                s.equipment_no, 
+                s.mstprc_date, 
+                s.car_model, 
+                s.location, 
+                s.grid, 
+                s.to_car_model, 
+                s.to_location, 
+                s.to_grid, 
+                s.pullout_location, 
+                s.transfer_reason, 
+                s.pullout_reason, 
+                s.mstprc_eq_member, 
+                s.mstprc_eq_g_leader, 
+                s.mstprc_safety_officer, 
+                s.mstprc_eq_manager, 
+                s.mstprc_eq_sp_personnel, 
+                s.mstprc_prod_engr_manager, 
+                s.mstprc_prod_supervisor, 
+                s.mstprc_prod_manager, 
+                s.mstprc_qa_supervisor, 
+                s.mstprc_qa_manager, 
+                s.mstprc_process_status, 
+                s.returned_by, 
+                s.returned_date_time, 
+                s.fat_no, 
+                s.sou_no, 
+                s.is_read_setup, 
+                s.file_name, 
+                s.file_url, 
+                m.process 
+            FROM t_setup_mstprc s 
+            JOIN m_machines m 
+            ON s.machine_name = m.machine_name
+            WHERE 
+                s.mstprc_process_status = 'Returned' 
+            ORDER BY s.id DESC";
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_setup'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -1789,7 +2107,7 @@ if ($method == 'get_returned_machine_checksheets') {
             echo '<td>' . htmlspecialchars($row['returned_by']) . '</td>';
             echo '<td>' . date("Y-m-d h:i A", strtotime($row['returned_date_time'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="10" style="text-align:center; color:red;">No Results Found</td>';
@@ -1806,11 +2124,15 @@ if ($method == 'view_pending_fat') {
     $message = '';
 
     if (!empty($fat_no)) {
-        $sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason FROM fat_forms WHERE fat_no = '$fat_no'";
+        $sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason 
+                FROM t_fat_forms WHERE fat_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            foreach ($stmt->fetchAll() as $row) {
+        $stmt->execute([$fat_no]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            do {
                 $id = $row['id'];
                 $fat_no = $row['fat_no'];
                 $item_name = $row['item_name'];
@@ -1827,7 +2149,7 @@ if ($method == 'view_pending_fat') {
                 $new_location_grid = $row['new_location_grid'];
                 $reason = $row['reason'];
                 $message = 'success';
-            }
+            } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
         } else {
             $message = 'FAT Not Found';
         }
@@ -1866,11 +2188,15 @@ if ($method == 'view_pending_sou') {
     $message = '';
 
     if (!empty($sou_no)) {
-        $sql = "SELECT id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose FROM sou_forms WHERE sou_no = '$sou_no'";
+        $sql = "SELECT id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose 
+                FROM t_sou_forms WHERE sou_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            foreach ($stmt->fetchAll() as $row) {
+        $stmt->execute([$sou_no]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            do {
                 $id = $row['id'];
                 $sou_no = $row['sou_no'];
                 $kigyo_no = $row['kigyo_no'];
@@ -1888,7 +2214,7 @@ if ($method == 'view_pending_sou') {
                 $no_of_units = $row['no_of_units'];
                 $ntc_or_sa = $row['ntc_or_sa'];
                 $use_purpose = $row['use_purpose'];
-            }
+            } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
             $message = 'success';
         } else {
             $message = 'SOU Not Found';
@@ -1931,20 +2257,38 @@ if ($method == 'return_pending_mstprc') {
     $fat_no = $_POST['fat_no'];
     $sou_no = $_POST['sou_no'];
 
-    $sql = "UPDATE setup_mstprc SET returned_by = '$mstprc_eq_g_leader', returned_date_time = '$date_updated', mstprc_process_status = 'Returned', is_read_setup = 0 WHERE mstprc_no = '$mstprc_no'";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $sql = "UPDATE t_setup_mstprc SET 
+                returned_by = ?, 
+                returned_date_time = ?, 
+                mstprc_process_status = ?, 
+                is_read_setup = ? 
+            WHERE mstprc_no = ?";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                $mstprc_eq_g_leader,
+                $date_updated,
+                'Returned',
+                0,
+                $mstprc_no
+            ]);
 
     if (!empty($fat_no)) {
-        $sql = "UPDATE fat_forms SET fat_status = 'Returned' WHERE fat_no = '$fat_no'";
+        $sql = "UPDATE t_fat_forms SET fat_status = ? WHERE fat_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            'Returned',
+            $fat_no
+        ]);
     }
 
     if (!empty($sou_no)) {
-        $sql = "UPDATE sou_forms SET sou_status = 'Returned' WHERE sou_no = '$sou_no'";
+        $sql = "UPDATE t_sou_forms SET sou_status = ? WHERE sou_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            'Returned',
+            $sou_no
+        ]);
     }
 
     //update_notif_count_machine_checksheets('ADMIN-SETUP', 'Returned', $conn);
@@ -1970,20 +2314,36 @@ if ($method == 'confirm_pending_mstprc') {
         echo 'Approver Not Set';
 
     if ($is_valid == true) {
-        $sql = "UPDATE setup_mstprc SET mstprc_approver_role = '$approver', mstprc_eq_g_leader = '$mstprc_eq_g_leader', mstprc_process_status = 'Confirmed' WHERE mstprc_no = '$mstprc_no'";
+        $sql = "UPDATE t_setup_mstprc SET 
+                    mstprc_approver_role = ?, 
+                    mstprc_eq_g_leader = ?, 
+                    mstprc_process_status = ? 
+                WHERE mstprc_no = ?";
+
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $approver,
+            $mstprc_eq_g_leader,
+            'Confirmed',
+            $mstprc_no
+        ]);
 
         if (!empty($fat_no)) {
-            $sql = "UPDATE fat_forms SET fat_status = 'Confirmed' WHERE fat_no = '$fat_no'";
+            $sql = "UPDATE t_fat_forms SET fat_status = ? WHERE fat_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                'Confirmed',
+                $fat_no
+            ]);
         }
 
         if (!empty($sou_no)) {
-            $sql = "UPDATE sou_forms SET sou_status = 'Confirmed' WHERE sou_no = '$sou_no'";
+            $sql = "UPDATE t_sou_forms SET sou_status = ? WHERE sou_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                'Confirmed',
+                $sou_no
+            ]);
         }
 
         update_notif_count_machine_checksheets('APPROVER-1-SAFETY', 'Confirmed', $conn);
@@ -1994,36 +2354,47 @@ if ($method == 'confirm_pending_mstprc') {
 
 // Count
 if ($method == 'count_a1_machine_checksheets') {
-    $sql = "SELECT count(id) AS total FROM setup_mstprc WHERE mstprc_process_status = 'Confirmed'";
+    $sql = "SELECT COUNT(id) AS total FROM t_setup_mstprc WHERE mstprc_process_status = 'Confirmed'";
+    $params = [];
 
     if (isset($_POST['car_model']) && !empty($_POST['car_model'])) {
-        $sql = $sql . " AND car_model LIKE '" . $_POST['car_model'] . "%'";
+        $sql = $sql . " AND car_model LIKE ?";
+        $params[] = $_POST['car_model'] . "%";
     }
     if (isset($_POST['location']) && !empty($_POST['location'])) {
-        $sql = $sql . " AND location LIKE '" . $_POST['location'] . "%'";
+        $sql = $sql . " AND location LIKE ?";
+        $params[] = $_POST['location'] . "%";
     }
     if (isset($_POST['machine_name']) && !empty($_POST['machine_name'])) {
-        $sql = $sql . " AND machine_name LIKE '" . $_POST['machine_name'] . "%'";
+        $sql = $sql . " AND machine_name LIKE ?";
+        $params[] = $_POST['machine_name'] . "%";
     }
     if (isset($_POST['grid']) && !empty($_POST['grid'])) {
-        $sql = $sql . " AND grid LIKE '" . $_POST['grid'] . "%'";
+        $sql = $sql . " AND grid LIKE ?";
+        $params[] = $_POST['grid'] . "%";
     }
     if (isset($_POST['mstprc_no']) && !empty($_POST['mstprc_no'])) {
-        $sql = $sql . " AND mstprc_no LIKE '" . $_POST['mstprc_no'] . "%'";
+        $sql = $sql . " AND mstprc_no LIKE ?";
+        $params[] = $_POST['mstprc_no'] . "%";
     }
     if (isset($_POST['machine_no']) && !empty($_POST['machine_no'])) {
-        $sql = $sql . " AND machine_no LIKE '" . $_POST['machine_no'] . "%'";
+        $sql = $sql . " AND machine_no LIKE ?";
+        $params[] = $_POST['machine_no'] . "%";
     }
     if (isset($_POST['equipment_no']) && !empty($_POST['equipment_no'])) {
-        $sql = $sql . " AND equipment_no LIKE '" . $_POST['equipment_no'] . "%'";
+        $sql = $sql . " AND equipment_no LIKE ?";
+        $params[] = $_POST['equipment_no'] . "%";
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -2031,12 +2402,15 @@ if ($method == 'count_a1_machine_checksheets') {
 
 // Read / Load
 if ($method == 'get_a1_machine_checksheets') {
-    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status,file_name, file_url FROM setup_mstprc WHERE mstprc_process_status = 'Confirmed' ORDER BY id DESC";
+    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, file_name, file_url FROM t_setup_mstprc WHERE mstprc_process_status = 'Confirmed' ORDER BY id DESC";
     $c = 0;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="A1MC_' . $row['mstprc_no'] . '" data-toggle="modal" data-target="#A1MachineChecksheetInfoModal" data-mstprc_no="' . $row['mstprc_no'] . '" data-mstprc_type="' . $row['mstprc_type'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-car_model="' . htmlspecialchars($row['car_model']) . '" data-location="' . htmlspecialchars($row['location']) . '" data-grid="' . htmlspecialchars($row['grid']) . '" data-to_car_model="' . htmlspecialchars($row['to_car_model']) . '" data-to_location="' . htmlspecialchars($row['to_location']) . '" data-to_grid="' . htmlspecialchars($row['to_grid']) . '" data-pullout_location="' . htmlspecialchars($row['pullout_location']) . '" data-transfer_reason="' . htmlspecialchars($row['transfer_reason']) . '" data-pullout_reason="' . htmlspecialchars($row['pullout_reason']) . '" data-mstprc_eq_member="' . htmlspecialchars($row['mstprc_eq_member']) . '" data-mstprc_eq_g_leader="' . htmlspecialchars($row['mstprc_eq_g_leader']) . '" data-mstprc_safety_officer="' . htmlspecialchars($row['mstprc_safety_officer']) . '" data-mstprc_eq_manager="' . htmlspecialchars($row['mstprc_eq_manager']) . '" data-mstprc_eq_sp_personnel="' . htmlspecialchars($row['mstprc_eq_sp_personnel']) . '" data-mstprc_prod_engr_manager="' . htmlspecialchars($row['mstprc_prod_engr_manager']) . '" data-mstprc_prod_supervisor="' . htmlspecialchars($row['mstprc_prod_supervisor']) . '" data-mstprc_prod_manager="' . htmlspecialchars($row['mstprc_prod_manager']) . '" data-mstprc_qa_supervisor="' . htmlspecialchars($row['mstprc_qa_supervisor']) . '" data-mstprc_qa_manager="' . htmlspecialchars($row['mstprc_qa_manager']) . '" data-mstprc_process_status="' . $row['mstprc_process_status'] . '" data-mstprc_date="' . date("d-M-y", strtotime($row['mstprc_date'])) . '" data-file_name="' . htmlspecialchars($row['file_name']) . '" data-file_url="' . htmlspecialchars($protocol . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . $row['file_url']) . '" onclick="get_details_a1_machine_checksheets(this)">';
             echo '<td>' . $c . '</td>';
@@ -2048,7 +2422,7 @@ if ($method == 'get_a1_machine_checksheets') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -2076,36 +2450,51 @@ if ($method == 'get_a1_machine_checksheets_safety') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_safety, file_name, file_url FROM setup_mstprc WHERE mstprc_process_status = 'Confirmed'";
+    $sql = "SELECT 
+                mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_safety, file_name, file_url 
+            FROM t_setup_mstprc 
+            WHERE mstprc_process_status = 'Confirmed'";
+
+    $params = [];
 
     if (!empty($car_model)) {
-        $sql = $sql . " AND car_model LIKE '$car_model%'";
+        $sql = $sql . " AND car_model LIKE ?";
+        $params[] = $car_model . "%";
     }
     if (!empty($location)) {
-        $sql = $sql . " AND location LIKE '$location%'";
+        $sql = $sql . " AND location LIKE ?";
+        $params[] = $location . "%";
     }
     if (!empty($machine_name)) {
-        $sql = $sql . " AND machine_name LIKE '$machine_name%'";
+        $sql = $sql . " AND machine_name LIKE ?";
+        $params[] = $machine_name . "%";
     }
     if (!empty($grid)) {
-        $sql = $sql . " AND grid LIKE '$grid%'";
+        $sql = $sql . " AND grid LIKE ?";
+        $params[] = $grid . "%";
     }
     if (!empty($mstprc_no)) {
-        $sql = $sql . " AND mstprc_no LIKE '$mstprc_no%'";
+        $sql = $sql . " AND mstprc_no LIKE ?";
+        $params[] = $mstprc_no . "%";
     }
     if (!empty($machine_no)) {
-        $sql = $sql . " AND machine_no LIKE '$machine_no%'";
+        $sql = $sql . " AND machine_no LIKE ?";
+        $params[] = $machine_no . "%";
     }
     if (!empty($equipment_no)) {
-        $sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
+        $sql = $sql . " AND equipment_no LIKE ?";
+        $params[] = $equipment_no . "%";
     }
 
     $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_safety'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -2122,7 +2511,7 @@ if ($method == 'get_a1_machine_checksheets_safety') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -2135,9 +2524,9 @@ if ($method == 'approve_a1_mstprc') {
     $approver = $_POST['approver'];
     $mstprc_safety_officer = $_SESSION['setup_name'];
 
-    $sql = "UPDATE setup_mstprc SET mstprc_safety_officer = '$mstprc_safety_officer', mstprc_process_status = 'Approved 1' WHERE mstprc_no = '$mstprc_no'";
+    $sql = "UPDATE t_setup_mstprc SET mstprc_safety_officer = ?, mstprc_process_status = 'Approved 1' WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$mstprc_safety_officer, $mstprc_no]);
 
     update_notif_count_machine_checksheets('APPROVER-2-EQ-MGR', 'Approved 1', $conn);
     update_notif_count_machine_checksheets('APPROVER-2-EQ-SP', 'Approved 1', $conn);
@@ -2160,47 +2549,81 @@ if ($method == 'disapprove_a1_mstprc') {
     $setup_role = $_SESSION['setup_role'];
 
     if (!empty($disapproved_comment)) {
-        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, fat_no, sou_no, rsir_no, file_name, file_type, file_url FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+        $sql = "SELECT 
+                    mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, fat_no, sou_no, rsir_no, file_name, file_type, file_url 
+                FROM t_setup_mstprc 
+                WHERE mstprc_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            foreach ($stmt->fetchAll() as $row) {
-                $mstprc_no = $row['mstprc_no'];
-                $mstprc_type = $row['mstprc_type'];
-                $machine_name = $row['machine_name'];
-                $machine_no = $row['machine_no'];
-                $equipment_no = $row['equipment_no'];
-                $mstprc_date = $row['mstprc_date'];
-                $car_model = $row['car_model'];
-                $location = $row['location'];
-                $grid = $row['grid'];
-                $is_new = $row['is_new'];
-                $to_car_model = $row['to_car_model'];
-                $to_location = $row['to_location'];
-                $to_grid = $row['to_grid'];
-                $pullout_location = $row['pullout_location'];
-                $transfer_reason = $row['transfer_reason'];
-                $pullout_reason = $row['pullout_reason'];
-                $mstprc_username = $row['mstprc_username'];
-                $mstprc_approver_role = $row['mstprc_approver_role'];
-                $mstprc_eq_member = $row['mstprc_eq_member'];
-                $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
-                $fat_no = $row['fat_no'];
-                $sou_no = $row['sou_no'];
-                $rsir_no = $row['rsir_no'];
-                $file_name = $row['file_name'];
-                $file_type = $row['file_type'];
-                $file_url = $row['file_url'];
-            }
+        $stmt->execute([$mstprc_no]);
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $mstprc_no = $row['mstprc_no'];
+            $mstprc_type = $row['mstprc_type'];
+            $machine_name = $row['machine_name'];
+            $machine_no = $row['machine_no'];
+            $equipment_no = $row['equipment_no'];
+            $mstprc_date = $row['mstprc_date'];
+            $car_model = $row['car_model'];
+            $location = $row['location'];
+            $grid = $row['grid'];
+            $is_new = $row['is_new'];
+            $to_car_model = $row['to_car_model'];
+            $to_location = $row['to_location'];
+            $to_grid = $row['to_grid'];
+            $pullout_location = $row['pullout_location'];
+            $transfer_reason = $row['transfer_reason'];
+            $pullout_reason = $row['pullout_reason'];
+            $mstprc_username = $row['mstprc_username'];
+            $mstprc_approver_role = $row['mstprc_approver_role'];
+            $mstprc_eq_member = $row['mstprc_eq_member'];
+            $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
+            $fat_no = $row['fat_no'];
+            $sou_no = $row['sou_no'];
+            $rsir_no = $row['rsir_no'];
+            $file_name = $row['file_name'];
+            $file_type = $row['file_type'];
+            $file_url = $row['file_url'];
         }
 
-        $sql = "INSERT INTO setup_mstprc_history(mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, fat_no, sou_no, rsir_no, file_name, file_type, file_url) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$is_new','$to_car_model','$to_location','$to_grid','$pullout_location','$transfer_reason','$pullout_reason','$mstprc_username','$mstprc_approver_role','$mstprc_eq_member','$mstprc_eq_g_leader','Disapproved','$setup_name','$setup_role','$disapproved_comment','$fat_no','$sou_no','$rsir_no','$file_name','$file_type','$file_url')";
+        $sql = "INSERT INTO t_setup_mstprc_history (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, fat_no, sou_no, rsir_no, file_name, file_type, file_url) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $mstprc_no,
+            $mstprc_type,
+            $machine_name,
+            $machine_no,
+            $equipment_no,
+            $mstprc_date,
+            $car_model,
+            $location,
+            $grid,
+            $is_new,
+            $to_car_model,
+            $to_location,
+            $to_grid,
+            $pullout_location,
+            $transfer_reason,
+            $pullout_reason,
+            $mstprc_username,
+            $mstprc_approver_role,
+            $mstprc_eq_member,
+            $mstprc_eq_g_leader,
+            'Disapproved',
+            $setup_name,
+            $setup_role,
+            $disapproved_comment,
+            $fat_no,
+            $sou_no,
+            $rsir_no,
+            $file_name,
+            $file_type,
+            $file_url
+        ]);
 
-        $sql = "DELETE FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+        $sql = "DELETE FROM t_setup_mstprc WHERE mstprc_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$mstprc_no]);
 
         update_notif_count_machine_checksheets('ADMIN-SETUP', 'Disapproved', $conn);
 
@@ -2221,40 +2644,68 @@ if ($method == 'count_a1_machine_checksheets_history') {
         $mstprc_date_to = date_create($mstprc_date_to);
         $mstprc_date_to = date_format($mstprc_date_to, "Y-m-d");
     }
-    $machine_name = addslashes($_POST['machine_name']);
-    $car_model = addslashes($_POST['car_model']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $machine_name = $_POST['machine_name'];
+    $car_model = $_POST['car_model'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $mstprc_no = $_POST['mstprc_no'];
 
     $history_option = $_POST['history_option'];
 
     $sql = "";
+    $params = [];
 
     if ($history_option == 1) {
-        $sql = $sql . "SELECT count(id) AS total FROM setup_mstprc";
+        $sql = $sql . "SELECT COUNT(id) AS total FROM t_setup_mstprc";
 
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to') AND mstprc_process_status = 'Approved 1'";
+            $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?) AND 
+                            mstprc_process_status = 'Approved 1'";
+            $params = [
+                $machine_name . "%",
+                $car_model . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $mstprc_no . "%",
+                $mstprc_date_from,
+                $mstprc_date_to
+            ];
         } else {
             $sql = $sql . " WHERE mstprc_process_status = 'Approved 1'";
         }
     } else if ($history_option == 2) {
-        $sql = $sql . "SELECT count(id) AS total FROM setup_mstprc_history";
+        $sql = $sql . "SELECT COUNT(id) AS total FROM t_setup_mstprc_history";
 
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to') AND (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
+            $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?) AND 
+                            (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
+            $params = [
+                $machine_name . "%",
+                $car_model . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $mstprc_no . "%",
+                $mstprc_date_from,
+                $mstprc_date_to
+            ];
         } else {
             $sql = $sql . " WHERE mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved'";
         }
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -2273,10 +2724,10 @@ if ($method == 'get_a1_machine_checksheets_history') {
         $mstprc_date_to = date_create($mstprc_date_to);
         $mstprc_date_to = date_format($mstprc_date_to, "Y-m-d");
     }
-    $machine_name = addslashes($_POST['machine_name']);
-    $car_model = addslashes($_POST['car_model']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $machine_name = $_POST['machine_name'];
+    $car_model = $_POST['car_model'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $mstprc_no = $_POST['mstprc_no'];
     $c = $_POST['c'];
 
@@ -2285,35 +2736,61 @@ if ($method == 'get_a1_machine_checksheets_history') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-warning', 'modal-trigger bg-success', 'modal-trigger bg-danger');
     $row_class = $row_class_arr[0];
 
-    $sql = "SELECT id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url";
+    $sql = "SELECT TOP 25 id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url";
 
     if ($history_option == 1) {
-        $sql = $sql . " FROM setup_mstprc";
+        $sql = $sql . " FROM t_setup_mstprc";
     } else if ($history_option == 2) {
-        $sql = $sql . " FROM setup_mstprc_history";
+        $sql = $sql . " FROM t_setup_mstprc_history";
     }
+
+    $params = [];
 
     if (empty($id)) {
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to')";
+            $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?)";
+            $params = [
+                $machine_name . "%",
+                $car_model . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $mstprc_no . "%",
+                $mstprc_date_from,
+                $mstprc_date_to
+            ];
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " AND (machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to'))";
+            $sql = $sql . " AND (machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?))";
+            $params[] = $machine_name . "%";
+            $params[] = $car_model . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $mstprc_no . "%";
+            $params[] = $mstprc_date_from;
+            $params[] = $mstprc_date_to;
         }
     }
 
     if ($history_option == 1) {
-        $sql = $sql . " AND mstprc_process_status = 'Approved 1' ORDER BY id DESC LIMIT 25";
+        $sql = $sql . " AND mstprc_process_status = 'Approved 1' ORDER BY id DESC";
     } else if ($history_option == 2) {
-        $sql = $sql . " AND (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved') ORDER BY id DESC LIMIT 25";
+        $sql = $sql . " AND (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved') ORDER BY id DESC";
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['mstprc_process_status'] == 'Approved 1') {
                 $row_class = $row_class_arr[1];
@@ -2335,7 +2812,7 @@ if ($method == 'get_a1_machine_checksheets_history') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -2347,28 +2824,36 @@ if ($method == 'get_a1_machine_checksheets_history') {
 if ($method == 'count_a2_machine_checksheets') {
     $setup_role = $_SESSION['setup_role'];
 
-    $sql = "SELECT count(id) AS total FROM setup_mstprc WHERE mstprc_process_status = 'Approved 1'";
+    $sql = "SELECT COUNT(id) AS total FROM t_setup_mstprc WHERE mstprc_process_status = 'Approved 1'";
+    $params = [];
 
     if (isset($_POST['car_model']) && !empty($_POST['car_model'])) {
-        $sql = $sql . " AND car_model LIKE '" . $_POST['car_model'] . "%'";
+        $sql = $sql . " AND car_model LIKE ?";
+        $params[] = $_POST['car_model'] . "%";
     }
     if (isset($_POST['location']) && !empty($_POST['location'])) {
-        $sql = $sql . " AND location LIKE '" . $_POST['location'] . "%'";
+        $sql = $sql . " AND location LIKE ?";
+        $params[] = $_POST['location'] . "%";
     }
     if (isset($_POST['machine_name']) && !empty($_POST['machine_name'])) {
-        $sql = $sql . " AND machine_name LIKE '" . $_POST['machine_name'] . "%'";
+        $sql = $sql . " AND machine_name LIKE ?";
+        $params[] = $_POST['machine_name'] . "%";
     }
     if (isset($_POST['grid']) && !empty($_POST['grid'])) {
-        $sql = $sql . " AND grid LIKE '" . $_POST['grid'] . "%'";
+        $sql = $sql . " AND grid LIKE ?";
+        $params[] = $_POST['grid'] . "%";
     }
     if (isset($_POST['mstprc_no']) && !empty($_POST['mstprc_no'])) {
-        $sql = $sql . " AND mstprc_no LIKE '" . $_POST['mstprc_no'] . "%'";
+        $sql = $sql . " AND mstprc_no LIKE ?";
+        $params[] = $_POST['mstprc_no'] . "%";
     }
     if (isset($_POST['machine_no']) && !empty($_POST['machine_no'])) {
-        $sql = $sql . " AND machine_no LIKE '" . $_POST['machine_no'] . "%'";
+        $sql = $sql . " AND machine_no LIKE ?";
+        $params[] = $_POST['machine_no'] . "%";
     }
     if (isset($_POST['equipment_no']) && !empty($_POST['equipment_no'])) {
-        $sql = $sql . " AND equipment_no LIKE '" . $_POST['equipment_no'] . "%'";
+        $sql = $sql . " AND equipment_no LIKE ?";
+        $params[] = $_POST['equipment_no'] . "%";
     }
 
     switch ($setup_role) {
@@ -2385,11 +2870,14 @@ if ($method == 'count_a2_machine_checksheets') {
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -2401,12 +2889,15 @@ if ($method == 'get_a2_machine_checksheets') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, file_name, file_url FROM setup_mstprc WHERE mstprc_process_status = 'Approved 1'  ORDER BY id DESC";
+    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, file_name, file_url FROM t_setup_mstprc WHERE mstprc_process_status = 'Approved 1'  ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if (!empty($row['mstprc_eq_manager']) || !empty($row['mstprc_eq_sp_personnel']) || !empty($row['mstprc_prod_engr_manager']) || (!empty($row['mstprc_prod_supervisor']) && !empty($row['mstprc_prod_manager'])) || (!empty($row['mstprc_qa_supervisor']) && !empty($row['mstprc_qa_manager']))) {
                 $row_class = $row_class_arr[1];
@@ -2423,7 +2914,7 @@ if ($method == 'get_a2_machine_checksheets') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -2476,28 +2967,39 @@ if ($method == 'get_a2_machine_checksheets_all_approvers') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_eq_mgr, is_read_prod_engr_mgr, is_read_prod_sv, is_read_prod_mgr, is_read_qa_sv, is_read_qa_mgr, file_name, file_url FROM setup_mstprc WHERE mstprc_process_status = 'Approved 1'";
+    $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_eq_mgr, is_read_prod_engr_mgr, is_read_prod_sv, is_read_prod_mgr, is_read_qa_sv, is_read_qa_mgr, file_name, file_url 
+            FROM t_setup_mstprc 
+            WHERE mstprc_process_status = 'Approved 1'";
+
+    $params = [];
 
     if (!empty($car_model)) {
-        $sql = $sql . " AND car_model LIKE '$car_model%'";
+        $sql = $sql . " AND car_model LIKE ?";
+        $params[] = $car_model . "%";
     }
     if (!empty($location)) {
-        $sql = $sql . " AND location LIKE '$location%'";
+        $sql = $sql . " AND location LIKE ?";
+        $params[] = $location . "%";
     }
     if (!empty($machine_name)) {
-        $sql = $sql . " AND machine_name LIKE '$machine_name%'";
+        $sql = $sql . " AND machine_name LIKE ?";
+        $params[] = $machine_name . "%";
     }
     if (!empty($grid)) {
-        $sql = $sql . " AND grid LIKE '$grid%'";
+        $sql = $sql . " AND grid LIKE ?";
+        $params[] = $grid . "%";
     }
     if (!empty($mstprc_no)) {
-        $sql = $sql . " AND mstprc_no LIKE '$mstprc_no%'";
+        $sql = $sql . " AND mstprc_no LIKE ?";
+        $params[] = $mstprc_no . "%";
     }
     if (!empty($machine_no)) {
-        $sql = $sql . " AND machine_no LIKE '$machine_no%'";
+        $sql = $sql . " AND machine_no LIKE ?";
+        $params[] = $machine_no . "%";
     }
     if (!empty($equipment_no)) {
-        $sql = $sql . " AND equipment_no LIKE '$equipment_no%'";
+        $sql = $sql . " AND equipment_no LIKE ?";
+        $params[] = $equipment_no . "%";
     }
 
     switch ($setup_role) {
@@ -2515,9 +3017,12 @@ if ($method == 'get_a2_machine_checksheets_all_approvers') {
     $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             switch ($setup_role) {
                 case 'EQ Manager':
@@ -2588,7 +3093,7 @@ if ($method == 'get_a2_machine_checksheets_all_approvers') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -2601,34 +3106,42 @@ if ($method == 'approve_a2_mstprc') {
     $setup_name = $_SESSION['setup_name'];
     $setup_role = $_SESSION['setup_role'];
 
-    $sql = "UPDATE setup_mstprc";
+    $sql = "UPDATE t_setup_mstprc";
+    $params = [];
 
     switch ($setup_role) {
         case 'EQ Manager':
-            $sql = $sql . " SET mstprc_eq_manager = '$setup_name'";
+            $sql = $sql . " SET mstprc_eq_manager = ?";
+            $params[] = $setup_name;
             break;
         case 'Production Engineering Manager':
-            $sql = $sql . " SET mstprc_prod_engr_manager = '$setup_name'";
+            $sql = $sql . " SET mstprc_prod_engr_manager = ?";
+            $params[] = $setup_name;
             break;
         case 'Production Supervisor':
-            $sql = $sql . " SET mstprc_prod_supervisor = '$setup_name'";
+            $sql = $sql . " SET mstprc_prod_supervisor = ?";
+            $params[] = $setup_name;
             break;
         case 'Production Manager':
-            $sql = $sql . " SET mstprc_prod_manager = '$setup_name'";
+            $sql = $sql . " SET mstprc_prod_manager = ?";
+            $params[] = $setup_name;
             break;
         case 'QA Supervisor':
-            $sql = $sql . " SET mstprc_qa_supervisor = '$setup_name'";
+            $sql = $sql . " SET mstprc_qa_supervisor = ?";
+            $params[] = $setup_name;
             break;
         case 'QA Manager':
-            $sql = $sql . " SET mstprc_qa_manager = '$setup_name'";
+            $sql = $sql . " SET mstprc_qa_manager = ?";
+            $params[] = $setup_name;
             break;
         default:
             break;
     }
 
-    $sql = $sql . " WHERE mstprc_no = '$mstprc_no'";
+    $sql = $sql . " WHERE mstprc_no = ?";
+    $params[] = $mstprc_no;
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute($params);
 
     $machine_name = '';
     $machine_no = '';
@@ -2666,60 +3179,109 @@ if ($method == 'approve_a2_mstprc') {
 
     $fully_approved = false;
 
-    $sql = "SELECT mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, fat_no, sou_no, rsir_no, file_name, file_type, file_url FROM setup_mstprc WHERE mstprc_no = '$mstprc_no' LIMIT 1";
+    $sql = "SELECT TOP 1 mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, fat_no, sou_no, rsir_no, file_name, file_type, file_url 
+            FROM t_setup_mstprc 
+            WHERE mstprc_no = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
-            if (!empty($row['mstprc_eq_manager']) && !empty($row['mstprc_eq_sp_personnel']) && !empty($row['mstprc_prod_engr_manager']) && ((!empty($row['mstprc_prod_supervisor']) && !empty($row['mstprc_prod_manager'])) || (!empty($row['mstprc_qa_supervisor']) && !empty($row['mstprc_qa_manager'])))) {
+    $stmt->execute([$mstprc_no]);
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                $machine_name = $row['machine_name'];
-                $machine_no = $row['machine_no'];
-                $equipment_no = $row['equipment_no'];
-                $status_date = $row['mstprc_date'];
-                $car_model = $row['car_model'];
-                $location = $row['location'];
-                $grid = $row['grid'];
-                $is_new = $row['is_new'];
-                $machine_status = $row['mstprc_type'];
-                $new_car_model = $row['to_car_model'];
-                $new_location = $row['to_location'];
-                $new_grid = $row['to_grid'];
-                $pullout_location = $row['pullout_location'];
-                $transfer_reason = $row['transfer_reason'];
-                $pullout_reason = $row['pullout_reason'];
-                $mstprc_username = $row['mstprc_username'];
-                $mstprc_approver_role = $row['mstprc_approver_role'];
-                $pic = $row['mstprc_eq_member'];
-                $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
-                $mstprc_safety_officer = $row['mstprc_safety_officer'];
-                $mstprc_eq_manager = $row['mstprc_eq_manager'];
-                $mstprc_eq_sp_personnel = $row['mstprc_eq_sp_personnel'];
-                $mstprc_prod_engr_manager = $row['mstprc_prod_engr_manager'];
-                $mstprc_prod_supervisor = $row['mstprc_prod_supervisor'];
-                $mstprc_prod_manager = $row['mstprc_prod_manager'];
-                $mstprc_qa_supervisor = $row['mstprc_qa_supervisor'];
-                $mstprc_qa_manager = $row['mstprc_qa_manager'];
-                $fat_no = $row['fat_no'];
-                $sou_no = $row['sou_no'];
-                $rsir_no = $row['rsir_no'];
-                $file_name = $row['file_name'];
-                $file_type = $row['file_type'];
-                $file_url = $row['file_url'];
+    if ($row) {
+        if (
+                !empty($row['mstprc_eq_manager']) && 
+                !empty($row['mstprc_eq_sp_personnel']) && 
+                !empty($row['mstprc_prod_engr_manager']) && 
+                ((!empty($row['mstprc_prod_supervisor']) && 
+                !empty($row['mstprc_prod_manager'])) || 
+                (!empty($row['mstprc_qa_supervisor']) && 
+                !empty($row['mstprc_qa_manager'])))
+            ) {
+            $machine_name = $row['machine_name'];
+            $machine_no = $row['machine_no'];
+            $equipment_no = $row['equipment_no'];
+            $status_date = $row['mstprc_date'];
+            $car_model = $row['car_model'];
+            $location = $row['location'];
+            $grid = $row['grid'];
+            $is_new = $row['is_new'];
+            $machine_status = $row['mstprc_type'];
+            $new_car_model = $row['to_car_model'];
+            $new_location = $row['to_location'];
+            $new_grid = $row['to_grid'];
+            $pullout_location = $row['pullout_location'];
+            $transfer_reason = $row['transfer_reason'];
+            $pullout_reason = $row['pullout_reason'];
+            $mstprc_username = $row['mstprc_username'];
+            $mstprc_approver_role = $row['mstprc_approver_role'];
+            $pic = $row['mstprc_eq_member'];
+            $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
+            $mstprc_safety_officer = $row['mstprc_safety_officer'];
+            $mstprc_eq_manager = $row['mstprc_eq_manager'];
+            $mstprc_eq_sp_personnel = $row['mstprc_eq_sp_personnel'];
+            $mstprc_prod_engr_manager = $row['mstprc_prod_engr_manager'];
+            $mstprc_prod_supervisor = $row['mstprc_prod_supervisor'];
+            $mstprc_prod_manager = $row['mstprc_prod_manager'];
+            $mstprc_qa_supervisor = $row['mstprc_qa_supervisor'];
+            $mstprc_qa_manager = $row['mstprc_qa_manager'];
+            $fat_no = $row['fat_no'];
+            $sou_no = $row['sou_no'];
+            $rsir_no = $row['rsir_no'];
+            $file_name = $row['file_name'];
+            $file_type = $row['file_type'];
+            $file_url = $row['file_url'];
 
-                $fully_approved = true;
-            }
+            $fully_approved = true;
         }
     }
 
     if ($fully_approved == true) {
-        $sql = "INSERT INTO setup_mstprc_history(mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, fat_no, sou_no, rsir_no, file_name, file_type, file_url) VALUES ('$mstprc_no','$machine_status','$machine_name','$machine_no','$equipment_no','$status_date','$car_model','$location','$grid','$is_new','$new_car_model','$new_location','$new_grid','$pullout_location','$transfer_reason','$pullout_reason','$mstprc_username','$mstprc_approver_role','$pic','$mstprc_eq_g_leader','$mstprc_safety_officer','$mstprc_eq_manager','$mstprc_eq_sp_personnel','$mstprc_prod_engr_manager','$mstprc_prod_supervisor','$mstprc_prod_manager','$mstprc_qa_supervisor','$mstprc_qa_manager','Approved 2','$fat_no','$sou_no','$rsir_no','$file_name','$file_type','$file_url')";
+        $sql = "INSERT INTO t_setup_mstprc_history 
+                    (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, fat_no, sou_no, rsir_no, file_name, file_type, file_url) 
+                VALUES 
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $mstprc_no,
+            $machine_status,
+            $machine_name,
+            $machine_no,
+            $equipment_no,
+            $status_date,
+            $car_model,
+            $location,
+            $grid,
+            $is_new,
+            $new_car_model,
+            $new_location,
+            $new_grid,
+            $pullout_location,
+            $transfer_reason,
+            $pullout_reason,
+            $mstprc_username,
+            $mstprc_approver_role,
+            $pic,
+            $mstprc_eq_g_leader,
+            $mstprc_safety_officer,
+            $mstprc_eq_manager,
+            $mstprc_eq_sp_personnel,
+            $mstprc_prod_engr_manager,
+            $mstprc_prod_supervisor,
+            $mstprc_prod_manager,
+            $mstprc_qa_supervisor,
+            $mstprc_qa_manager,
+            'Approved 2',
+            $fat_no,
+            $sou_no,
+            $rsir_no,
+            $file_name,
+            $file_type,
+            $file_url
+        ]);
 
-        $sql = "DELETE FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+        $sql = "DELETE FROM t_setup_mstprc WHERE mstprc_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$mstprc_no]);
 
         $current_number = 0;
         $process = '';
@@ -2728,48 +3290,74 @@ if ($method == 'approve_a2_mstprc') {
         $trd_no = '';
         $ns_iv_no = '';
 
-        $sql = "SELECT number, process, machine_spec, asset_tag_no, trd_no, `ns-iv_no` FROM machine_masterlist WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+        $sql = "SELECT number, process, machine_spec, asset_tag_no, trd_no, [ns_iv_no] 
+                FROM m_machine_masterlist 
+                WHERE machine_no = ? AND equipment_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            foreach ($stmt->fetchAll() as $row) {
-                $current_number = intval($row['number']);
-                $process = $row['process'];
-                $machine_spec = $row['machine_spec'];
-                $asset_tag_no = $row['asset_tag_no'];
-                $trd_no = $row['trd_no'];
-                $ns_iv_no = $row['ns-iv_no'];
-            }
+        $stmt->execute([$machine_no, $equipment_no]);
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $current_number = intval($row['number']);
+            $process = $row['process'];
+            $machine_spec = $row['machine_spec'];
+            $asset_tag_no = $row['asset_tag_no'];
+            $trd_no = $row['trd_no'];
+            $ns_iv_no = $row['ns_iv_no'];
         }
 
         if ($machine_status == 'Setup') {
-            $sql = "DELETE FROM unused_machines WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+            $sql = "DELETE FROM t_unused_machines WHERE machine_no = ? AND equipment_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$machine_no, $equipment_no]);
 
-            $sql = "UPDATE machine_masterlist SET car_model = '$car_model', location = '$location', grid = '$grid', machine_status = '$machine_status', is_new = 0 WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+            $sql = "UPDATE m_machine_masterlist SET car_model = ?, location = ?, grid = ?, machine_status = ?, is_new = 0 WHERE machine_no = ? AND equipment_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$car_model, $location, $grid, $machine_status, $machine_no, $equipment_no]);
         } else if ($machine_status == 'Pullout') {
             $machine_status = 'UNUSED';
 
-            $sql = "INSERT INTO unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, unused_machine_location, status, reserved_for, pic, remarks, target_date) VALUES ('$machine_name', '$car_model', '$machine_no', '$equipment_no', '$asset_tag_no', '', '', '', '', '', '')";
+            $sql = "INSERT INTO t_unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, unused_machine_location, status, reserved_for, pic, remarks, target_date) 
+                    VALUES (?, ?, ?, ?, ?, '', '', '', '', '', '')";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                $machine_name,
+                $car_model,
+                $machine_no,
+                $equipment_no,
+                $asset_tag_no
+            ]);
 
-            $sql = "UPDATE machine_masterlist SET machine_status = '$machine_status',";
+            $sql = "UPDATE m_machine_masterlist SET machine_status = ?,";
             if ($process == 'Initial') {
                 $sql = $sql . " car_model = 'EQ-Initial', location = 'FAS4', grid = ''";
             } else if ($process == 'Final') {
                 $sql = $sql . " car_model = 'EQ-Final', location = 'FAS4', grid = ''";
             }
-            $sql = $sql . " WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+            $sql = $sql . " WHERE machine_no = ? AND equipment_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$machine_status, $machine_no, $equipment_no]);
 
-            $sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', 'Pullout', '$pic', '$status_date', '$date_updated')";
+            $sql = "INSERT INTO t_machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], machine_status, pic, status_date, history_date_time) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                $current_number,
+                $process,
+                $machine_name,
+                $machine_spec,
+                $car_model,
+                $location,
+                $grid,
+                $machine_no,
+                $equipment_no,
+                $asset_tag_no,
+                $trd_no,
+                $ns_iv_no,
+                'Pullout',
+                $pic,
+                $status_date,
+                $date_updated
+            ]);
 
             if ($process == 'Initial') {
                 $car_model = 'EQ-Initial';
@@ -2779,22 +3367,40 @@ if ($method == 'approve_a2_mstprc') {
             $location = 'FAS4';
             $grid = '';
         } else if ($machine_status == 'Transfer') {
-            $sql = "UPDATE machine_masterlist SET car_model = '$new_car_model', location = '$new_location', grid = '$new_grid', machine_status = '$machine_status' WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+            $sql = "UPDATE m_machine_masterlist SET car_model = ?, location = ?, grid = ?, machine_status = ? WHERE machine_no = ? AND equipment_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$new_car_model, $new_location, $new_grid, $machine_status, $machine_no, $equipment_no]);
 
             $car_model = $new_car_model;
             $location = $new_location;
             $grid = $new_grid;
         } else {
-            $sql = "UPDATE machine_masterlist SET machine_status = '$machine_status' WHERE machine_no = '$machine_no' AND equipment_no = '$equipment_no'";
+            $sql = "UPDATE m_machine_masterlist SET machine_status = ? WHERE machine_no = ? AND equipment_no = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$machine_status, $machine_no, $equipment_no]);
         }
 
-        $sql = "INSERT INTO machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, `ns-iv_no`, machine_status, pic, status_date, history_date_time) VALUES ('$current_number', '$process', '$machine_name', '$machine_spec', '$car_model', '$location', '$grid', '$machine_no', '$equipment_no', '$asset_tag_no', '$trd_no', '$ns_iv_no', '$machine_status', '$pic', '$status_date', '$date_updated')";
+        $sql = "INSERT INTO t_machine_history (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], machine_status, pic, status_date, history_date_time) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $current_number,
+            $process,
+            $machine_name,
+            $machine_spec,
+            $car_model,
+            $location,
+            $grid,
+            $machine_no,
+            $equipment_no,
+            $asset_tag_no,
+            $trd_no,
+            $ns_iv_no,
+            $machine_status,
+            $pic,
+            $status_date,
+            $date_updated
+        ]);
 
         update_notif_count_machine_checksheets('ADMIN-SETUP', 'Approved 2', $conn);
     }
@@ -2809,54 +3415,98 @@ if ($method == 'disapprove_a2_mstprc') {
     $setup_role = $_SESSION['setup_role'];
 
     if (!empty($disapproved_comment)) {
-        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, fat_no, sou_no, rsir_no, file_name, file_type, file_url FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+        $sql = "SELECT mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, fat_no, sou_no, rsir_no, file_name, file_type, file_url 
+                FROM t_setup_mstprc 
+                WHERE mstprc_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            foreach ($stmt->fetchAll() as $row) {
-                $mstprc_no = $row['mstprc_no'];
-                $mstprc_type = $row['mstprc_type'];
-                $machine_name = $row['machine_name'];
-                $machine_no = $row['machine_no'];
-                $equipment_no = $row['equipment_no'];
-                $mstprc_date = $row['mstprc_date'];
-                $car_model = $row['car_model'];
-                $location = $row['location'];
-                $grid = $row['grid'];
-                $is_new = $row['is_new'];
-                $to_car_model = $row['to_car_model'];
-                $to_location = $row['to_location'];
-                $to_grid = $row['to_grid'];
-                $pullout_location = $row['pullout_location'];
-                $transfer_reason = $row['transfer_reason'];
-                $pullout_reason = $row['pullout_reason'];
-                $mstprc_username = $row['mstprc_username'];
-                $mstprc_approver_role = $row['mstprc_approver_role'];
-                $mstprc_eq_member = $row['mstprc_eq_member'];
-                $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
-                $mstprc_eq_manager = $row['mstprc_eq_manager'];
-                $mstprc_eq_sp_personnel = $row['mstprc_eq_sp_personnel'];
-                $mstprc_prod_engr_manager = $row['mstprc_prod_engr_manager'];
-                $mstprc_prod_supervisor = $row['mstprc_prod_supervisor'];
-                $mstprc_prod_manager = $row['mstprc_prod_manager'];
-                $mstprc_qa_supervisor = $row['mstprc_qa_supervisor'];
-                $mstprc_qa_manager = $row['mstprc_qa_manager'];
-                $fat_no = $row['fat_no'];
-                $sou_no = $row['sou_no'];
-                $rsir_no = $row['rsir_no'];
-                $file_name = $row['file_name'];
-                $file_type = $row['file_type'];
-                $file_url = $row['file_url'];
-            }
+        $stmt->execute([$mstprc_no]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $mstprc_no = $row['mstprc_no'];
+            $mstprc_type = $row['mstprc_type'];
+            $machine_name = $row['machine_name'];
+            $machine_no = $row['machine_no'];
+            $equipment_no = $row['equipment_no'];
+            $mstprc_date = $row['mstprc_date'];
+            $car_model = $row['car_model'];
+            $location = $row['location'];
+            $grid = $row['grid'];
+            $is_new = $row['is_new'];
+            $to_car_model = $row['to_car_model'];
+            $to_location = $row['to_location'];
+            $to_grid = $row['to_grid'];
+            $pullout_location = $row['pullout_location'];
+            $transfer_reason = $row['transfer_reason'];
+            $pullout_reason = $row['pullout_reason'];
+            $mstprc_username = $row['mstprc_username'];
+            $mstprc_approver_role = $row['mstprc_approver_role'];
+            $mstprc_eq_member = $row['mstprc_eq_member'];
+            $mstprc_eq_g_leader = $row['mstprc_eq_g_leader'];
+            $mstprc_eq_manager = $row['mstprc_eq_manager'];
+            $mstprc_eq_sp_personnel = $row['mstprc_eq_sp_personnel'];
+            $mstprc_prod_engr_manager = $row['mstprc_prod_engr_manager'];
+            $mstprc_prod_supervisor = $row['mstprc_prod_supervisor'];
+            $mstprc_prod_manager = $row['mstprc_prod_manager'];
+            $mstprc_qa_supervisor = $row['mstprc_qa_supervisor'];
+            $mstprc_qa_manager = $row['mstprc_qa_manager'];
+            $fat_no = $row['fat_no'];
+            $sou_no = $row['sou_no'];
+            $rsir_no = $row['rsir_no'];
+            $file_name = $row['file_name'];
+            $file_type = $row['file_type'];
+            $file_url = $row['file_url'];
         }
 
-        $sql = "INSERT INTO setup_mstprc_history(mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, fat_no, sou_no, rsir_no, file_name, file_type, file_url) VALUES ('$mstprc_no','$mstprc_type','$machine_name','$machine_no','$equipment_no','$mstprc_date','$car_model','$location','$grid','$is_new','$to_car_model','$to_location','$to_grid','$pullout_location','$transfer_reason','$pullout_reason','$mstprc_username','$mstprc_approver_role','$mstprc_eq_member','$mstprc_eq_g_leader','$mstprc_eq_manager','$mstprc_eq_sp_personnel','$mstprc_prod_engr_manager','$mstprc_prod_supervisor','$mstprc_prod_manager','$mstprc_qa_supervisor','$mstprc_qa_manager','Disapproved','$setup_name','$setup_role','$disapproved_comment','$fat_no','$sou_no','$rsir_no','$file_name','$file_type','$file_url')";
+        $sql = "INSERT INTO t_setup_mstprc_history 
+                    (mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, is_new, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_username, mstprc_approver_role, mstprc_eq_member, mstprc_eq_g_leader, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, fat_no, sou_no, rsir_no, file_name, file_type, file_url) 
+                VALUES 
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            $mstprc_no,
+            $mstprc_type,
+            $machine_name,
+            $machine_no,
+            $equipment_no,
+            $mstprc_date,
+            $car_model,
+            $location,
+            $grid,
+            $is_new,
+            $to_car_model,
+            $to_location,
+            $to_grid,
+            $pullout_location,
+            $transfer_reason,
+            $pullout_reason,
+            $mstprc_username,
+            $mstprc_approver_role,
+            $mstprc_eq_member,
+            $mstprc_eq_g_leader,
+            $mstprc_eq_manager,
+            $mstprc_eq_sp_personnel,
+            $mstprc_prod_engr_manager,
+            $mstprc_prod_supervisor,
+            $mstprc_prod_manager,
+            $mstprc_qa_supervisor,
+            $mstprc_qa_manager,
+            'Disapproved',
+            $setup_name,
+            $setup_role,
+            $disapproved_comment,
+            $fat_no,
+            $sou_no,
+            $rsir_no,
+            $file_name,
+            $file_type,
+            $file_url
+        ]);
 
-        $sql = "DELETE FROM setup_mstprc WHERE mstprc_no = '$mstprc_no'";
+        $sql = "DELETE FROM t_setup_mstprc WHERE mstprc_no = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$mstprc_no]);
 
         update_notif_count_machine_checksheets('ADMIN-SETUP', 'Disapproved', $conn);
 
@@ -2878,29 +3528,54 @@ if ($method == 'count_a2_machine_checksheets_history') {
         $mstprc_date_to = date_create($mstprc_date_to);
         $mstprc_date_to = date_format($mstprc_date_to, "Y-m-d");
     }
-    $machine_name = addslashes($_POST['machine_name']);
-    $car_model = addslashes($_POST['car_model']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $machine_name = $_POST['machine_name'];
+    $car_model = $_POST['car_model'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $mstprc_no = $_POST['mstprc_no'];
 
     $history_option = $_POST['history_option'];
 
-    $sql = "SELECT count(id) AS total";
+    $sql = "SELECT COUNT(id) AS total";
+    $params = [];
 
     if ($history_option == 1) {
-        $sql = $sql . " FROM setup_mstprc";
+        $sql = $sql . " FROM t_setup_mstprc";
 
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to') AND mstprc_process_status = 'Approved 1'";
+            $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?) AND 
+                            mstprc_process_status = 'Approved 1'";
+            $params = [
+                $machine_name . "%",
+                $car_model . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $mstprc_no . "%",
+                $mstprc_date_from,
+                $mstprc_date_to
+            ];
         } else {
             $sql = $sql . " WHERE mstprc_process_status = 'Approved 1'";
         }
     } else if ($history_option == 2) {
-        $sql = $sql . " FROM setup_mstprc_history";
+        $sql = $sql . " FROM t_setup_mstprc_history";
 
         if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-            $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to') AND (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
+            $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?) AND 
+                            (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
+            $params = [
+                $machine_name . "%",
+                $car_model . "%",
+                $machine_no . "%",
+                $equipment_no . "%",
+                $mstprc_no . "%",
+                $mstprc_date_from,
+                $mstprc_date_to
+            ];
         } else {
             $sql = $sql . " WHERE (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
         }
@@ -2921,10 +3596,13 @@ if ($method == 'count_a2_machine_checksheets_history') {
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             echo $row['total'];
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo 0;
     }
@@ -2944,10 +3622,10 @@ if ($method == 'get_a2_machine_checksheets_history') {
         $mstprc_date_to = date_create($mstprc_date_to);
         $mstprc_date_to = date_format($mstprc_date_to, "Y-m-d");
     }
-    $machine_name = addslashes($_POST['machine_name']);
-    $car_model = addslashes($_POST['car_model']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $machine_name = $_POST['machine_name'];
+    $car_model = $_POST['car_model'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $mstprc_no = $_POST['mstprc_no'];
     $c = $_POST['c'];
 
@@ -2956,31 +3634,74 @@ if ($method == 'get_a2_machine_checksheets_history') {
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-warning', 'modal-trigger bg-success', 'modal-trigger bg-danger');
     $row_class = $row_class_arr[0];
 
-    $sql = "SELECT id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url";
+    $sql = "SELECT TOP 25 id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url";
+    $params = [];
 
     if ($history_option == 1) {
-        $sql = $sql . " FROM setup_mstprc";
+        $sql = $sql . " FROM t_setup_mstprc";
         if (empty($id)) {
             if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-                $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to')";
+                $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                                machine_no LIKE ? AND equipment_no LIKE ? AND 
+                                mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?)";
+                $params = [
+                    $machine_name . "%",
+                    $car_model . "%",
+                    $machine_no . "%",
+                    $equipment_no . "%",
+                    $mstprc_no . "%",
+                    $mstprc_date_from,
+                    $mstprc_date_to
+                ];
             }
         } else {
-            $sql = $sql . " WHERE id < '$id'";
+            $sql = $sql . " WHERE id < ?";
+            $params[] = $id;
             if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-                $sql = $sql . " AND (machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to'))";
+                $sql = $sql . " AND (machine_name LIKE ? AND car_model LIKE ? AND 
+                                machine_no LIKE ? AND equipment_no LIKE ? AND 
+                                mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?))";
+                $params[] = $machine_name . "%";
+                $params[] = $car_model . "%";
+                $params[] = $machine_no . "%";
+                $params[] = $equipment_no . "%";
+                $params[] = $mstprc_no . "%";
+                $params[] = $mstprc_date_from;
+                $params[] = $mstprc_date_to;
             }
         }
         $sql = $sql . " AND mstprc_process_status = 'Approved 1'";
     } else if ($history_option == 2) {
-        $sql = $sql . " FROM setup_mstprc_history";
+        $sql = $sql . " FROM t_setup_mstprc_history";
         if (empty($id)) {
             if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-                $sql = $sql . " WHERE machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to')";
+                $sql = $sql . " WHERE machine_name LIKE ? AND car_model LIKE ? AND 
+                                machine_no LIKE ? AND equipment_no LIKE ? AND 
+                                mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?)";
+                $params = [
+                    $machine_name . "%",
+                    $car_model . "%",
+                    $machine_no . "%",
+                    $equipment_no . "%",
+                    $mstprc_no . "%",
+                    $mstprc_date_from,
+                    $mstprc_date_to
+                ];
             }
         } else {
-            $sql = $sql . " WHERE id < '$id'";
+            $sql = $sql . " WHERE id < ?";
+            $params[] = $id;
             if (!empty($machine_name) || !empty($car_model) || !empty($machine_no) || !empty($equipment_no) || !empty($mstprc_no) || (!empty($mstprc_date_from) && !empty($mstprc_date_to))) {
-                $sql = $sql . " AND (machine_name LIKE '$machine_name%' AND car_model LIKE '$car_model%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND mstprc_no LIKE '$mstprc_no%' AND (mstprc_date >= '$mstprc_date_from' AND mstprc_date <= '$mstprc_date_to'))";
+                $sql = $sql . " AND (machine_name LIKE ? AND car_model LIKE ? AND 
+                                machine_no LIKE ? AND equipment_no LIKE ? AND 
+                                mstprc_no LIKE ? AND (mstprc_date >= ? AND mstprc_date <= ?))";
+                $params[] = $machine_name . "%";
+                $params[] = $car_model . "%";
+                $params[] = $machine_no . "%";
+                $params[] = $equipment_no . "%";
+                $params[] = $mstprc_no . "%";
+                $params[] = $mstprc_date_from;
+                $params[] = $mstprc_date_to;
             }
         }
         $sql = $sql . " AND (mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved')";
@@ -2999,12 +3720,15 @@ if ($method == 'get_a2_machine_checksheets_history') {
             break;
     }
 
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['mstprc_process_status'] == 'Approved 1') {
                 $row_class = $row_class_arr[1];
@@ -3026,7 +3750,7 @@ if ($method == 'get_a2_machine_checksheets_history') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -3044,12 +3768,18 @@ if ($method == 'get_recent_machine_checksheets_history') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url FROM setup_mstprc_history WHERE mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved' ORDER BY id DESC LIMIT 25";
+    $sql = "SELECT TOP 25 id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, disapproved_by, disapproved_by_role, disapproved_comment, is_read_setup, file_name, file_url 
+            FROM t_setup_mstprc_history 
+            WHERE mstprc_process_status = 'Approved 2' OR mstprc_process_status = 'Disapproved' 
+            ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_setup'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -3070,7 +3800,7 @@ if ($method == 'get_recent_machine_checksheets_history') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="8" style="text-align:center; color:red;">No Results Found</td>';
@@ -3085,12 +3815,24 @@ if ($method == 'get_recent_machine_checksheets') {
     $row_class = $row_class_arr[0];
     $c = 0;
 
-    $sql = "SELECT id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url FROM setup_mstprc WHERE (mstprc_process_status = 'Saved' OR mstprc_process_status = 'Confirmed' OR mstprc_process_status = 'Approved 1') AND (mstprc_no LIKE '$search%' OR machine_no LIKE '$search%' OR equipment_no LIKE '$search%' OR mstprc_type LIKE '$search%') ORDER BY id DESC LIMIT 50";
+    $sql = "SELECT TOP 50 id, mstprc_no, mstprc_type, machine_name, machine_no, equipment_no, mstprc_date, car_model, location, grid, to_car_model, to_location, to_grid, pullout_location, transfer_reason, pullout_reason, mstprc_eq_member, mstprc_eq_g_leader, mstprc_safety_officer, mstprc_eq_manager, mstprc_eq_sp_personnel, mstprc_prod_engr_manager, mstprc_prod_supervisor, mstprc_prod_manager, mstprc_qa_supervisor, mstprc_qa_manager, mstprc_process_status, is_read_setup, file_name, file_url 
+            FROM t_setup_mstprc 
+            WHERE (mstprc_process_status = 'Saved' OR mstprc_process_status = 'Confirmed' OR mstprc_process_status = 'Approved 1') AND 
+                    (mstprc_no LIKE ? OR machine_no LIKE ? OR equipment_no LIKE ? OR mstprc_type LIKE ?) 
+            ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute([
+        $search . "%",
+        $search . "%",
+        $search . "%",
+        $search . "%"
+    ]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['mstprc_process_status'] == 'Confirmed') {
                 $row_class = $row_class_arr[1];
@@ -3107,7 +3849,7 @@ if ($method == 'get_recent_machine_checksheets') {
             echo '<td>' . $row['mstprc_type'] . '</td>';
             echo '<td>' . date("Y-m-d", strtotime($row['mstprc_date'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="6" style="text-align:center; color:red;">No Results Found</td>';
@@ -3117,9 +3859,9 @@ if ($method == 'get_recent_machine_checksheets') {
 
 if ($method == 'sou_mark_as_read') {
     $id = $_POST['id'];
-    $sql = "UPDATE sou_forms SET is_read_a3 = 1 WHERE id = '$id'";
+    $sql = "UPDATE t_sou_forms SET is_read_a3 = 1 WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
 }
 
 // Count
@@ -3134,34 +3876,44 @@ if ($method == 'count_sou_history') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $asset_name = addslashes($_POST['asset_name']);
-    $kigyo_no = addslashes($_POST['kigyo_no']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $asset_name = $_POST['asset_name'];
+    $kigyo_no = $_POST['kigyo_no'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $sou_no = $_POST['sou_no'];
     $sou_status = '';
     if (isset($_POST['sou_status'])) {
         $sou_status = $_POST['sou_status'];
     }
 
-    $sql = "SELECT count(id) AS total FROM sou_forms";
+    $sql = "SELECT COUNT(id) AS total FROM t_sou_forms";
+    $params = [];
 
     if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-        $sql = $sql . " WHERE asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+        $sql = $sql . " WHERE asset_name LIKE ? AND kigyo_no LIKE ? AND 
+                        machine_no LIKE ? AND equipment_no LIKE ? AND 
+                        sou_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+        $params[] = $asset_name . "%";
+        $params[] = $kigyo_no . "%";
+        $params[] = $machine_no . "%";
+        $params[] = $equipment_no . "%";
+        $params[] = $sou_no . "%";
+        $params[] = $date_updated_from;
+        $params[] = $date_updated_to;
     }
 
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND sou_status = 'Confirmed'";
     } else if (!empty($sou_status) && $sou_status != 'All') {
-        $sql = $sql . " AND sou_status = '$sou_status'";
+        $sql = $sql . " AND sou_status = ?";
+        $params[] = $sou_status;
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -3178,10 +3930,10 @@ if ($method == 'get_sou_history') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $asset_name = addslashes($_POST['asset_name']);
-    $kigyo_no = addslashes($_POST['kigyo_no']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $asset_name = $_POST['asset_name'];
+    $kigyo_no = $_POST['kigyo_no'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $sou_no = $_POST['sou_no'];
     $sou_status = '';
     if (isset($_POST['sou_status'])) {
@@ -3189,29 +3941,53 @@ if ($method == 'get_sou_history') {
     }
     $c = $_POST['c'];
 
-    $sql = "SELECT id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, date_updated FROM sou_forms";
+    $sql = "SELECT TOP 25 id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, date_updated FROM t_sou_forms";
+    $params = [];
 
     if (empty($id)) {
         if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " WHERE asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+            $sql = $sql . " WHERE asset_name LIKE ? AND kigyo_no LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            sou_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+            $params[] = $asset_name . "%";
+            $params[] = $kigyo_no . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $sou_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " AND (asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to'))";
+            $sql = $sql . " AND (asset_name LIKE ? AND kigyo_no LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            sou_no LIKE ? AND (date_updated >= ? AND date_updated <= ?))";
+            $params[] = $asset_name . "%";
+            $params[] = $kigyo_no . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $sou_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     }
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND sou_status = 'Confirmed'";
     } else if (!empty($sou_status) && $sou_status != 'All') {
-        $sql = $sql . " AND sou_status = '$sou_status'";
+        $sql = $sql . " AND sou_status = ?";
+        $params[] = $sou_status;
     }
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#SouInfoHistoryModal" data-id="' . $row['id'] . '" data-sou_no="' . $row['sou_no'] . '" data-kigyo_no="' . htmlspecialchars($row['kigyo_no']) . '" data-asset_name="' . htmlspecialchars($row['asset_name']) . '" data-sup_asset_name="' . htmlspecialchars($row['sup_asset_name']) . '" data-orig_asset_no="' . htmlspecialchars($row['orig_asset_no']) . '" data-sou_date="' . date("d-M-y", strtotime($row['sou_date'])) . '" data-quantity="' . $row['quantity'] . '" data-managing_dept_code="' . $row['managing_dept_code'] . '" data-managing_dept_name="' . htmlspecialchars($row['managing_dept_name']) . '" data-install_area_code="' . $row['install_area_code'] . '" data-install_area_name="' . htmlspecialchars($row['install_area_name']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-no_of_units="' . $row['no_of_units'] . '" data-ntc_or_sa="' . $row['ntc_or_sa'] . '" data-use_purpose="' . htmlspecialchars($row['use_purpose']) . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details_sou_history(this)">';
             echo '<td>' . $c . '</td>';
@@ -3224,7 +4000,7 @@ if ($method == 'get_sou_history') {
             echo '<td>' . htmlspecialchars($row['equipment_no']) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="9" style="text-align:center; color:red;">No Results Found</td>';
@@ -3245,37 +4021,60 @@ if ($method == 'get_sou_history_a3') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $asset_name = addslashes($_POST['asset_name']);
-    $kigyo_no = addslashes($_POST['kigyo_no']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $asset_name = $_POST['asset_name'];
+    $kigyo_no = $_POST['kigyo_no'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $sou_no = $_POST['sou_no'];
     $c = $_POST['c'];
 
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
     $row_class = $row_class_arr[0];
 
-    $sql = "SELECT id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, is_read_a3, date_updated FROM sou_forms";
+    $sql = "SELECT TOP 25 id, sou_no, kigyo_no, asset_name, sup_asset_name, orig_asset_no, sou_date, quantity, managing_dept_code, managing_dept_name, install_area_code, install_area_name, machine_no, equipment_no, no_of_units, ntc_or_sa, use_purpose, is_read_a3, date_updated FROM t_sou_forms";
+    $params = [];
 
     if (empty($id)) {
         if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " WHERE asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+            $sql = $sql . " WHERE asset_name LIKE ? AND kigyo_no LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            sou_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+            $params[] = $asset_name . "%";
+            $params[] = $kigyo_no . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $sou_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($asset_name) || !empty($kigyo_no) || !empty($machine_no) || !empty($equipment_no) || !empty($sou_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " AND (asset_name LIKE '$asset_name%' AND kigyo_no LIKE '$kigyo_no%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND sou_no LIKE '$sou_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to'))";
+            $sql = $sql . " AND (asset_name LIKE ? AND kigyo_no LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            sou_no LIKE ? AND (date_updated >= ? AND date_updated <= ?))";
+            $params[] = $asset_name . "%";
+            $params[] = $kigyo_no . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $sou_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     }
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND sou_status = 'Confirmed'";
     }
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_a3'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -3293,7 +4092,7 @@ if ($method == 'get_sou_history_a3') {
             echo '<td>' . htmlspecialchars($row['equipment_no']) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="9" style="text-align:center; color:red;">No Results Found</td>';
@@ -3303,9 +4102,9 @@ if ($method == 'get_sou_history_a3') {
 
 if ($method == 'fat_mark_as_read') {
     $id = $_POST['id'];
-    $sql = "UPDATE fat_forms SET is_read_a3 = 1 WHERE id = '$id'";
+    $sql = "UPDATE t_fat_forms SET is_read_a3 = 1 WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$id]);
 }
 
 // Count
@@ -3320,34 +4119,44 @@ if ($method == 'count_fat_history') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $item_description = addslashes($_POST['item_description']);
-    $item_name = addslashes($_POST['item_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $item_description = $_POST['item_description'];
+    $item_name = $_POST['item_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $fat_no = $_POST['fat_no'];
     $fat_status = '';
     if (isset($_POST['fat_status'])) {
         $fat_status = $_POST['fat_status'];
     }
 
-    $sql = "SELECT count(id) AS total FROM fat_forms";
+    $sql = "SELECT COUNT(id) AS total FROM t_fat_forms";
+    $params = [];
 
     if (!empty($item_description) || !empty($item_name) || !empty($machine_no) || !empty($equipment_no) || !empty($fat_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-        $sql = $sql . " WHERE item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+        $sql = $sql . " WHERE item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND 
+                        machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND 
+                        fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+        $params[] = $item_description . "%";
+        $params[] = $item_name . "%";
+        $params[] = $machine_no . "%";
+        $params[] = $equipment_no . "%";
+        $params[] = $fat_no . "%";
+        $params[] = $date_updated_from;
+        $params[] = $date_updated_to;
     }
 
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND fat_status = 'Confirmed'";
     } else if (!empty($fat_status) && $fat_status != 'All') {
-        $sql = $sql . " AND fat_status = '$fat_status'";
+        $sql = $sql . " AND fat_status = ?";
+        $params[] = $fat_status;
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
@@ -3364,10 +4173,10 @@ if ($method == 'get_fat_history') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $item_description = addslashes($_POST['item_description']);
-    $item_name = addslashes($_POST['item_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $item_description = $_POST['item_description'];
+    $item_name = $_POST['item_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $fat_no = $_POST['fat_no'];
     $fat_status = '';
     if (isset($_POST['fat_status'])) {
@@ -3376,29 +4185,52 @@ if ($method == 'get_fat_history') {
 
     $c = $_POST['c'];
 
-    $sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, date_updated FROM fat_forms";
+    $sql = "SELECT TOP 25 id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, date_updated FROM t_fat_forms";
 
     if (empty($id)) {
         if (!empty($item_description) || !empty($item_name) || !empty($machine_no) || !empty($equipment_no) || !empty($fat_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " WHERE item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+            $sql = $sql . " WHERE item_description LIKE ? AND item_name LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            fat_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+            $params[] = $item_description . "%";
+            $params[] = $item_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $fat_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($item_description) || !empty($item_name) || !empty($machine_no) || !empty($equipment_no) || !empty($fat_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " AND (item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to'))";
+            $sql = $sql . " AND (item_description LIKE ? AND item_name LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            fat_no LIKE ? AND (date_updated >= ? AND date_updated <= ?))";
+            $params[] = $item_description . "%";
+            $params[] = $item_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $fat_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     }
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND fat_status = 'Confirmed'";
     } else if (!empty($fat_status) && $fat_status != 'All') {
-        $sql = $sql . " AND fat_status = '$fat_status'";
+        $sql = $sql . " AND fat_status = ?";
+        $params[] = $fat_status;
     }
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#FatInfoHistoryModal" data-id="' . $row['id'] . '" data-fat_no="' . $row['fat_no'] . '" data-item_name="' . htmlspecialchars($row['item_name']) . '" data-item_description="' . htmlspecialchars($row['item_description']) . '" data-machine_no="' . htmlspecialchars($row['machine_no']) . '" data-equipment_no="' . htmlspecialchars($row['equipment_no']) . '" data-asset_tag_no="' . htmlspecialchars($row['asset_tag_no']) . '" data-prev_location_group="' . htmlspecialchars($row['prev_location_group']) . '" data-prev_location_loc="' . htmlspecialchars($row['prev_location_loc']) . '" data-prev_location_grid="' . htmlspecialchars($row['prev_location_grid']) . '" data-date_transfer="' . date("d-M-y", strtotime($row['date_transfer'])) . '" data-new_location_group="' . htmlspecialchars($row['new_location_group']) . '" data-new_location_loc="' . htmlspecialchars($row['new_location_loc']) . '" data-new_location_grid="' . htmlspecialchars($row['new_location_grid']) . '" data-reason="' . htmlspecialchars($row['reason']) . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details_fat_history(this)">';
             echo '<td>' . $c . '</td>';
@@ -3411,7 +4243,7 @@ if ($method == 'get_fat_history') {
             echo '<td>' . date("Y-m-d", strtotime($row['date_transfer'])) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="9" style="text-align:center; color:red;">No Results Found</td>';
@@ -3432,37 +4264,59 @@ if ($method == 'get_fat_history_a3') {
         $date_updated_to = date_create($date_updated_to);
         $date_updated_to = date_format($date_updated_to, "Y-m-d h:i:s");
     }
-    $item_description = addslashes($_POST['item_description']);
-    $item_name = addslashes($_POST['item_name']);
-    $machine_no = addslashes($_POST['machine_no']);
-    $equipment_no = addslashes($_POST['equipment_no']);
+    $item_description = $_POST['item_description'];
+    $item_name = $_POST['item_name'];
+    $machine_no = $_POST['machine_no'];
+    $equipment_no = $_POST['equipment_no'];
     $fat_no = $_POST['fat_no'];
     $c = $_POST['c'];
 
     $row_class_arr = array('modal-trigger', 'modal-trigger bg-lime');
     $row_class = $row_class_arr[0];
 
-    $sql = "SELECT id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, is_read_a3, date_updated FROM fat_forms";
+    $sql = "SELECT TOP 25 id, fat_no, item_name, item_description, machine_no, equipment_no, asset_tag_no, prev_location_group, prev_location_loc, prev_location_grid, date_transfer, new_location_group, new_location_loc, new_location_grid, reason, is_read_a3, date_updated FROM t_fat_forms";
 
     if (empty($id)) {
         if (!empty($item_description) || !empty($item_name) || !empty($machine_no) || !empty($equipment_no) || !empty($fat_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " WHERE item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to')";
+            $sql = $sql . " WHERE item_description LIKE ? AND item_name LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            fat_no LIKE ? AND (date_updated >= ? AND date_updated <= ?)";
+            $params[] = $item_description . "%";
+            $params[] = $item_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $fat_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     } else {
-        $sql = $sql . " WHERE id < '$id'";
+        $sql = $sql . " WHERE id < ?";
+        $params[] = $id;
         if (!empty($item_description) || !empty($item_name) || !empty($machine_no) || !empty($equipment_no) || !empty($fat_no) || (!empty($date_updated_from) && !empty($date_updated_to))) {
-            $sql = $sql . " AND (item_description LIKE '$item_description%' AND item_name LIKE '$item_name%' AND machine_no LIKE '$machine_no%' AND equipment_no LIKE '$equipment_no%' AND fat_no LIKE '$fat_no%' AND (date_updated >= '$date_updated_from' AND date_updated <= '$date_updated_to'))";
+            $sql = $sql . " AND (item_description LIKE ? AND item_name LIKE ? AND 
+                            machine_no LIKE ? AND equipment_no LIKE ? AND 
+                            fat_no LIKE ? AND (date_updated >= ? AND date_updated <= ?))";
+            $params[] = $item_description . "%";
+            $params[] = $item_name . "%";
+            $params[] = $machine_no . "%";
+            $params[] = $equipment_no . "%";
+            $params[] = $fat_no . "%";
+            $params[] = $date_updated_from;
+            $params[] = $date_updated_to;
         }
     }
     if ($_SESSION['setup_approver_role'] == 3) {
         $sql = $sql . " AND fat_status = 'Confirmed'";
     }
-    $sql = $sql . " ORDER BY id DESC LIMIT 25";
+    $sql = $sql . " ORDER BY id DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             if ($row['is_read_a3'] == 0) {
                 $row_class = $row_class_arr[1];
@@ -3480,7 +4334,7 @@ if ($method == 'get_fat_history_a3') {
             echo '<td>' . date("Y-m-d", strtotime($row['date_transfer'])) . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="9" style="text-align:center; color:red;">No Results Found</td>';

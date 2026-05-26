@@ -46,13 +46,16 @@ function check_machine_docs_file($machine_docs_file_info, $action, $conn)
         }
     }
     // Check File Information Exists on Database
-    $machine_docs_filename = addslashes($machine_docs_file_info['machine_docs_filename']);
-    $machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
-    $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
-    $sql = "SELECT id FROM machine_setup_docs WHERE file_name = '$machine_docs_filename' AND file_type = '$machine_docs_filetype' AND file_url = '$machine_docs_url'";
+    $machine_docs_filename = $machine_docs_file_info['machine_docs_filename'];
+    $machine_docs_filetype = $machine_docs_file_info['machine_docs_filetype'];
+    $machine_docs_url = $machine_docs_file_info['machine_docs_url'];
+    $sql = "SELECT id FROM t_machine_setup_docs WHERE file_name = ? AND file_type = ? AND file_url = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
+    $stmt->execute([$machine_docs_filename, $machine_docs_filetype, $machine_docs_url]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         if ($action == 'Insert') {
             $hasError = 1;
             $file_valid_arr[3] = 1;
@@ -85,16 +88,25 @@ function check_machine_docs_file($machine_docs_file_info, $action, $conn)
 function save_machine_docs_info($machine_docs_file_info, $conn)
 {
     $process = $machine_docs_file_info['process'];
-    $machine_name = addslashes($machine_docs_file_info['machine_name']);
+    $machine_name = $machine_docs_file_info['machine_name'];
     $machine_docs_type = $machine_docs_file_info['machine_docs_type'];
     $machine_docs_filename = basename($machine_docs_file_info['machine_docs_filename']);
-    $machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
-    $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
+    $machine_docs_filetype = $machine_docs_file_info['machine_docs_filetype'];
+    $machine_docs_url = $machine_docs_file_info['machine_docs_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "INSERT INTO machine_setup_docs (process, machine_name, machine_docs_type, file_name, file_type, file_url, date_updated) VALUES ('$process', '$machine_name', '$machine_docs_type', '$machine_docs_filename', '$machine_docs_filetype', '$machine_docs_url', '$date_updated')";
+    $sql = "INSERT INTO t_machine_setup_docs (process, machine_name, machine_docs_type, file_name, file_type, file_url, date_updated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $process,
+        $machine_name,
+        $machine_docs_type,
+        $machine_docs_filename,
+        $machine_docs_filetype,
+        $machine_docs_url,
+        $date_updated
+    ]);
 }
 
 // Update File Information
@@ -102,55 +114,94 @@ function update_machine_docs_info($machine_docs_file_info, $conn)
 {
     $id = $machine_docs_file_info['id'];
     $process = $machine_docs_file_info['process'];
-    $machine_name = addslashes($machine_docs_file_info['machine_name']);
+    $machine_name = $machine_docs_file_info['machine_name'];
     $machine_docs_type = $machine_docs_file_info['machine_docs_type'];
     $machine_docs_filename = basename($machine_docs_file_info['machine_docs_filename']);
-    $machine_docs_filetype = addslashes($machine_docs_file_info['machine_docs_filetype']);
-    $machine_docs_url = addslashes($machine_docs_file_info['machine_docs_url']);
+    $machine_docs_filetype = $machine_docs_file_info['machine_docs_filetype'];
+    $machine_docs_url = $machine_docs_file_info['machine_docs_url'];
     $date_updated = date('Y-m-d H:i:s');
 
-    $sql = "UPDATE machine_setup_docs SET process = '$process', machine_name = '$machine_name', machine_docs_type = '$machine_docs_type', file_name = '$machine_docs_filename', file_type = '$machine_docs_filetype', file_url = '$machine_docs_url', date_updated = '$date_updated' WHERE id = '$id'";
+    $sql = "UPDATE t_machine_setup_docs SET 
+                process = ?, 
+                machine_name = ?, 
+                machine_docs_type = ?, 
+                file_name = ?, 
+                file_type = ?, 
+                file_url = ?, 
+                date_updated = ? 
+            WHERE id = ?";
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([
+        $process,
+        $machine_name,
+        $machine_docs_type,
+        $machine_docs_filename,
+        $machine_docs_filetype,
+        $machine_docs_url,
+        $date_updated,
+        $id
+    ]);
 }
 
 // Count
 if ($method == 'count_machine_docs') {
-    $search = addslashes($_POST['search']);
-    $sql = "SELECT count(id) AS total FROM machine_setup_docs";
+    $search = $_POST['search'];
+    $sql = "SELECT COUNT(id) AS total FROM t_machine_setup_docs";
+    $params = [];
     if (!empty($search)) {
         $sql = $sql . " WHERE machine_name LIKE '$search%' OR machine_docs_type LIKE '$search%' OR file_name LIKE '$search%'";
+        $params = [
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     }
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['total'];
-        }
+    $stmt->execute($params);
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo $row['total'];
     }
 }
 
 // Read / Load
 if ($method == 'load_machine_docs') {
     $id = $_POST['id'];
-    $search = addslashes($_POST['search']);
+    $search = $_POST['search'];
     $c = $_POST['c'];
 
-    $sql = "SELECT id, process, machine_name, machine_docs_type, file_name, file_url, date_updated FROM machine_setup_docs";
+    $sql = "SELECT TOP 10 id, process, machine_name, machine_docs_type, file_name, file_url, date_updated FROM t_machine_setup_docs";
+    $params = [];
 
     if (!empty($id) && empty($search)) {
-        $sql = $sql . " WHERE id > '$id'";
+        $sql = $sql . " WHERE id > ?";
+        $params[] = $id;
     } else if (empty($id) && !empty($search)) {
-        $sql = $sql . " WHERE machine_name LIKE '$search%' OR machine_docs_type LIKE '$search%' OR file_name LIKE '$search%'";
+        $sql = $sql . " WHERE machine_name LIKE ? OR machine_docs_type LIKE ? OR file_name LIKE ?";
+        $params = [
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     } else if (!empty($id) && !empty($search)) {
-        $sql = $sql . " WHERE id > '$id' AND (machine_name LIKE '$search%' OR machine_docs_type LIKE '$search%' OR file_name LIKE '$search%')";
+        $sql = $sql . " WHERE id > ? AND (machine_name LIKE ? OR machine_docs_type LIKE ? OR file_name LIKE ?)";
+        $params = [
+            $id,
+            $search . "%",
+            $search . "%",
+            $search . "%"
+        ];
     }
-    $sql = $sql . " ORDER BY id ASC LIMIT 10";
+    $sql = $sql . " ORDER BY id ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
+    $stmt->execute($params);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        do {
             $c++;
             echo '<tr style="cursor:pointer;" class="modal-trigger" id="' . $row['id'] . '" data-toggle="modal" data-target="#MachineDocsDetailsModal" data-id="' . $row['id'] . '" data-process="' . $row['process'] . '" data-machine_name="' . htmlspecialchars($row['machine_name']) . '" data-machine_docs_type="' . $row['machine_docs_type'] . '" data-file_name="' . htmlspecialchars($row['file_name']) . '" data-file_url="' . htmlspecialchars($row['file_url']) . '" data-date_updated="' . $row['date_updated'] . '" onclick="get_details_machine_docs(this)">';
             echo '<td>' . $c . '</td>';
@@ -158,7 +209,7 @@ if ($method == 'load_machine_docs') {
             echo '<td>' . $row['machine_docs_type'] . '</td>';
             echo '<td>' . date("Y-m-d h:iA", strtotime($row['date_updated'])) . '</td>';
             echo '</tr>';
-        }
+        } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
     } else {
         echo '<tr>';
         echo '<td colspan="4" style="text-align:center; color:red;">No Results Found</td>';
@@ -295,15 +346,14 @@ if ($method == 'update_machine_docs') {
 
             $old_machine_docs_filename = '';
 
-            $sql = "SELECT file_name FROM machine_setup_docs WHERE id = '$id'";
+            $sql = "SELECT file_name FROM t_machine_setup_docs WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            if ($stmt->rowCount() > 0) {
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $old_machine_docs_filename = $row['file_name'];
-                }
+            $stmt->execute([$id]);
+            
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $old_machine_docs_filename = $row['file_name'];
             }
-
+        
             $old_target_file = $target_dir . basename($old_machine_docs_filename);
 
             $machine_docs_file_info = array(
@@ -348,9 +398,21 @@ if ($method == 'update_machine_docs') {
             }
 
         } else {
-            $sql = "UPDATE machine_setup_docs SET process = '$process', machine_name = '$machine_name', machine_docs_type = '$machine_docs_type', date_updated = '$date_updated' WHERE id = '$id'";
+            $sql = "UPDATE t_machine_setup_docs SET 
+                        process = ?, 
+                        machine_name = ?, 
+                        machine_docs_type = ?, 
+                        date_updated = ? 
+                    WHERE id = ?";
+
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([
+                $process,
+                $machine_name,
+                $machine_docs_type,
+                $date_updated,
+                $id
+            ]);
         }
     }
 }
@@ -362,15 +424,14 @@ if ($method == 'delete_machine_docs') {
     $machine_docs_filename = '';
     $target_dir = '';
 
-    $sql = "SELECT machine_docs_type, file_name FROM machine_setup_docs WHERE id = '$id'";
+    $sql = "SELECT machine_docs_type, file_name FROM t_machine_setup_docs WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $machine_docs_type = $row['machine_docs_type'];
-            $machine_docs_filename = $row['file_name'];
-        }
-    }
+    $stmt->execute([$id]);
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $machine_docs_type = $row['machine_docs_type'];
+        $machine_docs_filename = $row['file_name'];
+    } 
 
     switch ($machine_docs_type) {
         case 'MSTPRC':
@@ -385,9 +446,9 @@ if ($method == 'delete_machine_docs') {
 
     if (file_exists($target_file)) {
         if (unlink($target_file)) {
-            $sql = "DELETE FROM machine_setup_docs WHERE id = '$id'";
+            $sql = "DELETE FROM t_machine_setup_docs WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->execute();
+            $stmt->execute([$id]);
         } else {
             echo "Machine Docs File cannot be deleted due to an error";
         }
@@ -400,13 +461,12 @@ if ($method == 'download_mstprc_format') {
     $machine_name = $_POST['machine_name'];
     $file_url = '';
 
-    $sql = "SELECT file_url FROM machine_setup_docs WHERE machine_name = '$machine_name' AND machine_docs_type = 'MSTPRC'";
+    $sql = "SELECT file_url FROM t_machine_setup_docs WHERE machine_name = ? AND machine_docs_type = 'MSTPRC'";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
-            $file_url = $row['file_url'];
-        }
+    $stmt->execute([$machine_name]);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $file_url = $row['file_url'];
     }
 
     echo $file_url;
@@ -416,13 +476,12 @@ if ($method == 'download_rsir_format') {
     $machine_name = $_POST['machine_name'];
     $file_url = '';
 
-    $sql = "SELECT file_url FROM machine_pm_docs WHERE machine_name = '$machine_name' AND machine_docs_type = 'RSIR'";
+    $sql = "SELECT file_url FROM t_machine_pm_docs WHERE machine_name = ? AND machine_docs_type = 'RSIR'";
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-        foreach ($stmt->fetchAll() as $row) {
-            $file_url = $row['file_url'];
-        }
+    $stmt->execute([$machine_name]);
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $file_url = $row['file_url'];
     }
 
     echo $file_url;

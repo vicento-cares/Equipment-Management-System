@@ -27,10 +27,11 @@ if (!isset($_GET['id'])) {
 
 $id = $_GET['id'];
 
-$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer FROM machine_pm_plan WHERE id = '$id'";
+$sql = "SELECT id, number, process, machine_name, machine_no, equipment_no, pm_plan_year, ww_no, ww_start_date, ww_next_date, manpower, shift_engineer 
+        FROM t_machine_pm_plan WHERE id = ?";
 
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute([$id]);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,7 +80,7 @@ $stmt->execute();
         <span>Call IT Personnel Immediately!!! They will fix it right away.</span>
     </noscript>
     <div class="row">
-        <?php foreach ($stmt->fetchAll() as $row) { ?>
+        <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
             <div class="col-6">
                 <table class="mx-0 my-0" style="height:100%;width:100%;table-layout:fixed;">
                     <tbody>
