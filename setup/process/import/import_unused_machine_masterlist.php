@@ -20,8 +20,11 @@ if (!isset($_SESSION['setup_username'])) {
 }
 
 //error_reporting(0); // comment this line to see errors
+set_time_limit(0);
 date_default_timezone_set("Asia/Manila");
-require('../db/conn.php');
+
+$date_updated = date('Y-m-d H:i:s');
+
 require('../lib/validate.php');
 require('../lib/main.php');
 
@@ -38,16 +41,6 @@ function get_current_number_by_name($machine_name, $conn)
 
     return ++$number;
 }
-
-$start_row = 1;
-$insertsql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
-$subsql = "";
-
-
-$uinsertsql = "INSERT INTO t_unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, date_updated, target_date) VALUES ";
-$usubsql = "";
-
-$date_updated = date('Y-m-d H:i:s');
 
 function get_machines($conn)
 {
@@ -103,20 +96,6 @@ function get_locations($conn)
     }
 
     return $data;
-}
-
-function count_row($file)
-{
-    $linecount = -2;
-    $handle = fopen($file, "r");
-    while (!feof($handle)) {
-        $line = fgets($handle);
-        $linecount++;
-    }
-
-    fclose($handle);
-
-    return $linecount;
 }
 
 function check_csv($file, $conn)
@@ -323,146 +302,257 @@ function check_csv($file, $conn)
     return $message;
 }
 
-$mimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
+if (empty($_FILES['file']['name'])) {
+    exit("Please upload a CSV file");
+}
 
-if (!empty($_FILES['file']['name'])) {
+$mimes = array(
+    'text/x-comma-separated-values', 
+    'text/comma-separated-values', 
+    'application/octet-stream', 
+    'application/vnd.ms-excel', 
+    'application/x-csv', 
+    'text/x-csv', 
+    'text/csv', 
+    'application/csv', 
+    'application/excel', 
+    'application/vnd.msexcel', 
+    'text/plain'
+);
 
-    if (in_array($_FILES['file']['type'], $mimes)) {
+if (!in_array($_FILES['file']['type'], $mimes)) {
+    exit("Invalid file format");
+}
 
-        if (is_uploaded_file($_FILES['file']['tmp_name'])) {
+if (!is_uploaded_file($_FILES['file']['tmp_name'])) {
+    exit("Upload Failed! Try Again or Contact IT Personnel if it fails again");
+}
 
-            $row_count = count_row($_FILES['file']['tmp_name']);
+require('../db/conn.php');
 
-            $chkCsvMsg = check_csv($_FILES['file']['tmp_name'], $conn);
+$chkCsvMsg = check_csv($_FILES['file']['tmp_name'], $conn);
 
-            if ($chkCsvMsg == '') {
+if ($chkCsvMsg != '') {
+    exit($chkCsvMsg);
+}
 
-                if (($csv_file = fopen($_FILES['file']['tmp_name'], "r")) !== false) {
+//READ FILE
+$csvFile = fopen($_FILES['file']['tmp_name'],'r');
 
-                    $temp_count = 0;
-                    $current_number = 0;
-                    fgets($csv_file);  // read one line for nothing (skip header / first row)
-                    while (($read_data = fgetcsv($csv_file, 1000, ",")) !== false) {
-                        // Check if the row is blank or consists only of whitespace
-                        if (empty(implode('', $read_data))) {
-                            continue; // Skip blank lines
-                        }
+// SKIP FIRST LINE (HEADER)
+fgets($csvFile);
 
-                        $current_number = get_current_number_by_name($read_data[2], $conn);
-                        $machine_name = addslashes(custom_trim($read_data[2]));
-                        $asset_tag_no = addslashes(custom_trim($read_data[9]));
+// PARSE
+$error = 0;
 
-                        $is_new = 0; // Old Machines
-                        $machine_status = 'UNUSED';
+$isTransactionActive = false;
+$chunkSize = 250; // Set your desired chunk size
 
-                        if (empty($asset_tag_no)) {
-                            $asset_tag_no = 'N/A';
-                        }
-
-                        save_current_number($read_data[2], $current_number, $conn);
-
-                        $column_count = COUNT($read_data);
-                        $subsql = $subsql . " (";
-                        $temp_count++;
-                        $start_row++;
-                        for ($c = 0; $c < $column_count; $c++) {
-                            if ($c == 0) {
-                                $subsql = $subsql . '\'' . $current_number . '\',';
-                            } else if ($c == 9) {
-                                $subsql = $subsql . '\'' . $asset_tag_no . '\',';
-                            } else {
-                                $subsql = $subsql . '\'' . addslashes(custom_trim($read_data[$c])) . '\',';
-                            }
-                        }
-                        $subsql = substr($subsql, 0, strlen($subsql) - 2);
-                        $subsql = $subsql . '\', \'' . $is_new . '\', \'' . $date_updated . '\', \'' . $machine_status . '\')' . " , ";
-                        if ($temp_count % 250 == 0) {
-                            $subsql = substr($subsql, 0, strlen($subsql) - 3);
-                            $insertsql = $insertsql . $subsql . ";";
-                            $insertsql = substr($insertsql, 0, strlen($insertsql));
-                            $stmt = $conn->prepare($insertsql);
-                            $stmt->execute();
-                            $insertsql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
-                            $subsql = "";
-                        } else if ($temp_count == $row_count) {
-                            $subsql = substr($subsql, 0, strlen($subsql) - 3);
-                            $insertsql2 = $insertsql . $subsql . ";";
-                            $insertsql2 = substr($insertsql2, 0, strlen($insertsql2));
-                            $stmt = $conn->prepare($insertsql2);
-                            $stmt->execute();
-                        }
-                    }
-
-                    // Move back to beginning of file 
-                    fseek($csv_file, 0);
-
-                    $start_row = 1;
-                    $temp_count = 0;
-                    fgets($csv_file);  // read one line for nothing (skip header / first row)
-                    while (($read_data = fgetcsv($csv_file, 1000, ",")) !== false) {
-                        $machine_name = $read_data[2];
-                        $asset_tag_no = addslashes(custom_trim($read_data[9]));
-
-                        $car_model = $read_data[4];
-                        $machine_no = $read_data[7];
-                        $equipment_no = $read_data[8];
-
-                        if (empty($asset_tag_no)) {
-                            $asset_tag_no = 'N/A';
-                        }
-
-                        $uarr = array($machine_name, $car_model, $machine_no, $equipment_no, $asset_tag_no);
-
-                        $column_count = COUNT($uarr);
-                        $usubsql = $usubsql . " (";
-                        $temp_count++;
-                        $start_row++;
-                        for ($c = 0; $c < $column_count; $c++) {
-                            if ($c == 4) {
-                                $usubsql = $usubsql . '\'' . $asset_tag_no . '\',';
-                            } else {
-                                $usubsql = $usubsql . '\'' . addslashes(custom_trim($uarr[$c])) . '\',';
-                            }
-                        }
-                        $usubsql = substr($usubsql, 0, strlen($usubsql) - 2);
-                        $usubsql = $usubsql . '\', \'' . $date_updated . '\', NULL)' . " , ";
-                        if ($temp_count % 250 == 0) {
-                            $usubsql = substr($usubsql, 0, strlen($usubsql) - 3);
-                            $uinsertsql = $uinsertsql . $usubsql . ";";
-                            $uinsertsql = substr($uinsertsql, 0, strlen($uinsertsql));
-                            $stmt = $conn->prepare($uinsertsql);
-                            $stmt->execute();
-                            $uinsertsql = "INSERT INTO t_unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, date_updated, target_date) VALUES ";
-                            $usubsql = "";
-                        } else if ($temp_count == $row_count) {
-                            $usubsql = substr($usubsql, 0, strlen($usubsql) - 3);
-                            $uinsertsql2 = $uinsertsql . $usubsql . ";";
-                            $uinsertsql2 = substr($uinsertsql2, 0, strlen($uinsertsql2));
-                            $stmt = $conn->prepare($uinsertsql2);
-                            $stmt->execute();
-                        }
-                    }
-
-                    fclose($csv_file);
-
-                } else {
-                    echo 'Reading CSV file Failed! Try Again or Contact IT Personnel if it fails again';
-                }
-
-            } else {
-                echo $chkCsvMsg;
-            }
-
-        } else {
-            echo 'Upload Failed! Try Again or Contact IT Personnel if it fails again';
-        }
-
-    } else {
-        echo 'Invalid file format';
+try {
+    if (!$isTransactionActive) {
+        $conn->beginTransaction();
+        $isTransactionActive = true;
     }
 
-} else {
-    echo 'Please upload a CSV file';
+    $sql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
+    $values = [];
+    $placeholders = [];
+
+    while (($line = fgetcsv($csvFile)) !== false) {
+        // Check if the row is blank or consists only of whitespace
+        if (empty(implode('', $line))) {
+            continue; // Skip blank lines
+        }
+
+        $number = intval(custom_trim($line[0]));
+        $process = custom_trim($line[1]);
+        $machine_name = custom_trim($line[2]);
+        $machine_spec = custom_trim($line[3]);
+        $car_model = custom_trim($line[4]);
+        $location = custom_trim($line[5]);
+        $grid = custom_trim($line[6]);
+        $machine_no = custom_trim($line[7]);
+        $equipment_no = custom_trim($line[8]);
+        $asset_tag_no = custom_trim($line[9]);
+        $trd_no = custom_trim($line[10]);
+        $ns_iv_no = custom_trim($line[11]);
+
+        $is_new = 0; // Old Machines
+        $machine_status = 'UNUSED';
+
+        if (empty($asset_tag_no)) {
+            $asset_tag_no = 'N/A';
+        }
+
+        $current_number = get_current_number_by_name($machine_name, $conn);
+        save_current_number($machine_name, $current_number, $conn);
+
+        // Create a temporary array for the current row
+        $currentValues = [
+            $number,
+            $process,
+            $machine_name,
+            $machine_spec,
+            $car_model,
+            $location,
+            $grid,
+            $machine_no,
+            $equipment_no,
+            $asset_tag_no,
+            $trd_no,
+            $ns_iv_no,
+            $is_new,
+            $date_updated,
+            $machine_status
+        ];
+
+        // Create placeholders for each row
+        $generated_placeholders = implode(',', array_fill(0, count($currentValues), '?'));
+        $placeholders[] = "($generated_placeholders)";
+
+        // Add current values to the main values array
+        $values = array_merge($values, $currentValues);
+
+        // Check if we reached the chunk size
+        if (count($placeholders) === $chunkSize) {
+            // Combine the SQL statement with the placeholders
+            $sql .= implode(', ', $placeholders);
+            
+            // Prepare the statement
+            $stmt = $conn->prepare($sql);
+            
+            // Execute the statement with the values
+            if (!$stmt->execute($values)) {
+                $error++;
+            }
+
+            // Reset for the next chunk
+            $placeholders = [];
+            $values = [];
+            $sql = "INSERT INTO m_machine_masterlist (number, process, machine_name, machine_spec, car_model, location, grid, machine_no, equipment_no, asset_tag_no, trd_no, [ns_iv_no], is_new, date_updated, machine_status) VALUES ";
+        }
+    }
+
+    // Insert any remaining rows that didn't fill a complete chunk
+    if (!empty($placeholders)) {
+        $sql .= implode(', ', $placeholders);
+        $stmt = $conn->prepare($sql);
+        if (!$stmt->execute($values)) {
+            $error++;
+        }
+    }
+
+    if ($error > 0) {
+        if ($isTransactionActive) {
+            $conn->rollBack();
+            $isTransactionActive = false;
+        }
+        echo 'Failed. Please Try Again or Call IT Personnel Immediately!';
+        exit();
+    }
+
+
+    // Move back to beginning of file 
+    fseek($csv_file, 0);
+
+
+    //READ FILE
+    $csvFile = fopen($_FILES['file']['tmp_name'],'r');
+
+    // SKIP FIRST LINE (HEADER)
+    fgets($csvFile);
+
+    $sql = "INSERT INTO t_unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, date_updated, target_date) VALUES ";
+    $values = [];
+    $placeholders = [];
+
+    while (($line = fgetcsv($csvFile)) !== false) {
+        // Check if the row is blank or consists only of whitespace
+        if (empty(implode('', $line))) {
+            continue; // Skip blank lines
+        }
+
+        $machine_name = custom_trim($line[2]);
+        $car_model = custom_trim($line[4]);
+        $machine_no = custom_trim($line[7]);
+        $equipment_no = custom_trim($line[8]);
+        $asset_tag_no = custom_trim($line[9]);
+
+        if (empty($asset_tag_no)) {
+            $asset_tag_no = 'N/A';
+        }
+
+        // Create a temporary array for the current row
+        $currentValues = [
+            $machine_name, 
+            $car_model, 
+            $machine_no, 
+            $equipment_no, 
+            $asset_tag_no, 
+            $date_updated, 
+            NULL
+        ];
+
+        // Create placeholders for each row
+        $generated_placeholders = implode(',', array_fill(0, count($currentValues), '?'));
+        $placeholders[] = "($generated_placeholders)";
+
+        // Add current values to the main values array
+        $values = array_merge($values, $currentValues);
+
+        // Check if we reached the chunk size
+        if (count($placeholders) === $chunkSize) {
+            // Combine the SQL statement with the placeholders
+            $sql .= implode(', ', $placeholders);
+            
+            // Prepare the statement
+            $stmt = $conn->prepare($sql);
+            
+            // Execute the statement with the values
+            if (!$stmt->execute($values)) {
+                $error++;
+            }
+
+            // Reset for the next chunk
+            $placeholders = [];
+            $values = [];
+            $sql = "INSERT INTO t_unused_machines (machine_name, car_model, machine_no, equipment_no, asset_tag_no, date_updated, target_date) VALUES ";
+        }
+    }
+
+    // Insert any remaining rows that didn't fill a complete chunk
+    if (!empty($placeholders)) {
+        $sql .= implode(', ', $placeholders);
+        $stmt = $conn->prepare($sql);
+        if (!$stmt->execute($values)) {
+            $error++;
+        }
+    }
+
+    if ($error > 0) {
+        if ($isTransactionActive) {
+            $conn->rollBack();
+            $isTransactionActive = false;
+        }
+        echo 'Failed. Please Try Again or Call IT Personnel Immediately!';
+        exit();
+    }
+
+    $conn->commit();
+    $isTransactionActive = false;
+} catch (Exception $e) {
+    if ($isTransactionActive) {
+        $conn->rollBack();
+        $isTransactionActive = false;
+    }
+    echo 'Failed. Please Try Again or Call IT Personnel Immediately!: ' . $e->getMessage();
+    exit();
+}
+
+fclose($csvFile);
+
+if ($error > 0) {
+    echo 'error ' . $error;
 }
 
 $conn = null;
