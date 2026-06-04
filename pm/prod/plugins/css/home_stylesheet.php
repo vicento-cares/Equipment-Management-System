@@ -1,7 +1,7 @@
-  <meta name="description" content="EMS PM" />
-  <meta name="keywords" content="EMS, PM, Machine" />
+  <meta name="description" content="EEMS PM" />
+  <meta name="keywords" content="EEMS, PM, Machine" />
 
-  <title>EMS PM | Approver - Production</title>
+  <title>EEMS PM | Approver - Production</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">

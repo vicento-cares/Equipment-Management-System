@@ -15,7 +15,7 @@ include('plugins/navbar/about-us_navbar.php');
         </div><!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="/ems/pm/">EMS PM</a></li>
+            <li class="breadcrumb-item"><a href="/eems/pm/">EEMS PM</a></li>
             <li class="breadcrumb-item active">About Us</li>
           </ol>
         </div><!-- /.col -->

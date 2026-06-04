@@ -1,7 +1,7 @@
-  <meta name="description" content="EMS SP" />
-  <meta name="keywords" content="EMS, Spare Parts, Machine" />
+  <meta name="description" content="EEMS SP" />
+  <meta name="keywords" content="EEMS, Spare Parts, Machine" />
 
-  <title>EMS SP | Approver 2</title>
+  <title>EEMS SP | Approver 2</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">

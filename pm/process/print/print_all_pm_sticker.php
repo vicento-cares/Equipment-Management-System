@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0);
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 if (!isset($_SESSION['pm_username'])) {
@@ -50,9 +50,9 @@ $stmt->execute($params);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="EMS PM" />
-    <meta name="keywords" content="EMS, PM, Sticker" />
-    <title>EMS PM | Print All PM Sticker</title>
+    <meta name="description" content="EEMS PM" />
+    <meta name="keywords" content="EEMS, PM, Sticker" />
+    <title>EEMS PM | Print All PM Sticker</title>
 
     <!-- Bootstrap -->
     <link rel="preload" href="../../../plugins/bootstrap/css/bootstrap.min.css" as="style"
@@ -99,7 +99,7 @@ $stmt->execute($params);
                             <td class="px-1 py-1">
                                 <div class="row ml-1">
                                     <div class="d-flex justify-content-between">
-                                        <img src="../../../dist/img/FAS.png" alt="EMS Logo" height="60" width="120">
+                                        <img src="../../../dist/img/FAS.png" alt="EEMS Logo" height="60" width="120">
                                         <span class="font-weight-bold ml-1" style="font-size:18px;">FURUKAWA AUTOMOTIVE
                                             SYSTEMS LIMA PHILIPPINES INC.</span>
                                     </div>

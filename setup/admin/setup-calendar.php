@@ -16,7 +16,7 @@ include('plugins/sidebar/setup-calendar_bar.php');
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS Set Up</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS Set Up</a></li>
               <li class="breadcrumb-item"><a href="setup-calendar.php">Machine Set Up Management</a></li>
               <li class="breadcrumb-item active">Set Up Calendar</li>
             </ol>

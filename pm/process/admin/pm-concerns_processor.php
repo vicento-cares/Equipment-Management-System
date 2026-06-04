@@ -1,8 +1,8 @@
 <?php
 // Processor
 date_default_timezone_set('Asia/Manila');
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 require('../db/conn.php');
 require('../lib/validate.php');

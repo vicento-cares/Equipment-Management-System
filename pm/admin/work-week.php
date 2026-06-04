@@ -16,7 +16,7 @@ include('plugins/sidebar/work-week_bar.php');
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS PM</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS PM</a></li>
               <li class="breadcrumb-item"><a href="work-week.php">PM Management</a></li>
               <li class="breadcrumb-item active">Work Week</li>
             </ol>

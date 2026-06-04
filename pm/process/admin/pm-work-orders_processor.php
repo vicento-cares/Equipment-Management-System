@@ -253,11 +253,11 @@ if ($method == 'upload_work_order') {
             $work_order_filetype = $_FILES['file']['type'];
             $work_order_size = $_FILES['file']['size'];
 
-            //$work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/wo/";
+            //$work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/wo/";
             //$target_dir = "../../uploads/wo/";
-            // $work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/wo/";
-            $work_order_url = "/uploads/ems/pm/wo/";
-            $target_dir = "../../../../uploads/ems/pm/wo/";
+            // $work_order_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/wo/";
+            $work_order_url = "/uploads/eems/pm/wo/";
+            $target_dir = "../../../../uploads/eems/pm/wo/";
             $target_file = $target_dir . basename($work_order_filename);
             $work_order_url .= rawurlencode(basename($work_order_filename));
 

@@ -15,7 +15,7 @@ include('plugins/navbar/unused-machines_navbar.php');
         </div><!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="/ems/setup/">EMS Set Up</a></li>
+            <li class="breadcrumb-item"><a href="/eems/setup/">EEMS Set Up</a></li>
             <li class="breadcrumb-item active">Unused Machines</li>
           </ol>
         </div><!-- /.col -->

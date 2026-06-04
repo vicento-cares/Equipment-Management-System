@@ -16,7 +16,7 @@ include('plugins/sidebar/admin-accounts_bar.php');
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS PM</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS PM</a></li>
               <li class="breadcrumb-item"><a href="admin-accounts.php">Account Management</a></li>
               <li class="breadcrumb-item active">PM Accounts</li>
             </ol>

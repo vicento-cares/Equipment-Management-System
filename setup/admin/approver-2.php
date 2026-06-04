@@ -16,7 +16,7 @@ include('plugins/sidebar/approver-2_bar.php');
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS Set Up</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS Set Up</a></li>
               <li class="breadcrumb-item"><a href="approver-2.php">Approvers</a></li>
               <li class="breadcrumb-item active">Approver 2</li>
             </ol>

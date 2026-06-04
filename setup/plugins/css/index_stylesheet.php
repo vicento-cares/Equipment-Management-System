@@ -1,7 +1,7 @@
-  <meta name="description" content="EMS Set Up - Home Page" />
-  <meta name="keywords" content="EMS, Set Up, Machine, Home Page" />
+  <meta name="description" content="EEMS Set Up - Home Page" />
+  <meta name="keywords" content="EEMS, Set Up, Machine, Home Page" />
 
-  <title>EMS Set Up - Public Page | Home Page</title>
+  <title>EEMS Set Up - Public Page | Home Page</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">

@@ -1,9 +1,9 @@
 <?php 
-//session_set_cookie_params(0, "/ems/setup");
-//session_set_cookie_params(0, "/ems/pm");
-//session_set_cookie_params(0, "/ems/sp");
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+//session_set_cookie_params(0, "/eems/setup");
+//session_set_cookie_params(0, "/eems/pm");
+//session_set_cookie_params(0, "/eems/sp");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 if (isset($_SESSION['setup_username'])) {
@@ -41,10 +41,10 @@ if (isset($_SESSION['setup_username'])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EMS - Login" />
-  <meta name="keywords" content="Login, EMS" />
+  <meta name="description" content="EEMS - Login" />
+  <meta name="keywords" content="Login, EEMS" />
 
-  <title>EMS | Log in</title>
+  <title>EEMS | Log in</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -101,12 +101,12 @@ if (isset($_SESSION['setup_username'])) {
 <body class="hold-transition login-page dark-mode accent-lime">
   <div class="login-box">
     <div class="login-logo">
-      <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="../dist/img/ems-logo.png" alt="EMS Logo" height="120" width="120">
+      <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="../dist/img/ems-logo.png" alt="EEMS Logo" height="120" width="120">
     </div>
     <!-- /.login-logo -->
     <div class="card card-outline card-lime">
       <div class="card-header text-center">
-        <h2><b>EMS</b></h2>
+        <h2><b>EEMS</b></h2>
         <p class="login-box-msg py-0">Sign in to start your session</p>
       </div>
       <div class="card-body login-card-body">
@@ -159,7 +159,7 @@ if (isset($_SESSION['setup_username'])) {
           <div class="row">
             <div class="col">
               <center>
-                <a href="/ems/">Go Back to Home Page</a>
+                <a href="/eems/">Go Back to Home Page</a>
               </center>
             </div>
           </div>

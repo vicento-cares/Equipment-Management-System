@@ -1,8 +1,8 @@
 <?php
 // Processor
 date_default_timezone_set('Asia/Manila');
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 require('../db/conn.php');
 require('../lib/validate.php');
@@ -1104,10 +1104,10 @@ if ($method == 'check_mstprc_file') {
         $mstprc_filetype = $_FILES['file']['type'];
         $mstprc_size = $_FILES['file']['size'];
 
-        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
         //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        $mstprc_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-        $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $mstprc_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
         $mstprc_filename = $mstprc_no . "-" . $mstprc_filename;
 
@@ -1187,11 +1187,11 @@ if ($method == 'save_mstprc_setup_1') {
         $mstprc_filetype = $_FILES['file']['type'];
         $mstprc_size = $_FILES['file']['size'];
 
-        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
         //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        $mstprc_url = "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-        $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        $mstprc_url = "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
         // Add Folder If Not Exists
         if (!file_exists($target_dir)) {
@@ -1370,11 +1370,11 @@ if ($method == 'save_mstprc_setup_2') {
         $mstprc_filetype = $_FILES['file']['type'];
         $mstprc_size = $_FILES['file']['size'];
 
-        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
         //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        $mstprc_url = "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-        $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        $mstprc_url = "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
         // Add Folder If Not Exists
         if (!file_exists($target_dir)) {
@@ -1553,11 +1553,11 @@ if ($method == 'save_mstprc_transfer') {
         $mstprc_filetype = $_FILES['file']['type'];
         $mstprc_size = $_FILES['file']['size'];
 
-        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
         //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        $mstprc_url = "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-        $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        $mstprc_url = "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
         // Add Folder If Not Exists
         if (!file_exists($target_dir)) {
@@ -1714,11 +1714,11 @@ if ($method == 'save_mstprc_pullout') {
         $mstprc_filetype = $_FILES['file']['type'];
         $mstprc_size = $_FILES['file']['size'];
 
-        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
         //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-        $mstprc_url = "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-        $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+        $mstprc_url = "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+        $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
         // Add Folder If Not Exists
         if (!file_exists($target_dir)) {
@@ -1838,11 +1838,11 @@ if ($method == 'save_mstprc_relayout') {
     $mstprc_filetype = $_FILES['file']['type'];
     $mstprc_size = $_FILES['file']['size'];
 
-    //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+    //$mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
     //$target_dir = "../../uploads/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-    // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
-    $mstprc_url = "/uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-    $target_dir = "../../../../uploads/ems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+    // $mstprc_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/setup/mstprc/".date("Y")."/".date("m")."/".date("d")."/";
+    $mstprc_url = "/uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+    $target_dir = "../../../../uploads/eems/setup/mstprc/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
     // Add Folder If Not Exists
     if (!file_exists($target_dir)) {

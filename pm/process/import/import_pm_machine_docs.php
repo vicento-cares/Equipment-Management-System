@@ -1,6 +1,6 @@
 <?php
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 if (!isset($_SESSION['pm_username'])) {
@@ -135,11 +135,11 @@ if ($is_valid == true) {
         $machine_docs_filetype = $_FILES['file']['type'];
         $machine_docs_size = $_FILES['file']['size'];
 
-        //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/";
+        //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/";
         //$target_dir = "../../uploads/machine_docs/";
-        // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/";
-        $machine_docs_url = "/uploads/ems/pm/machine_docs/";
-        $target_dir = "../../../../uploads/ems/pm/machine_docs/";
+        // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/";
+        $machine_docs_url = "/uploads/eems/pm/machine_docs/";
+        $target_dir = "../../../../uploads/eems/pm/machine_docs/";
         $target_file = $target_dir . basename($machine_docs_filename);
         $machine_docs_url .= rawurlencode(basename($machine_docs_filename));
 

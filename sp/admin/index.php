@@ -1,12 +1,12 @@
 <?php 
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 header('location:../../login/');
 exit();
 
-/*session_set_cookie_params(0, "/ems/sp");
+/*session_set_cookie_params(0, "/eems/sp");
 session_name("ems_sp");
 session_start();
 
@@ -20,10 +20,10 @@ if (isset($_SESSION['sp_username'])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EMS SP - Login" />
+  <meta name="description" content="EEMS SP - Login" />
   <meta name="keywords" content="Login, EMS, Spare Parts" />
 
-  <title>EMS SP | Log in</title>
+  <title>EEMS SP | Log in</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -89,12 +89,12 @@ if (isset($_SESSION['sp_username'])) {
 <body class="hold-transition login-page dark-mode accent-lime">
   <div class="login-box">
     <div class="login-logo">
-      <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="../../dist/img/ems-logo.png" alt="EMS Logo" height="120" width="120">
+      <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="../../dist/img/ems-logo.png" alt="EEMS Logo" height="120" width="120">
     </div>
     <!-- /.login-logo -->
     <div class="card card-outline card-lime">
       <div class="card-header text-center">
-        <h2><b>EMS</b> Spare Parts</h2>
+        <h2><b>EEMS</b> Spare Parts</h2>
         <p class="login-box-msg py-0">Sign in to start your session</p>
       </div>
       <div class="card-body login-card-body">

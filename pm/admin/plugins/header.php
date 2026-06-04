@@ -1,6 +1,6 @@
 <?php
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 if (!isset($_SESSION['pm_username'])) {
@@ -16,15 +16,15 @@ if (!isset($_SESSION['pm_username'])) {
   }
   if(!isset($_COOKIE['pm_name'])) {
     $name = $_SESSION['pm_name'];
-    setcookie('pm_name', $name, 0, "/ems");
+    setcookie('pm_name', $name, 0, "/eems");
   }
   if(!isset($_COOKIE['pm_role'])) {
     $role = $_SESSION['pm_role'];
-    setcookie('pm_role', $role, 0, "/ems");
+    setcookie('pm_role', $role, 0, "/eems");
   }
   if(!isset($_COOKIE['pm_process'])) {
     $pm_process = $_SESSION['pm_process'];
-    setcookie('pm_process', $pm_process, 0, "/ems");
+    setcookie('pm_process', $pm_process, 0, "/eems");
   }
 }
 ?>

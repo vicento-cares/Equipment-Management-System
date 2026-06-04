@@ -236,25 +236,25 @@ if ($method == 'save_machine_docs') {
 
             switch ($machine_docs_type) {
                 case 'WI':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/wi/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/wi/";
                     //$target_dir = "../../uploads/machine_docs/wi/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/wi/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/wi/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/wi/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/wi/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/wi/";
                     break;
                 case 'OP-014':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/op-014/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/op-014/";
                     //$target_dir = "../../uploads/machine_docs/op-014/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/op-014/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/op-014/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/op-014/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/op-014/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/op-014/";
                     break;
                 case 'RSIR':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/rsir/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/rsir/";
                     //$target_dir = "../../uploads/machine_docs/rsir/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/rsir/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/rsir/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/rsir/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/rsir/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/rsir/";
                     break;
                 default:
                     break;
@@ -334,25 +334,25 @@ if ($method == 'update_machine_docs') {
 
             switch ($machine_docs_type) {
                 case 'WI':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/wi/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/wi/";
                     //$target_dir = "../../uploads/machine_docs/wi/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/wi/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/wi/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/wi/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/wi/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/wi/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/wi/";
                     break;
                 case 'OP-014':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/op-014/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/op-014/";
                     //$target_dir = "../../uploads/machine_docs/op-014/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/op-014/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/op-014/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/op-014/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/op-014/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/op-014/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/op-014/";
                     break;
                 case 'RSIR':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/machine_docs/rsir/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/machine_docs/rsir/";
                     //$target_dir = "../../uploads/machine_docs/rsir/";
-                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/machine_docs/rsir/";
-                    $machine_docs_url = "/uploads/ems/pm/machine_docs/rsir/";
-                    $target_dir = "../../../../uploads/ems/pm/machine_docs/rsir/";
+                    // $machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/machine_docs/rsir/";
+                    $machine_docs_url = "/uploads/eems/pm/machine_docs/rsir/";
+                    $target_dir = "../../../../uploads/eems/pm/machine_docs/rsir/";
                     break;
                 default:
                     break;

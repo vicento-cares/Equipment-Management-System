@@ -249,10 +249,10 @@ if ($method == 'save_machine_docs') {
 
             switch ($machine_docs_type) {
                 case 'MSTPRC':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/machine_docs/mstprc/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/machine_docs/mstprc/";
                     //$target_dir = "../../uploads/machine_docs/mstprc/";
-                    $machine_docs_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/ems/setup/machine_docs/mstprc/";
-                    $target_dir = "../../../../uploads/ems/setup/machine_docs/mstprc/";
+                    $machine_docs_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/eems/setup/machine_docs/mstprc/";
+                    $target_dir = "../../../../uploads/eems/setup/machine_docs/mstprc/";
                     break;
                 default:
                     break;
@@ -332,10 +332,10 @@ if ($method == 'update_machine_docs') {
 
             switch ($machine_docs_type) {
                 case 'MSTPRC':
-                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/setup/uploads/machine_docs/mstprc/";
+                    //$machine_docs_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/setup/uploads/machine_docs/mstprc/";
                     //$target_dir = "../../uploads/machine_docs/mstprc/";
-                    $machine_docs_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/ems/setup/machine_docs/mstprc/";
-                    $target_dir = "../../../../uploads/ems/setup/machine_docs/mstprc/";
+                    $machine_docs_url = "http://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "/uploads/eems/setup/machine_docs/mstprc/";
+                    $target_dir = "../../../../uploads/eems/setup/machine_docs/mstprc/";
                     break;
                 default:
                     break;

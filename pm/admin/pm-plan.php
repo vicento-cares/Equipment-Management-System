@@ -16,7 +16,7 @@ include('plugins/sidebar/pm-plan_bar.php');
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS PM</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS PM</a></li>
               <li class="breadcrumb-item"><a href="pm-plan.php">PM Management</a></li>
               <li class="breadcrumb-item active">PM Plan</li>
             </ol>

@@ -1,6 +1,6 @@
 <?php
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 
 require('../db/conn.php');
@@ -29,9 +29,9 @@ if (!isset($_POST['username']) && !isset($_POST['password'])) {
             $_SESSION['pm_process'] = $row['process'];
         } while ($row = $stmt->fetch(PDO::FETCH_ASSOC));
         
-        setcookie('pm_name', $_SESSION['pm_name'], 0, "/ems");
-        setcookie('pm_role', $_SESSION['pm_role'], 0, "/ems");
-        setcookie('pm_process', $_SESSION['pm_process'], 0, "/ems");
+        setcookie('pm_name', $_SESSION['pm_name'], 0, "/eems");
+        setcookie('pm_role', $_SESSION['pm_role'], 0, "/eems");
+        setcookie('pm_process', $_SESSION['pm_process'], 0, "/eems");
         echo 'success';
     } else {
         echo 'failed';

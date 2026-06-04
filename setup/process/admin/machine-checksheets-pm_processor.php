@@ -1,8 +1,8 @@
 <?php
 // Processor
 date_default_timezone_set('Asia/Manila');
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 require('../db/conn.php');
 require('../lib/validate.php');
@@ -434,11 +434,11 @@ if ($method == 'save_rsir') {
             $rsir_filetype = $_FILES['file']['type'];
             $rsir_size = $_FILES['file']['size'];
 
-            //$rsir_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/ems/pm/uploads/rsir/".date("Y")."/".date("m")."/".date("d")."/";
+            //$rsir_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/eems/pm/uploads/rsir/".date("Y")."/".date("m")."/".date("d")."/";
             //$target_dir = "../../../pm/uploads/rsir/".date("Y")."/".date("m")."/".date("d")."/";
-            // $rsir_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/ems/pm/rsir/".date("Y")."/".date("m")."/".date("d")."/";
-            $rsir_url = "/uploads/ems/pm/rsir/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
-            $target_dir = "../../../../uploads/ems/pm/rsir/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+            // $rsir_url = "http://".$_SERVER['SERVER_ADDR'].":".$_SERVER['SERVER_PORT']."/uploads/eems/pm/rsir/".date("Y")."/".date("m")."/".date("d")."/";
+            $rsir_url = "/uploads/eems/pm/rsir/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
+            $target_dir = "../../../../uploads/eems/pm/rsir/" . date("Y") . "/" . date("m") . "/" . date("d") . "/";
 
             // Add Folder If Not Exists
             if (!file_exists($target_dir)) {

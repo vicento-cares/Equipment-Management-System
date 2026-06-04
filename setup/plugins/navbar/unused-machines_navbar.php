@@ -1,8 +1,8 @@
 <!-- Navbar -->
 <nav class="main-header navbar navbar-expand-md navbar-light bg-lime text-dark border-bottom-0 accent-gray">
-  <a href="/ems/" class="navbar-brand ml-2">
-    <img src="../dist/img/ems-logo.png" alt="EMS Logo" class="brand-image img-circle elevation-3 p-1 bg-white" style="opacity: .8">
-    <span class="brand-text font-weight-light"><b>EMS</b> Set Up - Public Page</span>
+  <a href="/eems/" class="navbar-brand ml-2">
+    <img src="../dist/img/ems-logo.png" alt="EEMS Logo" class="brand-image img-circle elevation-3 p-1 bg-white" style="opacity: .8">
+    <span class="brand-text font-weight-light"><b>EEMS</b> Set Up - Public Page</span>
   </a>
 
   <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,12 +13,12 @@
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a href="/ems/" class="nav-link"><i class="fas fa-home"></i> Home Page</a>
+        <a href="/eems/" class="nav-link"><i class="fas fa-home"></i> Home Page</a>
       </li>
       <li class="nav-item dropdown">
         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle active"><i class="fas fa-tools"></i> Setup</a>
         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-          <li><a href="/ems/setup/" class="dropdown-item">Setup Home Page</a></li>
+          <li><a href="/eems/setup/" class="dropdown-item">Setup Home Page</a></li>
           <li><a href="setup-calendar.php" class="dropdown-item">Set Up Calendar</a></li>
           <li><a href="unused-machines.php" class="dropdown-item active">Unused Machines</a></li>
         </ul>
@@ -27,13 +27,13 @@
         <a id="dropdownSubMenu2" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-scroll"></i> PM</a>
         <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
           <li><a href="../pm/work-week.php" class="dropdown-item">PM Schedule (Work Week) </a></li>
-          <li><a href="/ems/pm/" class="dropdown-item">PM Concerns </a></li>
+          <li><a href="/eems/pm/" class="dropdown-item">PM Concerns </a></li>
           <li><a href="../pm/pm-records.php" class="dropdown-item">PM Records </a></li>
           <li><a href="../pm/pm-work-orders.php" class="dropdown-item">PM Work Orders</a></li>
         </ul>
       </li>
       <li class="nav-item">
-        <a href="/ems/setup/admin" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+        <a href="/eems/setup/admin" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
       </li>
     </ul>
   </div>

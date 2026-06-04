@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EMS - Home Page" />
-  <meta name="keywords" content="EMS, Home Page" />
+  <meta name="description" content="EMES - Home Page" />
+  <meta name="keywords" content="EEMS, Home Page" />
 
-  <title>EMS | Home Page</title>
+  <title>EEMS | Home Page</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -67,7 +67,7 @@
 
   <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
-    <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="dist/img/ems-logo.png" alt="EMS Logo" height="120" width="120">
+    <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="dist/img/ems-logo.png" alt="EEMS Logo" height="120" width="120">
     <noscript>
       <br>
       <span>We are facing <strong>Script</strong> issues. Kindly enable <strong>JavaScript</strong>!!!</span>
@@ -78,9 +78,9 @@
 
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand-md navbar-light bg-lime text-dark border-bottom-0 accent-gray">
-    <!-- <a href="/ems/" class="navbar-brand ml-2">
-      <img src="dist/img/ems-logo.png" alt="EMS Logo" class="brand-image img-circle elevation-3 p-1 bg-white" style="opacity: .8">
-      <span class="brand-text font-weight-light"><b>EMS</b></span>
+    <!-- <a href="/eems/" class="navbar-brand ml-2">
+      <img src="dist/img/ems-logo.png" alt="EEMS Logo" class="brand-image img-circle elevation-3 p-1 bg-white" style="opacity: .8">
+      <span class="brand-text font-weight-light"><b>EEMS</b></span>
     </a> -->
 
     <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,12 +91,12 @@
       <!-- Left navbar links -->
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a href="/ems/" class="nav-link active"><i class="fas fa-home"></i> Home Page</a>
+          <a href="/eems/" class="nav-link active"><i class="fas fa-home"></i> Home Page</a>
         </li>
         <li class="nav-item dropdown">
           <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-tools"></i> Setup</a>
           <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-            <li><a href="/ems/setup/" class="dropdown-item">Setup Home Page</a></li>
+            <li><a href="/eems/setup/" class="dropdown-item">Setup Home Page</a></li>
             <li><a href="setup/setup-calendar.php" class="dropdown-item">Set Up Calendar</a></li>
             <li><a href="setup/unused-machines.php" class="dropdown-item">Unused Machines</a></li>
           </ul>
@@ -105,13 +105,13 @@
           <a id="dropdownSubMenu2" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><i class="fas fa-scroll"></i> PM</a>
           <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
             <li><a href="pm/work-week.php" class="dropdown-item">PM Schedule (Work Week) </a></li>
-            <li><a href="/ems/pm/" class="dropdown-item">PM Concerns </a></li>
+            <li><a href="/eems/pm/" class="dropdown-item">PM Concerns </a></li>
             <li><a href="pm/pm-records.php" class="dropdown-item">PM Records </a></li>
             <li><a href="pm/pm-work-orders.php" class="dropdown-item">PM Work Orders</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a href="/ems/login/" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a href="/eems/login/" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
         </li>
       </ul>
     </div>
@@ -134,8 +134,8 @@
     <!-- Main content -->
     <div class="content">
       <div class="row d-flex no-block justify-content-center align-items-center vh-100">
-        <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="dist/img/ems-logo.png" alt="EMS Logo" height="240" width="240">
-        <h1 class="ml-5"><b>Equipment Management System</b></h1>
+        <img class="animation__wobble img-circle elevation-3 p-1 bg-white" src="dist/img/ems-logo.png" alt="EEMS Logo" height="240" width="240">
+        <h1 class="ml-5"><b>Equipment Engineering Management System</b></h1>
       </div>
     </div>
     <!-- /.content -->
@@ -171,6 +171,23 @@
         <div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel" data-interval="10000" data-pause="false">
           <div class="carousel-inner">
             <div class="carousel-item active">
+              <img class="d-block w-100" src="dist/img/ProperShutdown/1.png"
+              alt="slide1">
+            </div>
+            <div class="carousel-item">
+              <img class="d-block w-100" src="dist/img/ProperShutdown/2.png"
+              alt="slide2">
+            </div>
+            <div class="carousel-item">
+              <img class="d-block w-100" src="dist/img/ProperShutdown/3.png"
+              alt="slide3">
+            </div>
+            <div class="carousel-item">
+              <img class="d-block w-100" src="dist/img/ProperShutdown/4.jpg"
+              alt="slide4">
+            </div>
+
+            <!-- <div class="carousel-item active">
             <img class="d-block w-100" src="dist/img/HW_S/1.jpg"
               alt="slide1">
             </div>
@@ -209,7 +226,7 @@
             <div class="carousel-item">
             <img class="d-block w-100" src="dist/img/HW_S/10.jpg"
               alt="slide10">
-            </div>
+            </div> -->
             <!-- Valentines -->
             <!-- <div class="carousel-item active">
             <img class="d-block w-100" src="dist/img/feb/1.jpg"

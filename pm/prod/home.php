@@ -16,7 +16,7 @@ include('plugins/sidebar/home_bar.php');
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="home.php">EMS PM - Approver</a></li>
+              <li class="breadcrumb-item"><a href="home.php">EEMS PM - Approver</a></li>
               <li class="breadcrumb-item active">Home</li>
             </ol>
           </div><!-- /.col -->

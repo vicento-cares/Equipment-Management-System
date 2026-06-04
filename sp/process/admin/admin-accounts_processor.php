@@ -1,8 +1,8 @@
 <?php
 // Processor
 date_default_timezone_set('Asia/Manila');
-session_set_cookie_params(0, "/ems");
-session_name("ems");
+session_set_cookie_params(0, "/eems");
+session_name("eems");
 session_start();
 require('../db/conn.php');
 require('../lib/validate.php');
@@ -290,7 +290,7 @@ if ($method == 'update_data') {
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([$name, $role, $process, $date_updated, $id]);
                 if ($is_own_username == true) {
-                    setcookie('sp_name', $name, 0, "/ems");
+                    setcookie('sp_name', $name, 0, "/eems");
                     $_SESSION['sp_name'] = $name;
                 }
                 echo 'success';
@@ -305,7 +305,7 @@ if ($method == 'update_data') {
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([$name, $date_updated, $id]);
                 if ($is_own_username == true) {
-                    setcookie('sp_name', $name, 0, "/ems");
+                    setcookie('sp_name', $name, 0, "/eems");
                 }
                 echo 'success';
             }

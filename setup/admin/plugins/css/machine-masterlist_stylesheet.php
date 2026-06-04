@@ -1,7 +1,7 @@
-  <meta name="description" content="EMS Set Up" />
-  <meta name="keywords" content="EMS, Set Up, Machine" />
+  <meta name="description" content="EEMS Set Up" />
+  <meta name="keywords" content="EEMS, Set Up, Machine" />
 
-  <title>EMS Set Up | Machine Masterlist</title>
+  <title>EEMS Set Up | Machine Masterlist</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="preload" href="../../dist/css/font.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
